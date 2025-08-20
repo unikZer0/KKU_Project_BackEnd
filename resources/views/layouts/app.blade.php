@@ -29,7 +29,7 @@
 
             <!-- Page Content -->
             <main>
-                <div class="py-3 px-4">
+                <div class="py-3 px-4 sm:px-6 lg:px-8">
                     hi
                 </div>
             </main>
