@@ -3,11 +3,11 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysqldb
+    container_name: borrow_mysqldb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: radisapp
+      MYSQL_DATABASE: borrow_mysqldb
     ports:
     - "3307:3306"
     volumes:
@@ -17,7 +17,7 @@ services:
 
   redis:
     image: redis:latest
-    container_name: myredis
+    container_name: borrow_myredis
     ports:
       - "6379:6379"
     restart: unless-stopped
@@ -28,34 +28,18 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: mysql_data_myadmin_radisapp
+    container_name: mysql_data_myadmin_borrow_mysqldb
     restart: always
     ports:
       - "8081:80"
     environment:
       - PMA_ARBITRARY=1
-      - PMA_HOST=mysqldb
+      - PMA_HOST=borrow_mysqldb
       - MYSQL_ROOT_PASSWORD=secret
     depends_on:
       - mysql
     networks:
       - mysql_database_network 
-  app:
-    build: .
-    container_name: redisandmysql
-    depends_on:
-      - mysql
-      - redis
-    networks:
-      - mysql_database_network
-    environment:
-      DB_HOST: mysqldb
-      DB_PORT: 3306
-      DB_DATABASE: radisapp
-      DB_USERNAME: root
-      DB_PASSWORD: secret
-      REDIS_HOST: myredis
-      REDIS_PORT: 6379
 networks:
   mysql_database_network: 
     driver: bridge
