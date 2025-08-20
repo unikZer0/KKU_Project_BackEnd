@@ -29,14 +29,31 @@
             <!-- User Authentication -->
             <div class="hidden md:flex items-center space-x-4">
                 <div class="w-px h-6 bg-gray-300"></div>
-                <a href="{{ route('login') }}" class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Login
-                </a>
-                <span class="text-gray-400">/</span>
-                <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900 font-medium">Register</a>
+                @auth
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center  font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>{{ Auth::user()->name }}</span>
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Login
+                    </a>
+                    <span class="text-gray-400">/</span>
+                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900 font-medium">Register</a>
+                @endauth
             </div>
 
             <!-- Mobile menu button -->
