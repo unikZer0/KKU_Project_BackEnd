@@ -12,20 +12,6 @@
                 </a>
             </div>
 
-            <!-- Navigation Links -->
-            <div class="hidden md:flex items-center space-x-8">
-                <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Home</a>
-                <div class="relative group">
-                    <button class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
-                        Pages
-                        <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-                <a href="#" class="text-gray-700 hover:text-gray-900 font-medium">Contact</a>
-            </div>
-
             <!-- User Authentication -->
             <div class="hidden md:flex items-center space-x-4">
                 <div class="w-px h-6 bg-gray-300"></div>
@@ -40,7 +26,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition">
-                                Logout
+                                ออกจากระบบ
                             </button>
                         </form>
                     </div>
@@ -49,10 +35,10 @@
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Login
+                        เข้าสู่ระบบ
                     </a>
                     <span class="text-gray-400">/</span>
-                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900 font-medium">Register</a>
+                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900 font-medium">ลงทะเบียน</a>
                 @endauth
             </div>
 
@@ -69,24 +55,58 @@
 
     <!-- Search Bar Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
-        <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+        <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mb-4 w-full">
 
-            <div class="relative flex-1 max-w-2xl">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <!-- Search Input -->
+    <div class="relative flex-1 w-full">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        <input type="text" placeholder="ค้นหา..." 
+               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg 
+                      text-gray-500 placeholder-gray-400 bg-white 
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+
+    <!-- Search Button -->
+    <button class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium 
+                   py-3 px-8 rounded-lg flex items-center justify-center transition duration-200">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        ค้นหา
+    </button>
+</div>
+
+            <!-- Navigation Links -->
+        <div class="flex justify-end space-x-8">
+            <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">หน้าหลัก</a>
+            <!-- Dropdown -->
+            <div class="relative group">
+                <button class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
+                    หมวดหมู่
+                    <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" 
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 
+                            111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 
+                            010-1.414z" 
+                            clip-rule="evenodd" />
                     </svg>
+                </button>
+                <!-- Dropdown menu -->
+                <div class="absolute hidden group-hover:block bg-white shadow-lg mt-2 rounded-lg w-40">
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">About Us</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Services</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Blog</a>
                 </div>
-                <input type="text" placeholder="Enter bro..." class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-500 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
-            <!-- Search Button -->
-            <button class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg flex items-center justify-center transition duration-200">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Search
-            </button>
+            <a href="#" class="text-gray-700 hover:text-gray-900 font-medium">ติดต่อ</a>
         </div>
+
     </div>
 </header>

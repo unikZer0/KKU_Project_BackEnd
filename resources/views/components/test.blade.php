@@ -1,1 +1,0 @@
-<h1>tesss</h1><div>Your role: <span class="font-semibold">{{ Auth::user()->role }}</span></div>
