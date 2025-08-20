@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('borrow_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('equipments_id');
+            $table->foreignId('users_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('equipments_id')->constrained('equipments')->onDelete('cascade');
             $table->dateTime('start_at')->nullable();
             $table->dateTime('end_at')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected', 'check_out', 'returned'])->default('pending');
