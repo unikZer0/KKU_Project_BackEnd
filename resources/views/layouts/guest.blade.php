@@ -16,11 +16,21 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
+            <div class="flex items-center">
+    <a href="{{ route('home') }}" class="flex items-center space-x-2">
+        <!-- Logo Box -->
+        <div
+            class="w-8 h-8 rounded flex items-center justify-center 
+                   bg-blue-600 text-white dark:bg-blue-200 dark:text-blue-900 transition-colors">
+            KKU
+        </div>
+        <!-- Logo Text -->
+        <span class="text-xl font-semibold text-gray-800 dark:text-gray-200 transition-colors">
+            Borrow
+        </span>
+    </a>
+</div>
+
 
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}

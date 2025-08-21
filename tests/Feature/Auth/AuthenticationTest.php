@@ -13,32 +13,39 @@ class AuthenticationTest extends TestCase
     public function test_login_screen_can_be_rendered(): void
     {
         $response = $this->get('/login');
-
         $response->assertStatus(200);
+        $response->assertViewIs('auth.login'); // ensures the correct view
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $password = 'password';
+        $user = User::factory()->create([
+            'password' => bcrypt($password),
+        ]);
 
         $response = $this->post('/login', [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => $password,
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertAuthenticatedAs($user);
+        $response->assertRedirect(route('home', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'password' => bcrypt('correct-password'),
+        ]);
 
-        $this->post('/login', [
+        $response = $this->from('/login')->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
 
+        $response->assertRedirect('/login');
+        $response->assertSessionHasErrors('email');
         $this->assertGuest();
     }
 
@@ -48,7 +55,7 @@ class AuthenticationTest extends TestCase
 
         $response = $this->actingAs($user)->post('/logout');
 
+        $response->assertRedirect('/'); 
         $this->assertGuest();
-        $response->assertRedirect('/');
     }
 }
