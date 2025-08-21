@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('categories_id')->constrained('categories')->onDelete('cascade');
             $table->enum('status', ['available', 'unavailable', 'maintenance'])->default('available');
-            $table->string('photo_path');
+            $table->string('photo_path')->nullable();
             $table->timestamps();
         });
     }
