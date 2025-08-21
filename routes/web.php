@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\adminCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,9 +16,9 @@ Route::middleware('auth')->group(function () {
     //here
     // Role-based areas
     Route::middleware('can:admin')->group(function () {
-        Route::get('/admin', function () {
-            return view('home', ['section' => 'admin']);
-        })->name('admin.index');
+
+        Route::get('/admin', [adminCtrl::class,'index'])->name('admin.index');
+
     });
 
     Route::middleware('can:staff')->group(function () {

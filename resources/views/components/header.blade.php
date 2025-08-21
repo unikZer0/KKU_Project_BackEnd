@@ -23,7 +23,7 @@
                             </svg>
                             <span>{{ Auth::user()->name }}</span>
                         </div>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" class="logout-form">
                             @csrf
                             <button type="submit" class="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition">
                                 ออกจากระบบ
@@ -87,7 +87,7 @@
                             <span>{{ Auth::user()->name }}</span>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" class="logout-form">
                         @csrf
                         <button type="submit" class="w-full text-left inline-flex items-center px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition">
                             ออกจากระบบ
@@ -135,11 +135,27 @@
             </div>
             <a href="#" class="text-gray-700 hover:text-gray-900 font-medium">ติดต่อ</a>
             @can('admin')
-                <a href="#" class="text-gray-700 hover:text-gray-900 font-medium">แอดมิน</a>
+                <a href="{{route('admin.index')}}" class="text-gray-700 hover:text-gray-900 font-medium">แอดมิน</a>
             @endcan
         </div>
     </div>
 </header>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+            <h3 class="text-lg font-medium text-gray-900">ยืนยันการออกจากระบบ</h3>
+            <p class="mt-2 text-sm text-gray-600">คุณต้องการออกจากระบบใช่หรือไม่?</p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-logout" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition">ยกเลิก</button>
+                <button id="confirm-logout" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition">ตกลง</button>
+            </div>
+        </div>
+    </div>
+    <!-- click on backdrop to close -->
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -147,6 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileMenu = document.getElementById('mobile-menu');
     const menuIcon = document.getElementById('menu-icon');
     const closeIcon = document.getElementById('close-icon');
+    const logoutForms = document.querySelectorAll('.logout-form');
+    const logoutModal = document.getElementById('logout-modal');
+    const confirmLogoutBtn = document.getElementById('confirm-logout');
+    const cancelLogoutBtn = document.getElementById('cancel-logout');
+    const modalBackdrop = logoutModal ? logoutModal.firstElementChild : null;
+    let pendingLogoutForm = null;
 
     mobileMenuButton.addEventListener('click', function() {
         const isHidden = mobileMenu.classList.contains('hidden');
@@ -170,5 +192,48 @@ document.addEventListener('DOMContentLoaded', function() {
             closeIcon.classList.add('hidden');
         }
     });
+
+    // Logout confirmation modal logic
+    function openLogoutModal(form) {
+        pendingLogoutForm = form;
+        if (logoutModal) {
+            logoutModal.classList.remove('hidden');
+        }
+    }
+
+    function closeLogoutModal() {
+        if (logoutModal) {
+            logoutModal.classList.add('hidden');
+        }
+        pendingLogoutForm = null;
+    }
+
+    logoutForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            openLogoutModal(form);
+        });
+    });
+
+    if (confirmLogoutBtn) {
+        confirmLogoutBtn.addEventListener('click', function() {
+            if (pendingLogoutForm) {
+                pendingLogoutForm.submit();
+            }
+            closeLogoutModal();
+        });
+    }
+
+    if (cancelLogoutBtn) {
+        cancelLogoutBtn.addEventListener('click', function() {
+            closeLogoutModal();
+        });
+    }
+
+    if (modalBackdrop) {
+        modalBackdrop.addEventListener('click', function() {
+            closeLogoutModal();
+        });
+    }
 });
 </script>
