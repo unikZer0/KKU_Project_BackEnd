@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\adminCtrl;
+use App\Http\Controllers\Admin\equitmentCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:admin')->group(function () {
 
         Route::get('/admin', [adminCtrl::class,'index'])->name('admin.index');
+        Route::get('/equipment', [equitmentCtrl::class,'index'])->name('admin.equipment');
 
     });
 
