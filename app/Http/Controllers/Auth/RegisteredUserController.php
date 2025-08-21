@@ -29,17 +29,24 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $request->validate(
+        [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::defaults(), 'regex:/^(?=.*[A-Z]).+$/'],
             'role' => ['nullable', 'in:admin,staff,borrower'],
-        ]);
+        ],
+        [   // ✅ This is the custom messages array
+            'password.required' => 'กรุณากรอกรหัสผ่าน',                     
+            'password.confirmed' => 'รหัสผ่านไม่ตรงกัน',                  
+            'password.regex' => 'รหัสผ่านต้องมีตัวอักษรใหญ่ (A-Z) อย่างน้อยหนึ่งตัว',
+        ]
+    );
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => ['required','confirmed',Rules\Password::defaults(),],
             'role' => $request->input('role', 'borrower'),
         ]);
 

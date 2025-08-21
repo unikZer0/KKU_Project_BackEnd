@@ -45,7 +45,6 @@
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
-
         {{-- <!-- Role (optional, default borrower) -->
         <div class="mt-4">
             <x-input-label for="role" :value="__('บทบาทผู้ใข้งาน')" />
