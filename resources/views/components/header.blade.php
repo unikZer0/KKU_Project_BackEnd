@@ -109,7 +109,7 @@
 
     <!-- Search Bar Section (Vue mount) -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
-        <div id="header-search">
+        <div id="header-search" >
         </div>
         <!-- Navigation Links - Hidden on mobile -->
         <div class="hidden md:flex justify-end space-x-8">
