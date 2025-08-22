@@ -1,22 +1,25 @@
 <?php
 
-use App\Http\Controllers\HomeController;
-
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\adminCtrl;
+use App\Http\Controllers\Admin\equitmentCtrl;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
+use App\Http\Controllers\HomeController;
 
-use App\Models\Equipment;
-use App\Models\Category;
 
-Route::get('/', function () {
-    $equipments = Equipment::all();
-    $categories = Category::all();
-    return view('home', compact('equipments', 'categories'));
-})->name('home');
+<<<<<<< HEAD
+=======
+Route::get('/', [HomeController::class, 'index'])->name('home');
+// Route::get('/category/{id}', function ($id) {
+//     $category = Category::findOrFail($id);
+//     return view('category.show', compact('category'))->name('category.show');
+// });
 
+// Route::get('//', function () {
+//     return view('/');
+// })->middleware(['auth', 'verified'])->name('/');
+
+>>>>>>> 1b243ed1a4868223f8efa956e9c82bd350d8f079
 Route::middleware('auth')->group(function () {
     //api for auth
 
@@ -28,6 +31,12 @@ Route::middleware('auth')->group(function () {
         Route::prefix('/admin/equipment')->group(function () {
             Route::get('/', [EquipmentController::class, 'index'])->name('admin.equipment');
             Route::get('/add', [EquipmentController::class, 'add_equipment'])->name('admin.equipment.add');
+
+            //test 
+            Route::get('/test-upload', [EquipmentController::class, 'test_upload_form'])->name('admin.equipment.test_upload');
+
+            //
+            Route::post('/upload', [EquipmentController::class, 'upload_product'])->name('admin.equipment.upload');
             Route::get('/{id}', [EquipmentController::class, 'edit_equipment'])->name('admin.equipment.edit');
             Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('admin.equipment.delete');
         });
@@ -49,7 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:borrower')->group(function () {
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
     });
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    
 });
 
 require __DIR__ . '/auth.php';
