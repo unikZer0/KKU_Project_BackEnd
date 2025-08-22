@@ -3,7 +3,8 @@
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5">
 
             @foreach (@$equipments as $equipment)
-                <div
+                <a
+                    href=""
                     class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
                     <div class="relative">
                         <img src="{{ $equipment->photo_path }}" alt="Product Image"
@@ -34,7 +35,7 @@
                         <p class="text-xs text-gray-400 mb-2 block ">{{ $equipment->code }}</p><span
                             class="text-sm  sm:text-lg font-semibold text-green-600 ">Free</span>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     </div>

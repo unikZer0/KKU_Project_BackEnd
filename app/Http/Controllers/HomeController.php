@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Equipments;
+use App\Models\Equipment;
+use App\Models\Category;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $equipments = Equipments::all();
-        return view('home', compact('equipments'));
+        $equipments = Equipment::all();
+    $categories = Category::all();
+    return view('home', compact('equipments', 'categories'));
     }
 }
 

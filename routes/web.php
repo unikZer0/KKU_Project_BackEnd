@@ -8,15 +8,8 @@ use App\Http\Controllers\Admin\EquipmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 
-use App\Models\Equipment;
-use App\Models\Category;
 
-Route::get('/', function () {
-    $equipments = Equipment::all();
-    $categories = Category::all();
-    return view('home', compact('equipments', 'categories'));
-})->name('home');
-
+Route::get('/', [HomeController::class, 'index'])->name('home');
 // Route::get('/category/{id}', function ($id) {
 //     $category = Category::findOrFail($id);
 //     return view('category.show', compact('category'))->name('category.show');
@@ -64,7 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:borrower')->group(function () {
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
     });
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    
 });
 
 require __DIR__ . '/auth.php';
