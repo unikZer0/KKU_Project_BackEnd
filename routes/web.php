@@ -17,15 +17,6 @@ Route::get('/', function () {
     return view('home', compact('equipments', 'categories'));
 })->name('home');
 
-// Route::get('/category/{id}', function ($id) {
-//     $category = Category::findOrFail($id);
-//     return view('category.show', compact('category'))->name('category.show');
-// });
-
-// Route::get('//', function () {
-//     return view('/');
-// })->middleware(['auth', 'verified'])->name('/');
-
 Route::middleware('auth')->group(function () {
     //api for auth
 
