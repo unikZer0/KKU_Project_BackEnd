@@ -15,4 +15,9 @@ class Equipment extends Model
         "status",
         "photo_path"
     ];
+    public function categories()
+{
+    return $this->belongsTo(Categories::class, 'categories_id');
+}
+
 }

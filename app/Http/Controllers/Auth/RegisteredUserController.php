@@ -15,50 +15,40 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
+
     public function create(): View
     {
         return view('auth.register');
     }
+    
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate(
-            [
-                'username' => ['required', 'string', 'max:255'],
-                'age' => ['nullable', 'integer', 'min:1', 'max:120'],
-                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-                'phonenumber' => ['required', 'string', 'max:15'],
-                'password' => ['required', 'confirmed', Password::defaults(), 'regex:/^(?=.*[A-Z]).+$/'],
-                'role' => ['nullable', 'in:admin,staff,borrower'],
-            ],
-            [   // ✅ This is the custom messages array
-                'password.required' => 'กรุณากรอกรหัสผ่าน',
-                'password.confirmed' => 'รหัสผ่านไม่ตรงกัน',
-                'password.regex' => 'รหัสผ่านต้องมีตัวอักษรใหญ่ (A-Z) อย่างน้อยหนึ่งตัว',
-            ]
-        );
+        $request->validate(
+        [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults(), 'regex:/^(?=.*[A-Z]).+$/'],
+            'role' => ['nullable', 'in:admin,staff,borrower'],
+        ],
+        [   // ✅ This is the custom messages array
+            'password.required' => 'กรุณากรอกรหัสผ่าน',                     
+            'password.confirmed' => 'รหัสผ่านไม่ตรงกัน',                  
+            'password.regex' => 'รหัสผ่านต้องมีตัวอักษรใหญ่ (A-Z) อย่างน้อยหนึ่งตัว',
+        ]
+    );
 
         $user = User::create([
-            'username' => $request->username,
-            'age' => $request->age,
+            'name' => $request->name,
             'email' => $request->email,
-            'phonenumber' => $request->phonenumber,
-            'password' => Hash::make($validated['password']),
+            'password' => ['required','confirmed',Rules\Password::defaults(),],
             'role' => $request->input('role', 'borrower'),
         ]);
 
-        event(new Registered($user));
+    event(new Registered($user));
+    Auth::login($user);
 
-        Auth::login($user);
+    return redirect()->intended(route('home', absolute: false));
+}
 
-        return redirect(route('home', absolute: false));
-    }
 }
