@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Equipments extends Model
 {
     protected $fillable = [
+        "id",
         "code",
         "name",
         "categories_id",

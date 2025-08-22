@@ -17,8 +17,7 @@ Route::middleware('auth')->group(function () {
     // Role-based areas
     Route::middleware('can:admin')->group(function () {
 
-        Route::get('/admin', [adminCtrl::class,'index'])->name('admin.index');
-
+        Route::get('/admin', [adminCtrl::class, 'index'])->name('admin.index');
     });
 
     Route::middleware('can:staff')->group(function () {

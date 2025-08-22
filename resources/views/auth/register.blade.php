@@ -4,10 +4,18 @@
 
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('ชื่อผู้ใข้')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')"  
-            placeholder="ໍชื่อผู้ใช้..." required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+            <x-input-label for="username" :value="__('ชื่อผู้ใข้')" />
+            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')"  
+            placeholder="ໍชื่อผู้ใช้..." required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('username')" class="mt-2" />
+        </div>
+
+        <!-- Age -->
+        <div class="mt-4">
+            <x-input-label for="age" :value="__('อายุ')" />
+            <x-text-input id="age" class="block mt-1 w-full" type="number" name="age" :value="old('age')"  
+            placeholder="อายุ..." required autofocus autocomplete="age" />
+            <x-input-error :messages="$errors->get('age')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
@@ -19,6 +27,14 @@
                             placeholder="อีเมล..." 
                             required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+
+        <!-- Phone Number -->
+        <div class="mt-4">
+            <x-input-label for="phonenumber" :value="__('หมายเลขโทรศัพท์')" />
+            <x-text-input id="phonenumber" class="block mt-1 w-full" type="text" name="phonenumber" :value="old('phonenumber')"  
+            placeholder="หมายเลขโทรศัพท์..." required autofocus autocomplete="phonenumber" />
+            <x-input-error :messages="$errors->get('phonenumber')" class="mt-2" />
         </div>
 
         <!-- Password -->
@@ -45,6 +61,7 @@
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
+        
         {{-- <!-- Role (optional, default borrower) -->
         <div class="mt-4">
             <x-input-label for="role" :value="__('บทบาทผู้ใข้งาน')" />
