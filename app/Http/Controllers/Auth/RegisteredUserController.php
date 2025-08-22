@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -26,9 +25,13 @@ class RegisteredUserController extends Controller
     {
         $request->validate(
         [
-            'name' => ['required', 'string', 'max:255'],
+            'uid' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
+            'age' => ['required', 'integer', 'min:0'],
+            'phonenumber' => ['required', 'string', 'size:10', 'regex:/^[0-9]+$/', 'unique:' . User::class],
+            'ip_address' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults(), 'regex:/^(?=.*[A-Z]).+$/'],
+            'password' => ['required', 'confirmed', Password::defaults(), 'regex:/^(?=.*[A-Z]).+$/'],
             'role' => ['nullable', 'in:admin,staff,borrower'],
         ],
         [   // ✅ This is the custom messages array
@@ -39,10 +42,14 @@ class RegisteredUserController extends Controller
     );
 
         $user = User::create([
-            'name' => $request->name,
+            'uid' => "uid",
+            'username' => $request->username,
+            'age' => $request->age,
+            'phonenumber' => $request->phonenumber,
             'email' => $request->email,
-            'password' => ['required','confirmed',Rules\Password::defaults(),],
+            'password' => Hash::make($request->password),
             'role' => $request->input('role', 'borrower'),
+            'ip_address' => $request->ip_address,
         ]);
 
     event(new Registered($user));
