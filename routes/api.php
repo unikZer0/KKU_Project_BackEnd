@@ -9,5 +9,5 @@ use App\Http\Controllers\api\CategoriesController;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::apiResource("equipments", EquipmentsController::class)->only(['index', 'show']);
+Route::apiResource("equipments", EquipmentsController::class);
 Route::apiResource("categories", CategoriesController::class);

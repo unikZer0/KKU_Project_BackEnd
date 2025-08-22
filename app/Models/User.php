@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -16,17 +17,36 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-        'uid',
-        'username',
+        'name',
         'email',
+        'phonenumber',
         'password',
         'role',
-        'age',
-        'phonenumber',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
-        'two_factor_confirmed_at',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->uid = self::generateUid();
+
+            if (request()) {
+                $model->ip_address = request()->ip();
+            }
+        });
+    }
+
+    protected static function generateUid()
+    {
+        do {
+            $uid = 'uid' . strtoupper(Str::random(10));
+        } while (self::where('uid', $uid)->exists());
+
+        return $uid;
+    }
+
+
 
     /**
      * The attributes that should be hidden for serialization.
