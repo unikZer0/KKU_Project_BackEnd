@@ -37,6 +37,12 @@ Route::middleware('auth')->group(function () {
         Route::prefix('/admin/equipment')->group(function () {
             Route::get('/', [EquipmentController::class, 'index'])->name('admin.equipment');
             Route::get('/add', [EquipmentController::class, 'add_equipment'])->name('admin.equipment.add');
+
+            //test 
+            Route::get('/test-upload', [EquipmentController::class, 'test_upload_form'])->name('admin.equipment.test_upload');
+
+            //
+            Route::post('/upload', [EquipmentController::class, 'upload_product'])->name('admin.equipment.upload');
             Route::get('/{id}', [EquipmentController::class, 'edit_equipment'])->name('admin.equipment.edit');
             Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('admin.equipment.delete');
         });
