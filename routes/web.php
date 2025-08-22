@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('admin.equipment.delete');
         });
 
-        Route::prefix('/admin/categories')->group(function () {
+        Route::prefix('/admin/category')->group(function () {
             Route::get('/', [CategoryController::class, 'index'])->name('admin.catgory');
             Route::get('/add', [CategoryController::class, 'add_category'])->name('admin.category.add');
             Route::post('/{id}', [CategoryController::class, 'edit_category'])->name('admin.category.edit');
