@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use App\Services\CloudinaryService;
 use App\Models\Category;
 use App\Models\Equipment;
 
@@ -24,28 +24,30 @@ class EquipmentController extends Controller
     }
 
     //! UPLOAD
-    public function upload_product(Request $request)
-    {
-        $data = $request->validate(
-            [
-                "code" => "required|string|max:255",
-                "name" => "required|string|max:255",
-                "categories_id" => "required|integer|exists:categories,id",
-                "status" => "required|in:available,unavailable,maintenance",
-                "photo_path" => "nullable|string|max:255",
-            ]
-        );
+public function upload_product(Request $request, CloudinaryService $cloudinary)
+{
+    $data = $request->validate([
+        "code" => "required|string|max:255",
+        "name" => "required|string|max:255",
+        "categories_id" => "required|integer|exists:categories,id",
+        "status" => "required|in:available,unavailable,maintenance",
+        "photo_path" => "nullable|string|max:255", 
+    ]);
 
-        Equipment::create($data);
-
-        return response()->json(
-            [
-                "status" => true,
-                "message" => "Equipment created successfully",
-                "data" => $data
-            ]
-        );
+    if ($request->hasFile('image')) {
+        $file = $request->file('image')->getRealPath();
+        $url = $cloudinary->upload($file, 'equipment'); 
+        $data['photo_path'] = $url; 
     }
+
+    $equipment = Equipment::create($data);
+
+    return response()->json([
+        "status" => true,
+        "message" => "Equipment created successfully",
+        "data" => $equipment
+    ]);
+}
 
     //!EDIT
     public function edit_equipment($id)
