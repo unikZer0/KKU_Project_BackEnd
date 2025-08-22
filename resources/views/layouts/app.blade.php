@@ -27,7 +27,9 @@
             <main>
                 {{ $slot }}
             </main>
-
+            <div class="">
+                <x-pagination/>
+            </div>
             <x-footer />
         </div>
     </body>
