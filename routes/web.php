@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminController;
-Use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\adminCtrl;
+use App\Http\Controllers\Admin\equitmentCtrl;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 use App\Http\Controllers\HomeController;
