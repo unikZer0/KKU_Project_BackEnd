@@ -4,16 +4,16 @@
             <!-- Card 1 -->
             <div class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
                 <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1709258228137-19a8c193be39?q=80&w=2011&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    <img src="{{ asset('storage/' . $equipment->image) }}"
                         alt="Product Image"
                         class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
                     <span
-                        class="absolute top-2 right-2 bg-green-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">available</span>
+                        class="absolute top-2 right-2 bg-green-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">{{$equipment->status}}</span>
                 </div>
                 <div class="p-2 sm:p-4 p-5 pb-0">
-                    <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">Microscope Lab</h3>
-                    <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 block">Laboratory Equipment</p>
-                    <p class="text-xs text-gray-400 mb-2 block ">EQ-001 • Lab • High Power</p><span
+                    <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">{{ $equipment->name }}</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 block">{{ $equipment->category }}</p>
+                    <p class="text-xs text-gray-400 mb-2 block ">{{ $equipment->code }}</p><span
                         class="text-sm  sm:text-lg font-semibold text-green-600 ">Free</span>
                 </div>
             </div>

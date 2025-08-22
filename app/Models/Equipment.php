@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Equipments extends Model
+class Equipment extends Model
 {
+    protected $table = 'equipments';
     protected $fillable = [
         "id",
         "code",
@@ -14,4 +15,9 @@ class Equipments extends Model
         "status",
         "photo_path"
     ];
+    public function categories()
+{
+    return $this->belongsTo(Categories::class, 'categories_id');
+}
+
 }
