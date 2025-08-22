@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\Admin\adminCtrl;
-use App\Http\Controllers\Admin\equitmentCtrl;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\EquipmentsController;
+use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 
@@ -38,7 +39,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('admin.equipment.delete');
         });
 
-        Route::prefix('/admin/categories')->group(function () {
+        Route::prefix('/admin/category')->group(function () {
             Route::get('/', [CategoryController::class, 'index'])->name('admin.catgory');
             Route::get('/add', [CategoryController::class, 'add_category'])->name('admin.category.add');
             Route::post('/{id}', [CategoryController::class, 'edit_category'])->name('admin.category.edit');
