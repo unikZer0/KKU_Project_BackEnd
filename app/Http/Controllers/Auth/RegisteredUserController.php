@@ -52,7 +52,6 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'phonenumber' => $request->phonenumber,
             'password' => Hash::make($validated['password']),
-            // 'password' => ['required', 'confirmed', Password::defaults()],
             'role' => $request->input('role', 'borrower'),
         ]);
 
