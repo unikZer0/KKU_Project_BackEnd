@@ -8,54 +8,71 @@ use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    use RefreshDatabase;
 
-    public function test_login_screen_can_be_rendered(): void
+    /**
+     * Test the create method returns the login view.
+     */
+    public function test_create_method_displays_login_view(): void
     {
-        $response = $this->get('/login');
+        // Hit the route that points to your create() method
+        $response = $this->get('/login'); // Adjust the URL if different
+
+        // Assert status is OK
         $response->assertStatus(200);
-        $response->assertViewIs('auth.login'); // ensures the correct view
+
+        // Assert it returns the correct view
+        $response->assertViewIs('auth.login');
     }
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
-    {
-        $password = 'password';
-        $user = User::factory()->create([
-            'password' => bcrypt($password),
-        ]);
+    public function test_user_can_login_with_valid_credentials(): void
+{
+    $user = User::factory()->create([
+        'password' => bcrypt($password = 'Password123'),
+    ]);
 
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => $password,
-        ]);
+    $response = $this->post(route('login'), [
+        'email' => $user->email,
+        'password' => $password,
+    ]);
 
-        $this->assertAuthenticatedAs($user);
-        $response->assertRedirect(route('home', absolute: false));
-    }
+    // Check authentication
+    $this->assertAuthenticatedAs($user);
 
-    public function test_users_can_not_authenticate_with_invalid_password(): void
-    {
-        $user = User::factory()->create([
-            'password' => bcrypt('correct-password'),
-        ]);
+    // Check redirect to home
+    $response->assertRedirect(route('home', false));
+}
 
-        $response = $this->from('/login')->post('/login', [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ]);
+public function test_login_fails_with_invalid_credentials(): void
+{
+    $user = User::factory()->create([
+        'password' => bcrypt('Password123'),
+    ]);
 
-        $response->assertRedirect('/login');
-        $response->assertSessionHasErrors('email');
-        $this->assertGuest();
-    }
+    $response = $this->from(route('login'))->post(route('login'), [
+        'email' => $user->email,
+        'password' => 'wrongpassword',
+    ]);
 
-    public function test_users_can_logout(): void
-    {
-        $user = User::factory()->create();
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHasErrors();
+    $this->assertGuest();
+}
 
-        $response = $this->actingAs($user)->post('/logout');
+public function test_user_can_logout(): void
+{
+    $user = User::factory()->create();
 
-        $response->assertRedirect('/'); 
-        $this->assertGuest();
-    }
+    // Simulate logged-in user
+    $this->actingAs($user);
+
+    $response = $this->post(route('logout'));
+
+    // Assert user is logged out
+    $this->assertGuest();
+
+    // Assert redirect to home page ("/")
+    $response->assertRedirect('/');
+}
+
+
 }

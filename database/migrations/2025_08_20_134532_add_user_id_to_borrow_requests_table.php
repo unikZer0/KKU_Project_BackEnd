@@ -6,23 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('borrow_requests', function (Blueprint $table) {
-            $table->foreignId('users_id')->constrained('users')->onDelete('cascade');
+            if (!Schema::hasColumn('borrow_requests', 'users_id')) {
+                $table->unsignedBigInteger('users_id');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('borrow_requests', function (Blueprint $table) {
-            //
+            $table->dropColumn('users_id');
         });
     }
 };
