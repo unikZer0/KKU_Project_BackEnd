@@ -1,14 +1,13 @@
 <?php
 
-use App\Http\Controllers\Admin\adminCtrl;
-use App\Http\Controllers\Admin\equitmentCtrl;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 use App\Http\Controllers\HomeController;
 
 
-<<<<<<< HEAD
-=======
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Route::get('/category/{id}', function ($id) {
 //     $category = Category::findOrFail($id);
@@ -19,7 +18,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 //     return view('/');
 // })->middleware(['auth', 'verified'])->name('/');
 
->>>>>>> 1b243ed1a4868223f8efa956e9c82bd350d8f079
 Route::middleware('auth')->group(function () {
     //api for auth
 
