@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\adminCtrl;
+use App\Http\Controllers\Admin\equitmentCtrl;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,7 +18,13 @@ Route::middleware('auth')->group(function () {
     // Role-based areas
     Route::middleware('can:admin')->group(function () {
 
+<<<<<<< HEAD
         Route::get('/admin', [adminCtrl::class, 'index'])->name('admin.index');
+=======
+        Route::get('/admin', [adminCtrl::class,'index'])->name('admin.index');
+        Route::get('/equipment', [equitmentCtrl::class,'index'])->name('admin.equipment');
+
+>>>>>>> e021a88dfdcfed4f896f81cc4ac170c2041cbc42
     });
 
     Route::middleware('can:staff')->group(function () {
