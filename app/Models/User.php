@@ -25,6 +25,7 @@ class User extends Authenticatable
         'phonenumber',
         'password',
         'role',
+        'ip_address'
     ];
 
     protected static function boot()
@@ -33,6 +34,10 @@ class User extends Authenticatable
 
         static::creating(function ($model) {
             $model->uid = self::generateUid();
+
+            if (request()) {
+                $model->ip_address = request()->ip();
+            }
         });
     }
 
@@ -44,6 +49,8 @@ class User extends Authenticatable
 
         return $uid;
     }
+
+
 
     /**
      * The attributes that should be hidden for serialization.

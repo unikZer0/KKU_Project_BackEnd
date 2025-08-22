@@ -19,8 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:admin')->group(function () {
 
         Route::get('/admin', [adminCtrl::class, 'index'])->name('admin.index');
-        Route::get('/admin', [adminCtrl::class,'index'])->name('admin.index');
-        Route::get('/equipment', [equitmentCtrl::class,'index'])->name('admin.equipment');
+        Route::get('/equipment', [equitmentCtrl::class, 'index'])->name('admin.equipment');
     });
 
     Route::middleware('can:staff')->group(function () {
