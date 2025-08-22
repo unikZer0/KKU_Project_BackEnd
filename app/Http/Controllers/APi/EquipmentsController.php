@@ -4,7 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Equipments;
+use App\Models\Equipment;
 
 class EquipmentsController extends Controller
 {
@@ -13,7 +13,7 @@ class EquipmentsController extends Controller
      */
     public function index()
     {
-        return response()->json(Equipments::all());
+        return response()->json(Equipment::all());
     }
 
     /**
@@ -30,7 +30,7 @@ class EquipmentsController extends Controller
                 "photo_path" => "nullable|string|max:255",
             ]
         );
-        Equipments::create($data);
+        Equipment::create($data);
 
         return response()->json(
             [
@@ -44,7 +44,7 @@ class EquipmentsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Equipments $equipment)
+    public function show(Equipment $equipment)
     {
         return response()->json(
             [
@@ -58,7 +58,7 @@ class EquipmentsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Equipments $equipment)
+    public function update(Request $request, Equipment $equipment)
     {
         $request->validate([
             "name" => "sometimes|string|max:255",
@@ -82,7 +82,7 @@ class EquipmentsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Equipments $equipment)
+    public function destroy(Equipment $equipment)
     {
         $equipment->delete();
 

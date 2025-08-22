@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class equitmentCtrl extends Controller
+class AdminController extends \App\Http\Controllers\Controller
 {
     public function index()
     {
-        return view('admin.equipment');
+        return view('admin.index');
     }
 }
