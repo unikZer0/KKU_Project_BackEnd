@@ -17,7 +17,7 @@ class Equipment extends Model
     ];
     public function categories()
 {
-    return $this->belongsTo(Categories::class, 'categories_id');
+    return $this->belongsTo(Category::class, 'categories_id');
 }
 
 }

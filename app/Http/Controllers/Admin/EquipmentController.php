@@ -23,6 +23,13 @@ class EquipmentController extends Controller
         return view('admin.equipment.add', compact('categories'));
     }
 
+    //! TEST UPLOAD FORM
+    public function test_upload_form()
+    {
+        $categories = Category::all();
+        return view('admin.equipment.test-upload', compact('categories'));
+    }
+
     //! UPLOAD
 public function upload_product(Request $request, CloudinaryService $cloudinary)
 {
