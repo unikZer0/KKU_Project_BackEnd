@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Categories;
 use Illuminate\Http\Request;
 
-use App\Models\Equipments;
+use App\Models\Equipment;
+use App\Models\Category;
 
 class BorrowersHomeController extends Controller
 {
     public function home()
     {
-        $equipments = Equipments::all();
-        $categories = Categories::all();
+        $equipments = Equipment::all();
+        $categories = Category::all();
         return view('home', compact('equipments', 'categories'));
     }
 }

@@ -65,9 +65,11 @@
                 <div class="space-y-2">
                     <div class="text-gray-700 font-medium py-2">หมวดหมู่</div>
                     <div class="pl-4 space-y-2">
-                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์ห้องแล็บ</a>
-                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์มัลติมีเดีย</a>
-                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์กีฬา</a>
+
+                        {{-- @foreach ($categories as $category)
+                            <a href="{{ route('category.show', $category->id) }}" class="block text-gray-600 hover:text-gray-800 py-1">{{ $category->name }}</a>
+                        @endforeach --}}
+
                     </div>
                 </div>
                 <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">ติดต่อ</a>
