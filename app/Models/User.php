@@ -32,10 +32,17 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($model) {
-            if (empty($model->uid)) {
-                $model->uid = (string) Str::ulid();
-            }
+            $model->uid = self::generateUid();
         });
+    }
+
+    protected static function generateUid()
+    {
+        do {
+            $uid = 'uid' . strtoupper(Str::random(10));
+        } while (self::where('uid', $uid)->exists());
+
+        return $uid;
     }
 
     /**

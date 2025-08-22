@@ -14,17 +14,12 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     //api for auth
-    //here
+
     // Role-based areas
     Route::middleware('can:admin')->group(function () {
 
-<<<<<<< HEAD
         Route::get('/admin', [adminCtrl::class, 'index'])->name('admin.index');
-=======
-        Route::get('/admin', [adminCtrl::class,'index'])->name('admin.index');
-        Route::get('/equipment', [equitmentCtrl::class,'index'])->name('admin.equipment');
-
->>>>>>> e021a88dfdcfed4f896f81cc4ac170c2041cbc42
+        Route::get('/equipment', [equitmentCtrl::class, 'index'])->name('admin.equipment');
     });
 
     Route::middleware('can:staff')->group(function () {
