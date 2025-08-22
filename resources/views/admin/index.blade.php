@@ -4,7 +4,7 @@
         <div class="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-xs text-gray-500">Total Requests</div>
-                <div class="text-2xl font-semibold mt-1">324</div>
+                <div class="text-2xl font-semibold mt-1">100</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-xs text-gray-500">Best Rated Items</div>

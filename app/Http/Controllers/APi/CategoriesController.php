@@ -4,7 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Categories;
+use App\Models\Category;
 
 class CategoriesController extends Controller
 {
@@ -13,7 +13,7 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        return response()->json(Categories::all());
+        return response()->json(Category::all());
     }
 
     /**
@@ -27,7 +27,7 @@ class CategoriesController extends Controller
                 "name" => "required|string|max:255",
             ]
         );
-        Categories::create($data);
+        Category::create($data);
 
         return response()->json(
             [
@@ -41,7 +41,7 @@ class CategoriesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Categories $category)
+    public function show(Category $category)
     {
         return response()->json(
             [

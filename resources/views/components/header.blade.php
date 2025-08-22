@@ -65,11 +65,9 @@
                 <div class="space-y-2">
                     <div class="text-gray-700 font-medium py-2">หมวดหมู่</div>
                     <div class="pl-4 space-y-2">
-
-                        {{-- @foreach ($categories as $category)
-                            <a href="{{ route('category.show', $category->id) }}" class="block text-gray-600 hover:text-gray-800 py-1">{{ $category->name }}</a>
-                        @endforeach --}}
-
+                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์ห้องแล็บ</a>
+                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์มัลติมีเดีย</a>
+                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์กีฬา</a>
                     </div>
                 </div>
                 <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">ติดต่อ</a>
@@ -131,9 +129,9 @@
                 </button>
                 <!-- Dropdown menu -->
                 <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์ห้องแล็บ</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์มัลติมีเดีย</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์กีฬา</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">โรโบติค</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์เคื่องเสียง</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์ถ่ายภาพ</a>
                 </div>
             </div>
             <a href="#" class="text-gray-700 hover:text-gray-900 font-medium">ติดต่อ</a>
