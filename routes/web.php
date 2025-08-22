@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\Admin\adminCtrl;
-use App\Http\Controllers\Admin\equitmentCtrl;
+use App\Http\Controllers\Admin\AdminController;
+Use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\EquipmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
+use App\Http\Controllers\HomeController;
 
 use App\Models\Equipment;
 use App\Models\Category;
