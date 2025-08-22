@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\Admin\adminCtrl;
-use App\Http\Controllers\Admin\equitmentCtrl;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 
@@ -56,7 +58,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
     });
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::get('/equipments/{id}', [EquipmentsController::class, 'show'])->name('equipments.show');
 });
 
 require __DIR__ . '/auth.php';
