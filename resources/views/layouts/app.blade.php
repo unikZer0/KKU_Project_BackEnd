@@ -15,10 +15,13 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="bg-gray-100">   
+        <div class="bg-gray-10">   
             <!-- Page Heading -->
             <x-header />
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-end">
             <x-filter/>
+        </div>
+        <hr>
             
             <!-- Page Content -->
             <main>

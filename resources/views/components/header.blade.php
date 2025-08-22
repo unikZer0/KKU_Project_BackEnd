@@ -1,4 +1,4 @@
-<header class="bg-white shadow-sm border-b border-gray-200">
+<header class="bg-white shadow-sm border-b lg:pb-10 border-gray-200">
     <!-- Top Navigation Bar -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
@@ -21,7 +21,7 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span>{{ Auth::user()->name }}</span>
+                            <span>{{ Auth::user()->username }}</span>
                         </div>
                         <form method="POST" action="{{ route('logout') }}" class="logout-form">
                             @csrf
@@ -84,7 +84,8 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span>{{ Auth::user()->name }}</span>
+                            <span>{{ Auth::user()->username }}</span>
+
                         </div>
                     </div>
                     <form method="POST" action="{{ route('logout') }}" class="logout-form">
