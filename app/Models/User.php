@@ -25,7 +25,6 @@ class User extends Authenticatable
         'phonenumber',
         'password',
         'role',
-        'ip_address'
     ];
 
     protected static function boot()
