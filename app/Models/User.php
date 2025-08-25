@@ -10,18 +10,22 @@ use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
-
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
+     *
+     * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
+        'age',
         'email',
         'phonenumber',
         'password',
         'role',
+        'ip_address'
     ];
 
     protected static function boot()
@@ -46,23 +50,26 @@ class User extends Authenticatable
         return $uid;
     }
 
-
-
     /**
      * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
      */
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
     ];
 
     /**
-     * The attributes that should be cast to native types.
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'two_factor_confirmed_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 }
