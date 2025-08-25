@@ -9,7 +9,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $equipments = Equipment::paginate(12);
+        $equipments = Equipment::all();
     $categories = Category::all();
     return view('home', compact('equipments', 'categories'));
     }

@@ -9,10 +9,6 @@ use App\Http\Controllers\HomeController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-// Route::get('/category/{id}', function ($id) {
-//     $category = Category::findOrFail($id);
-//     return view('category.show', compact('category'))->name('category.show');
-// });
 
 // Route::get('//', function () {
 //     return view('/');
@@ -56,7 +52,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:borrower')->group(function () {
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
     });
-    
 });
 
 require __DIR__ . '/auth.php';
