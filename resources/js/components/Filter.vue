@@ -9,7 +9,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
-                <div v-if="appliedOpen" class="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 p-3" style="z-index:50;">
+                <div v-if="appliedOpen" class="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 p-3" style="z-index:9999;">
                     <div class="space-y-2">
                         <div v-for="(label, idx) in appliedLabels" :key="idx" class="flex items-center justify-between px-3 py-2 bg-gray-100 rounded-full border border-black">
                             <span class="text-sm">{{ label }}</span>
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Full-screen overlay slide panel -->
-    <div v-if="filterPanelOpen" class="fixed inset-0 z-40">
+    <div v-if="filterPanelOpen" class="fixed inset-0 z-[9999]">
         <div class="absolute inset-0 bg-black bg-opacity-40" @click="closeFilterPanel"></div>
         <!-- Mobile: centered modal; Desktop: left drawer -->
         <div class="absolute bg-white shadow-xl flex flex-col transform -translate-x-1/2 left-1/2 top-16 w-80 max-w-[90vw] max-h-[80vh] rounded-xl overflow-hidden
