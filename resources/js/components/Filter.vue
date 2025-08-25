@@ -40,39 +40,46 @@
                 <button @click="closeFilterPanel" class="text-2xl leading-none" aria-label="Close">×</button>
             </div>
             <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                <!-- Status filter -->
                 <div>
                     <button @click="accCondition = !accCondition" class="w-full flex items-center justify-between py-3">
-                        <span class="font-medium">Condition</span>
+                        <span class="font-medium">Status</span>
                         <span class="text-gray-500">▾</span>
                     </button>
                     <div v-show="accCondition" class="space-y-2 pl-1">
                         <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="condition_panel" class="form-radio text-blue-600" v-model="selectedCondition" value="New"/>
-                            <span>New</span>
+                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value=""/>
+                            <span>All</span>
                         </label>
                         <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="condition_panel" class="form-radio text-blue-600" v-model="selectedCondition" value="Used"/>
-                            <span>Used</span>
+                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="available"/>
+                            <span>Available</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="maintenance"/>
+                            <span>Maintenance</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="unavailable"/>
+                            <span>Unavailable</span>
                         </label>
                     </div>
                 </div>
+
+                <!-- Category filter -->
                 <div>
                     <button @click="accPrice = !accPrice" class="w-full flex items-center justify-between py-3">
-                        <span class="font-medium">Price</span>
+                        <span class="font-medium">Category</span>
                         <span class="text-gray-500">▾</span>
                     </button>
-                    <div v-show="accPrice" class="space-y-2 pl-1">
+                    <div v-show="accPrice" class="space-y-2 pl-1 max-h-60 overflow-y-auto">
                         <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="price_panel" class="form-radio text-blue-600" v-model="selectedPrice" value="under"/>
-                            <span>Under THB1,140</span>
+                            <input type="radio" name="category_panel" class="form-radio text-blue-600" v-model="selectedCategory" value=""/>
+                            <span>All</span>
                         </label>
-                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="price_panel" class="form-radio text-blue-600" v-model="selectedPrice" value="range"/>
-                            <span>THB1,140 to THB4,900</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="price_panel" class="form-radio text-blue-600" v-model="selectedPrice" value="over"/>
-                            <span>Over THB4,900</span>
+                        <label v-for="cat in categories" :key="cat.cate_id" class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="category_panel" class="form-radio text-blue-600" v-model="selectedCategory" :value="cat.cate_id"/>
+                            <span>{{ cat.name }}</span>
                         </label>
                     </div>
                 </div>
@@ -91,8 +98,10 @@ export default {
         return {
             conditionOpen: false,
             priceOpen: false,
-            selectedCondition: null,
-            selectedPrice: null,
+            // filters
+            categories: [],
+            selectedCategory: '',
+            selectedStatus: '',
             filterPanelOpen: false,
             accCondition: true,
             accPrice: true,
@@ -100,19 +109,13 @@ export default {
         };
     },
     computed: {
-        conditionLabel() {
-            return this.selectedCondition ? `Condition: ${this.selectedCondition}` : 'Condition';
-        },
-        priceLabel() {
-            if (this.selectedPrice === 'under') return 'Price: Under THB1,140';
-            if (this.selectedPrice === 'range') return 'Price: THB1,140 to THB4,900';
-            if (this.selectedPrice === 'over') return 'Price: Over THB4,900';
-            return 'Price';
-        },
         appliedLabels() {
             const labels = [];
-            if (this.selectedPrice) labels.push(this.priceLabel);
-            if (this.selectedCondition) labels.push(`Condition: ${this.selectedCondition}`);
+            if (this.selectedStatus) labels.push(`Status: ${this.selectedStatus}`);
+            if (this.selectedCategory) {
+                const cat = this.categories.find(c => c.cate_id === this.selectedCategory);
+                labels.push(`Category: ${cat ? cat.name : this.selectedCategory}`);
+            }
             return labels;
         },
         appliedCount() {
@@ -121,6 +124,14 @@ export default {
     },
     mounted() {
         document.addEventListener('click', this.handleClickOutside);
+        const mountEl = document.getElementById('filter');
+        if (mountEl) {
+            try {
+                this.categories = JSON.parse(mountEl.dataset.categories || '[]');
+            } catch (e) { this.categories = []; }
+            this.selectedCategory = mountEl.dataset.currentCategory || '';
+            this.selectedStatus = mountEl.dataset.currentStatus || '';
+        }
     },
     beforeUnmount() {
         document.removeEventListener('click', this.handleClickOutside);
@@ -133,12 +144,12 @@ export default {
             }
         },
         clearCondition() {
-            this.selectedCondition = null;
-            this.$emit('update', { condition: this.selectedCondition, price: this.selectedPrice });
+            this.selectedStatus = '';
+            this.$emit('update', { category: this.selectedCategory, status: this.selectedStatus });
         },
         clearPrice() {
-            this.selectedPrice = null;
-            this.$emit('update', { condition: this.selectedCondition, price: this.selectedPrice });
+            this.selectedCategory = '';
+            this.$emit('update', { category: this.selectedCategory, status: this.selectedStatus });
         },
         openFilterPanel() {
             this.filterPanelOpen = true;
@@ -147,26 +158,38 @@ export default {
             this.filterPanelOpen = false;
         },
         applyFilters() {
-            this.$emit('update', { condition: this.selectedCondition, price: this.selectedPrice });
-            this.closeFilterPanel();
+            // push filters to URL and reload (server handles pagination withQueryString)
+            const url = new URL(window.location);
+            if (this.selectedCategory) url.searchParams.set('category', this.selectedCategory); else url.searchParams.delete('category');
+            if (this.selectedStatus) url.searchParams.set('status', this.selectedStatus); else url.searchParams.delete('status');
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
         },
         resetFilters() {
-            this.selectedCondition = null;
-            this.selectedPrice = null;
-            this.$emit('update', { condition: this.selectedCondition, price: this.selectedPrice });
+            this.selectedCategory = '';
+            this.selectedStatus = '';
+            const url = new URL(window.location);
+            url.searchParams.delete('category');
+            url.searchParams.delete('status');
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
         },
         clearAll() {
-            this.selectedCondition = null;
-            this.selectedPrice = null;
+            this.selectedCategory = '';
+            this.selectedStatus = '';
             this.appliedOpen = false;
-            this.$emit('update', { condition: this.selectedCondition, price: this.selectedPrice });
+            const url = new URL(window.location);
+            url.searchParams.delete('category');
+            url.searchParams.delete('status');
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
         },
         removeFilter(index) {
             const label = this.appliedLabels[index];
             if (!label) return;
-            if (label.startsWith('Price:')) this.selectedPrice = null;
-            if (label.startsWith('Condition:')) this.selectedCondition = null;
-            this.$emit('update', { condition: this.selectedCondition, price: this.selectedPrice });
+            if (label.startsWith('Category:')) this.selectedCategory = '';
+            if (label.startsWith('Status:')) this.selectedStatus = '';
+            this.applyFilters();
         },
     },
 };
