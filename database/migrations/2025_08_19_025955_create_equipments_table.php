@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name');
+            $table->string('description')->nullable();
             $table->foreignId('categories_id')->constrained('categories')->onDelete('cascade');
             $table->enum('status', ['available', 'unavailable', 'maintenance'])->default('available');
             $table->string('photo_path')->nullable();

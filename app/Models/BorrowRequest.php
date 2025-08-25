@@ -15,4 +15,14 @@ class BorrowRequest extends Model
         'status',
         'reject_reason'
     ];
+
+    protected function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    protected function equipment()
+    {
+        return $this->belongsTo(Equipment::class, 'equipment_id', 'id');
+    }
 }

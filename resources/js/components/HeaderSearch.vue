@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue';
 import SearchBar from './SearchBar.vue';
 
-// Demo items; replace with API-driven items later
 const items = ref([
   { id: 1, code: 'EQ-001', name: 'Microscope', category: 'Lab', status: 'available' },
   { id: 2, code: 'EQ-002', name: 'Projector', category: 'AV', status: 'maintenance' },
@@ -20,7 +19,6 @@ const filteredItems = computed(() => {
 });
 
 function onSearch(val) {
-  // placeholder if you want to trigger API search instead of local filter
 }
 
 function triggerSearch() {
@@ -34,7 +32,6 @@ function triggerSearch() {
       <div class="flex-1">
         <SearchBar v-model="query" placeholder="ค้นหา..." :debounce="250" @search="onSearch" />
       </div>
-      <!-- Search button - hidden on mobile, visible on desktop -->
       <button
         type="button"
         @click="triggerSearch"

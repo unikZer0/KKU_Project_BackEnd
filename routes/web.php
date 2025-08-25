@@ -1,9 +1,16 @@
 <?php
 
+//Admin
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\BorrowRequestController;
+
+//Support 
 use Illuminate\Support\Facades\Route;
+
+//Borrower
+use App\Http\Controllers\Borrowers\BorrowersRequestController;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicEquipmentController;
@@ -41,6 +48,15 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}', [CategoryController::class, 'edit_category'])->name('admin.category.edit');
             Route::get('/{id}', [CategoryController::class, 'delete_category'])->name('admin.category.delete');
         });
+
+        Route::prefix('/admin/borrow-request')->group(function () {
+            Route::get('/', [BorrowRequestController::class, 'index'])->name('admin.borrow_request');
+            Route::get('/add', [BorrowRequestController::class, 'add_request'])->name('admin.borrow_request.add');
+            Route::patch('/{id}/approve', [BorrowRequestController::class, 'approve_request'])->name('admin.borrow_request.approve');
+            Route::patch('/{id}/reject', [BorrowRequestController::class, 'reject_request'])->name('admin.borrow_request.reject');
+            Route::post('/borrow-requests/{id}/checkout', [BorrowRequestController::class, 'checkout'])->name('admin.borrow_request.checkout');
+            Route::post('/borrow-requests/{id}/checkin', [BorrowRequestController::class, 'checkin'])->name('admin.borrow_request.checkin');
+        });
     });
 
     Route::middleware('can:staff')->group(function () {
@@ -50,7 +66,12 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('can:borrower')->group(function () {
+
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
+
+        Route::prefix('/borrower/borrow-request')->group(function () {
+            Route::get('/', [BorrowersRequestController::class, 'myRequests'])->name('borrower.borrow-request');
+        });
     });
     //show equipment details
 Route::get('/equipments/{equipment}', [PublicEquipmentController::class, 'show'])->name('equipments.show');

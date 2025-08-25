@@ -34,8 +34,8 @@ class EquipmentController extends Controller
 public function upload_product(Request $request, CloudinaryService $cloudinary)
 {
     $data = $request->validate([
-        "code" => "required|string|max:255",
-        "name" => "required|string|max:255",
+        "name" => "required|string|max:20",
+        "description" => "required|string|max:255",
         "categories_id" => "required|integer|exists:categories,id",
         "status" => "required|in:available,unavailable,maintenance",
         "photo_path" => "nullable|string|max:255", 
