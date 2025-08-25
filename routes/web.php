@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 use App\Http\Controllers\HomeController;
-
+use App\Http\Controllers\PublicEquipmentController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -52,6 +52,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:borrower')->group(function () {
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
     });
+    //show equipment details
+Route::get('/equipments/{equipment}', [PublicEquipmentController::class, 'show'])->name('equipments.show');
+
 });
 
 require __DIR__ . '/auth.php';

@@ -1,38 +1,38 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto py-3 sm:py-6 px-3 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
+
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5">
-
             @foreach ($equipments as $equipment)
-
-            
-            <div class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
-                <div class="relative">
-                    <img src="{{ $equipment->photo_path }}"
-                        alt="Product Image"
-                        class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
-                    @if ($equipment->status === 'maintenance')
-                        <span class="absolute top-2 right-2 bg-red-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">
-                            {{ ucfirst($equipment->status) }}
-                        </span>
-                    @elseif ($equipment->status === 'unavailable')
-                        <span class="absolute top-2 right-2 bg-gray-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">
-                            {{ ucfirst($equipment->status) }}
-                        </span>
-                    @else
-                        <span class="absolute top-2 right-2 bg-green-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">
-                            {{ ucfirst($equipment->status) }}
-                        </span>
-                    @endif
-
-                </div>
-                <div class="p-2 sm:p-4 p-5 pb-0">
-                    <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">{{ $equipment->name }}</h3>
-                    <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 block">{{ $equipment->category }}</p>
-                    <p class="text-xs text-gray-400 mb-2 block ">{{ $equipment->code }}</p><span
-                        class="text-sm  sm:text-lg font-semibold text-green-600 ">Free</span>
-                </div>
-            </div>
-    @endforeach
+                <a href="{{ route('equipments.show', $equipment->id) }}" class="block">
+                    <div class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
+                        <div class="relative">
+                            <img src="{{ $equipment->photo_path }}"
+                                 alt="{{ $equipment->name }}"
+                                 class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
+                            @if ($equipment->status === 'maintenance')
+                                <span class="absolute top-2 right-2 bg-red-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">
+                                    {{ ucfirst($equipment->status) }}
+                                </span>
+                            @elseif ($equipment->status === 'unavailable')
+                                <span class="absolute top-2 right-2 bg-gray-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">
+                                    {{ ucfirst($equipment->status) }}
+                                </span>
+                            @else
+                                <span class="absolute top-2 right-2 bg-green-600 text-white text-[10px] sm:text-xs px-1.5 py-0.5 rounded">
+                                    {{ ucfirst($equipment->status) }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="p-2 sm:p-4 p-5 pb-0">
+                            <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">{{ $equipment->name }}</h3>
+                            <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{{ $equipment->category }}</p>
+                            <p class="text-xs text-gray-400 mb-2">{{ $equipment->code }}</p>
+                            <span class="text-sm sm:text-lg font-semibold text-green-600">Free</span>
+                        </div>
+                    </div>
+                </a>
+            @endforeach
         </div>
+
     </div>
 </x-app-layout>
