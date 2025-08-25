@@ -5,12 +5,12 @@
     <form action="{{ route('admin.equipment.upload') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
         @csrf
         <div>
-            <label class="block text-sm font-medium mb-1">Code</label>
-            <input name="code" type="text" class="w-full border rounded px-3 py-2" placeholder="EQ-001" required>
-        </div>
-        <div>
             <label class="block text-sm font-medium mb-1">Name</label>
             <input name="name" type="text" class="w-full border rounded px-3 py-2" placeholder="Microscope" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">description</label>
+            <input name="description" type="text" class="w-full border rounded px-3 py-2" placeholder="description" required>
         </div>
         <div>
             <label class="block text-sm font-medium mb-1">Category</label>
