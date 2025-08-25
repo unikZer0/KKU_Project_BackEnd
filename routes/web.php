@@ -14,6 +14,7 @@ use App\Http\Controllers\Borrowers\BorrowersRequestController;
 use App\Http\Controllers\Borrowers\BorrowersHomeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicEquipmentController;
+use App\Http\Controllers\BorrowController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -75,6 +76,10 @@ Route::middleware('auth')->group(function () {
     });
     //show equipment details
 Route::get('/equipments/{equipment}', [PublicEquipmentController::class, 'show'])->name('equipments.show');
+//borrow request
+Route::post('/borrows', [BorrowController::class, 'store'])->name('borrows.store');
+
+
 
 });
 

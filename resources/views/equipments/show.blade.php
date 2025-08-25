@@ -18,6 +18,31 @@
                     <span class="font-semibold">{{ ucfirst($equipment->status) }}</span>
                 </p>
                 <p class="text-green-600 font-semibold text-lg">Free</p>
+
+                <!-- Borrow Form -->
+                <div class="mt-6">
+                    <form action="{{ route('borrows.store') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="hidden" name="equipment_id" value="{{ $equipment->id }}">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Start Borrowing At</label>
+                            <input type="date" name="start_date" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">End Borrowing At</label>
+                            <input type="date" name="end_date" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+
+                        <button type="submit" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+                            Borrow
+                        </button>
+                    </form>
+                </div>
             </div>
 
         </div>
