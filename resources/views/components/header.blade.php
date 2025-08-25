@@ -65,14 +65,19 @@
                 <div class="space-y-2">
                     <div class="text-gray-700 font-medium py-2">หมวดหมู่</div>
                     <div class="pl-4 space-y-2">
-                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์ห้องแล็บ</a>
-                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์มัลติมีเดีย</a>
-                        <a href="#" class="block text-gray-600 hover:text-gray-800 py-1">อุปกรณ์กีฬา</a>
+                        @foreach(($categories ?? []) as $cat)
+                            @if(is_object($cat))
+                                <a href="/?category={{ $cat->cate_id }}" class="block text-gray-600 hover:text-gray-800 py-1">{{ $cat->name }}</a>
+                            @endif
+                        @endforeach
                     </div>
                 </div>
                 <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">ติดต่อ</a>
                 @can('admin')
                     <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">แอดมิน</a>
+                @endcan
+                @can('borrower')
+                    <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">คำขอของฉัน</a>
                 @endcan
             </div>
             
@@ -114,10 +119,12 @@
         </div>
         <!-- Navigation Links - Hidden on mobile -->
         <div class="hidden md:flex justify-end space-x-8">
+            
             <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">หน้าหลัก</a>
+            
             <!-- Dropdown -->
             <div class="relative group">
-                <button class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
+                <button class="flex items-center text-gray-700 hover:text-blue-700 font-medium">
                     หมวดหมู่
                     <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" 
@@ -129,14 +136,19 @@
                 </button>
                 <!-- Dropdown menu -->
                 <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">โรโบติค</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์เคื่องเสียง</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">อุปกรณ์ถ่ายภาพ</a>
+                    @foreach(($categories ?? []) as $cat)
+                        @if(is_object($cat))
+                            <a href="/?category={{ $cat->cate_id }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ $cat->name }}</a>
+                        @endif
+                    @endforeach
                 </div>
             </div>
-            <a href="#" class="text-gray-700 hover:text-gray-900 font-medium">ติดต่อ</a>
+            <a href="#" class="text-gray-700 hover:text-blue-700 ">ติดต่อ</a>
             @can('admin')
                 <a href="{{route('admin.index')}}" class="text-gray-700 hover:text-gray-900 font-medium">แอดมิน</a>
+            @endcan
+            @can('borrower')
+            <a href="#" class="text-gray-700 hover:text-blue-700 0 font-medium">คำขอของฉัน</a>
             @endcan
         </div>
     </div>
