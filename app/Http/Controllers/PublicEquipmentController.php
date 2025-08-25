@@ -6,10 +6,10 @@ use App\Models\Equipment;
 
 class PublicEquipmentController extends Controller
 {
-    public function show($id)
+public function show(Equipment $equipment)
 {
-    $equipment = Equipment::findOrFail($id);
     return view('equipments.show', compact('equipment'));
 }
+
 
 }

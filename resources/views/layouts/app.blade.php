@@ -18,18 +18,12 @@
         <div class="bg-gray-10">   
             <!-- Page Heading -->
             <x-header />
-        <div class="">
-            <x-filter/>
-        </div>
         <hr>
             
             <!-- Page Content -->
             <main>
                 {{ $slot }}
             </main>
-            <div class="">
-                <x-pagination/>
-            </div>
             <x-footer />
         </div>
     </body>

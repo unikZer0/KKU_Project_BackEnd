@@ -16,6 +16,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicEquipmentController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+    //show equipment details
+Route::get('/equipments/{equipment:code}', [PublicEquipmentController::class, 'show'])->name('equipments.show');
 
 // Route::get('//', function () {
 //     return view('/');
@@ -38,6 +40,8 @@ Route::middleware('auth')->group(function () {
 
             //
             Route::post('/upload', [EquipmentController::class, 'upload_product'])->name('admin.equipment.upload');
+
+            
             Route::get('/{id}', [EquipmentController::class, 'edit_equipment'])->name('admin.equipment.edit');
             Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('admin.equipment.delete');
         });
@@ -73,9 +77,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [BorrowersRequestController::class, 'myRequests'])->name('borrower.borrow-request');
         });
     });
-    //show equipment details
-Route::get('/equipments/{equipment}', [PublicEquipmentController::class, 'show'])->name('equipments.show');
-
 });
 
 require __DIR__ . '/auth.php';
