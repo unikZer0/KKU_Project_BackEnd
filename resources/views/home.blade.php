@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="max-w-7xl mx-auto py-3 sm:py-6 px-3 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5 my-5">
 
             @foreach ($equipments as $equipment)
 
@@ -32,7 +32,15 @@
                         class="text-sm  sm:text-lg font-semibold text-green-600 ">Free</span>
                 </div>
             </div>
-    @endforeach
+                @endforeach
+        </div>
+        
+        <!-- Pagination  -->
+        <div id="pagination" 
+             data-current-page="{{ $equipments->currentPage() }}"
+             data-total-pages="{{ $equipments->lastPage() }}"
+             data-per-page="{{ $equipments->perPage() }}"
+             data-total="{{ $equipments->total() }}">
         </div>
     </div>
 </x-app-layout>

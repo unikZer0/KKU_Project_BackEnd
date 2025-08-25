@@ -1,7 +1,7 @@
 <template>
     <div class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 flex justify-end">
         <div class="flex space-x-2">
-            <!-- Single applied-filters pill -->
+            <!--  applied-filters  -->
             <div class="relative inline-block text-left" v-if="appliedCount > 0">
                 <button @click="appliedOpen = !appliedOpen" class="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 text-gray-900 rounded-full border border-black">
                     <span>{{ appliedCount }} filters applied</span>
@@ -29,10 +29,10 @@
         </button>
     </div>
 
-    <!-- Full-screen overlay slide panel -->
+    <!-- Full-screen -->
     <div v-if="filterPanelOpen" class="fixed inset-0 z-[9999]">
         <div class="absolute inset-0 bg-black bg-opacity-40" @click="closeFilterPanel"></div>
-        <!-- Mobile: centered modal; Desktop: left drawer -->
+        <!-- Mobile-->
         <div class="absolute bg-white shadow-xl flex flex-col transform -translate-x-1/2 left-1/2 top-16 w-80 max-w-[90vw] max-h-[80vh] rounded-xl overflow-hidden
                     sm:inset-y-0 sm:left-0 sm:top-0 sm:translate-x-0 sm:w-80 sm:max-w-none sm:max-h-none sm:rounded-none">
             <div class="flex items-center justify-between px-4 py-4 border-b">
@@ -127,7 +127,6 @@ export default {
     },
     methods: {
         handleClickOutside(event) {
-            // Close dropdowns if click is outside
             if (!this.$el.contains(event.target)) {
                 this.conditionOpen = false;
                 this.priceOpen = false;
