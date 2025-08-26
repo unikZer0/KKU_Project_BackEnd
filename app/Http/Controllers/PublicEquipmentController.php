@@ -13,4 +13,5 @@ class PublicEquipmentController extends Controller
     return view('equipments.show', compact('equipment'));
 }
 
+
 }

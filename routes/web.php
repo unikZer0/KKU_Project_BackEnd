@@ -17,6 +17,8 @@ use App\Http\Controllers\PublicEquipmentController;
 use App\Http\Controllers\BorrowController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+    //show equipment details
+Route::get('/equipments/{equipment:code}', [PublicEquipmentController::class, 'show'])->name('equipments.show');
 
 // Route::get('//', function () {
 //     return view('/');
@@ -48,6 +50,8 @@ Route::middleware('auth')->group(function () {
 
             //
             Route::post('/upload', [EquipmentController::class, 'upload_product'])->name('admin.equipment.upload');
+
+            
             Route::get('/{id}', [EquipmentController::class, 'edit_equipment'])->name('admin.equipment.edit');
             Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('admin.equipment.delete');
         });
