@@ -8,8 +8,8 @@
                 <div class="text-xs text-gray-500">Total Requests</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
-                <div class="text-xs text-gray-500">Best Rated Items</div>
                 <div class="text-2xl font-semibold mt-1">87</div>
+                <div class="text-xs text-gray-500">Best Rated Items</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $pendingRequests }}</div>
