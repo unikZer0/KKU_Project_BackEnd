@@ -3,20 +3,18 @@
         <!-- KPI Cards -->
         <div class="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-lg border p-4">
-                <div class="text-xs text-gray-500">Total Requests</div>
-                <div class="text-2xl font-semibold mt-1">100</div>
+                <div class="text-2xl font-semibold mt-1">{{ $totalRequests }}</div>
+                <div class="text-2xl font-semibold mt-1">{{ $totalRequests }}</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-xs text-gray-500">Best Rated Items</div>
                 <div class="text-2xl font-semibold mt-1">87</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
-                <div class="text-xs text-gray-500">Pending Requests</div>
-                <div class="text-2xl font-semibold mt-1">15</div>
+                <div class="text-2xl font-semibold mt-1">{{ $pendingRequests }}</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
-                <div class="text-xs text-gray-500">Penalty Notices</div>
-                <div class="text-2xl font-semibold mt-1">7</div>
+                <div class="text-2xl font-semibold mt-1">{{ $penaltyNotices }}</div>
             </div>
         </div>
 
@@ -88,7 +86,7 @@
                 new Chart(pieEl, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Available', 'Borrowed', 'Maintenance'],
+                        labels: ['Available', 'Unavailable', 'Maintenance'],
                         datasets: [{
                             data: [60, 30, 10],
                             backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b']
