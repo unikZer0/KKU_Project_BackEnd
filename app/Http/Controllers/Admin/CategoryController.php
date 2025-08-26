@@ -13,9 +13,11 @@ class CategoryController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        return view('admin.category.index');
-    }
+{
+    $categories = Category::withCount('equipments')->get();
+    return view('admin.category.index', compact('categories'));
+}
+
 
     /**
      * Store a newly created resource in storage.

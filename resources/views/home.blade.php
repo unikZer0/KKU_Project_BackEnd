@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5">
             @foreach ($equipments as $equipment)
-                <a href="{{ route('equipments.show', $equipment->id) }}" class="block">
+                <a href="{{ route('equipments.show', encrypt($equipment->id)) }}" class="block">
                     <div class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
                         <div class="relative">
                             <img src="{{ $equipment->photo_path }}"

@@ -12,9 +12,11 @@ class EquipmentController extends Controller
 {
     //!VIEW
     public function index()
-    {
-        return view('admin.equipment');
-    }
+{
+    $equipments = Equipment::with('category')->get();
+    return view('admin.equipment.index', compact('equipments'));
+}
+
 
     //!ADD
     public function add_equipment()
