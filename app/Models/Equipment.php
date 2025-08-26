@@ -36,9 +36,10 @@ protected static function boot()
         });
     }
 
-    public function categories()
+   public function category()
 {
-    return $this->belongsTo(Category::class, 'categories_id');
+    return $this->belongsTo(\App\Models\Category::class, 'categories_id');
 }
+
 
 }
