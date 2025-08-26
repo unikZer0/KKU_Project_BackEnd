@@ -24,3 +24,5 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+.borrow_mysqldb.sql
+borrow_mysqldb.sql

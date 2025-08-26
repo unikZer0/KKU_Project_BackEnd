@@ -73,8 +73,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
 
-        Route::prefix('/borrower/borrow-request')->group(function () {
-            Route::get('/', [BorrowersRequestController::class, 'myRequests'])->name('borrower.borrow-request');
+        Route::prefix('/borrower')->group(function () {
+            Route::post('/borrow_request', [BorrowersRequestController::class, 'myRequests'])->name('borrower.borrow_request');
         });
     });
 });
