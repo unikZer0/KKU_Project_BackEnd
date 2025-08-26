@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -11,4 +10,10 @@ class Category extends Model
         "id",
         "name",
     ];
+
+    // Add this relationship
+    public function equipments()
+    {
+        return $this->hasMany(Equipment::class, 'categories_id');
+    }
 }

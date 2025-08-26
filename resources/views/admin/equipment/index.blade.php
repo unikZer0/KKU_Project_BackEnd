@@ -1,15 +1,15 @@
 <x-admin-layout>
     <div class="bg-white p-6 rounded-lg shadow">
-        <h2 class="text-lg font-semibold mb-4">All Equipment</h2>
+        <h2 class="text-lg font-semibold mb-4">อุปกรณ์ทั้งหมด</h2>
 
         <table class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b">
                 <tr>
                     <th class="px-4 py-2 text-left">ID</th>
-                    <th class="px-4 py-2 text-left">Name</th>
-                    <th class="px-4 py-2 text-left">Category</th>
-                    <th class="px-4 py-2 text-left">Status</th>
-                    <th class="px-4 py-2 text-left">Action</th>
+                    <th class="px-4 py-2 text-left">ชื่ออุปกรณ์</th>
+                    <th class="px-4 py-2 text-left">หมวดหมู่</th>
+                    <th class="px-4 py-2 text-left">สถานะ</th>
+                    <th class="px-4 py-2 text-left">แอคชั่น</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +20,9 @@
                     <td class="px-4 py-2">{{ $equipment->category->name ?? 'N/A' }}</td>
                     <td class="px-4 py-2">{{ ucfirst($equipment->status) }}</td>
                     <td class="px-4 py-2">
-                        <a href="#" class="text-blue-600">Edit</a>
+                        <a href="{{ route('admin.equipment.edit', $equipment->id) }}" class="text-blue-600">แก้ไขข้อมูล</a>
+                        |
+                        <a href="{{ route('admin.equipment.delete', $equipment->id) }}" class="text-blue-600">ลบรายการ</a>
                     </td>
                 </tr>
                 @endforeach

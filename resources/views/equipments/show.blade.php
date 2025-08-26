@@ -18,24 +18,7 @@
                         {{ ucfirst($equipment->status) }}
                     </span>
                 </p>
-
-                <div class="mt-4 p-6 bg-gray-50 border border-gray-200 rounded-lg">
-                    <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
-                        @csrf
-                        <div class="mb-4">
-                            <label for="start_at" class="block text-sm font-semibold text-gray-700 mb-1">Start Date:</label>
-                            <input type="date" id="start_at" name="start_at" required class="w-full p-2 border border-gray-300 rounded-md">
-                        </div>
-                        <div class="mb-6">
-                            <label for="end_at" class="block text-sm font-semibold text-gray-700 mb-1">End Date:</label>
-                            <input type="date" id="end_at" name="end_at" required class="w-full p-2 border border-gray-300 rounded-md">
-                        </div>
-                        <button type="submit" id="borrowButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-md transition duration-200">
-                            Request to Borrow
-                        </button>
-                    </form>
-                    <p id="message" class="text-center mt-4 font-semibold"></p>
-                </div>
+                <p class="text-green-600 font-semibold text-lg">Free</p>
             </div>
 
         </div>

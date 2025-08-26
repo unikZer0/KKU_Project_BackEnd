@@ -14,7 +14,13 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return view('admin.category.index');
+        $categories = Category::withCount('equipments')->get();
+        return view('admin.category.index', compact('categories'));
+    }
+
+    public function create()
+    {
+        return view('admin.category.create');
     }
 
     /**
@@ -26,16 +32,16 @@ class CategoryController extends Controller
         $category->name = $request->input('name');
         $category->save();
 
-        return redirect()->route('admin.category')->with('success', 'Category added successfully.');
+        return redirect()->route('admin.category.index')->with('success', 'Category added successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function edit(string $id)
     {
         $category = Category::findOrFail($id);
-        return view('admin.category.show', compact('category'));
+        return view('admin.category.edit', compact('category'));
     }
 
     /**
