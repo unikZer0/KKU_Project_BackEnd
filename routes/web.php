@@ -4,21 +4,19 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\BorrowRequestController;
 
 //Support 
 use Illuminate\Support\Facades\Route;
 
 //Borrower
-use App\Http\Controllers\Borrowers\BorrowersRequestController;
-use App\Http\Controllers\Borrowers\BorrowersHomeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicEquipmentController;
-use App\Http\Controllers\BorrowController;
+use App\Http\Controllers\Borrowers\BorrowController;
+use App\Http\Controllers\Borrowers\BorrowerCtrl;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 //show equipment details
-Route::get('/equipments/{equipment:code}', [PublicEquipmentController::class, 'show'])->name('equipments.show');
+Route::get('/equipments/{equipment:code}', [BorrowerCtrl::class, 'show'])->name('equipments.show');
 
 // Route::get('//', function () {
 //     return view('/');
@@ -75,13 +73,10 @@ Route::middleware('can:staff')->group(function () {
 });
 
 Route::middleware('can:borrower')->group(function () {
-
-    Route::get('/borrower', [BorrowersHomeController::class, 'home'])->name('borrower.index');
-
         Route::prefix('/borrower')->group(function () {
-            Route::post('/borrow_request', [BorrowersRequestController::class, 'myRequests'])->name('borrower.borrow_request');
+            Route::post('/borrow_request', [BorrowerCtrl::class, 'myRequests'])->name('borrower.borrow_request');
+            Route::get('/myreq', [BorrowerCtrl::class, 'myreq'])->name('borrower.equipments.myreq');
         });
     });
-});
 
 require __DIR__ . '/auth.php';

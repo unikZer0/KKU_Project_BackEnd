@@ -77,7 +77,7 @@
                     <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">แอดมิน</a>
                 @endcan
                 @can('borrower')
-                    <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">คำขอของฉัน</a>
+                    <a href="{{route('borrower.equipments.myreq')}}" class="block text-gray-700 hover:text-gray-900 font-medium py-2">คำขอของฉัน</a>
                 @endcan
             </div>
             
@@ -148,7 +148,7 @@
                 <a href="{{route('admin.index')}}" class="text-gray-700 hover:text-gray-900 font-medium">แอดมิน</a>
             @endcan
             @can('borrower')
-            <a href="#" class="text-gray-700 hover:text-blue-700 0 font-medium">คำขอของฉัน</a>
+            <a href="{{route('borrower.equipments.myreq')}}" class="text-gray-700 hover:text-blue-700 0 font-medium">คำขอของฉัน</a>
             @endcan
         </div>
     </div>
@@ -171,82 +171,28 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuIcon = document.getElementById('menu-icon');
-    const closeIcon = document.getElementById('close-icon');
+    document.addEventListener('DOMContentLoaded', function() {
     const logoutForms = document.querySelectorAll('.logout-form');
-    const logoutModal = document.getElementById('logout-modal');
-    const confirmLogoutBtn = document.getElementById('confirm-logout');
-    const cancelLogoutBtn = document.getElementById('cancel-logout');
-    const modalBackdrop = logoutModal ? logoutModal.firstElementChild : null;
-    let pendingLogoutForm = null;
-
-    mobileMenuButton.addEventListener('click', function() {
-        const isHidden = mobileMenu.classList.contains('hidden');
-        
-        if (isHidden) {
-            mobileMenu.classList.remove('hidden');
-            menuIcon.classList.add('hidden');
-            closeIcon.classList.remove('hidden');
-        } else {
-            mobileMenu.classList.add('hidden');
-            menuIcon.classList.remove('hidden');
-            closeIcon.classList.add('hidden');
-        }
-    });
-
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
-            mobileMenu.classList.add('hidden');
-            menuIcon.classList.remove('hidden');
-            closeIcon.classList.add('hidden');
-        }
-    });
-
-    // Logout confirmation modal logic
-    function openLogoutModal(form) {
-        pendingLogoutForm = form;
-        if (logoutModal) {
-            logoutModal.classList.remove('hidden');
-        }
-    }
-
-    function closeLogoutModal() {
-        if (logoutModal) {
-            logoutModal.classList.add('hidden');
-        }
-        pendingLogoutForm = null;
-    }
 
     logoutForms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            openLogoutModal(form);
+            e.preventDefault(); 
+
+            Swal.fire({
+                title: 'ยืนยันการออกจากระบบ',
+                text: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ตกลง',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         });
     });
-
-    if (confirmLogoutBtn) {
-        confirmLogoutBtn.addEventListener('click', function() {
-            if (pendingLogoutForm) {
-                pendingLogoutForm.submit();
-            }
-            closeLogoutModal();
-        });
-    }
-
-    if (cancelLogoutBtn) {
-        cancelLogoutBtn.addEventListener('click', function() {
-            closeLogoutModal();
-        });
-    }
-
-    if (modalBackdrop) {
-        modalBackdrop.addEventListener('click', function() {
-            closeLogoutModal();
-        });
-    }
 });
+
 </script>
