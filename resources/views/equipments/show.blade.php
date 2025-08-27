@@ -23,7 +23,7 @@
         </script>
     @endif
 
-    <div class="max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
+    <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row gap-6 items-start">
 
             <div class="md:w-1/2">

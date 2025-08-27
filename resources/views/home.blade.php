@@ -1,10 +1,10 @@
 <x-app-layout>
-    <div class="">
+    <div class=" ">
         <x-filter />
         <hr>
     </div>
-    <div class="max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5 my-5">
+    <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-6 lg:gap-5 my-5">
             @foreach ($equipments as $equipment)
                 <a href="{{ route('equipments.show', encrypt($equipment->id)) }}" class="block">
                     <div class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
@@ -32,7 +32,10 @@
                             <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">
                                 {{ $equipment->name }}</h3>
                             <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{{ $equipment->category->name }}</p>
-                            <p class="text-xs text-gray-400 mb-2">{{ $equipment->description }}</p>
+                            <p class="text-xs text-gray-400 mb-2 line-clamp-2">
+                                {{ $equipment->description }}
+                            </p>
+
                             {{-- <span class="text-sm sm:text-lg font-semibold text-green-600">Free</span> --}}
                         </div>
                     </div>

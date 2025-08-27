@@ -12,7 +12,6 @@ class HomeController extends Controller
     {
         $query = Equipment::query();
 
-        // Filter by category code if provided (?category=CODE)
         if ($request->filled('category')) {
             $categoryCode = (string) $request->get('category');
             $categoryId = Category::where('cate_id', $categoryCode)->value('id');
@@ -20,8 +19,6 @@ class HomeController extends Controller
                 $query->where('categories_id', $categoryId);
             }
         }
-
-        // Filter by equipment status if provided (?status=available|unavailable|maintenance)
         if ($request->filled('status')) {
             $status = (string) $request->get('status');
             $allowed = ['available', 'unavailable', 'maintenance'];
@@ -30,7 +27,7 @@ class HomeController extends Controller
             }
         }
 
-        $equipments = $query->paginate(12)->withQueryString();
+        $equipments = $query->paginate(15)->withQueryString();
 
         $categories = Category::all();
         return view('home', [
