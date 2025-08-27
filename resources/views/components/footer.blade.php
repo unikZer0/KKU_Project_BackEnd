@@ -1,5 +1,5 @@
 <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="flex justify-between  p-4">
             <div>
                 <div class="flex items-center space-x-2">

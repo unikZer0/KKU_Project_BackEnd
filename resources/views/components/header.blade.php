@@ -1,6 +1,6 @@
 <header class="bg-white shadow-sm border-b lg:pb-10 border-gray-200">
     <!-- Top Navigation Bar -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex items-center">
@@ -114,7 +114,7 @@
     </div>
 
     <!-- Search Bar Section (Vue mount) -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
         <div id="header-search" >
         </div>
         <!-- Navigation Links - Hidden on mobile -->

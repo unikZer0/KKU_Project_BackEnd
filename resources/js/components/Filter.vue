@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 flex justify-end">
+    <div class="max-w-screen-2xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 flex justify-end">
         <div class="flex space-x-2">
             <!--  applied-filters  -->
             <div class="relative inline-block text-left" v-if="appliedCount > 0">
