@@ -32,27 +32,27 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [AdminController::class, 'index'])->name('index');
         });
 
-        Route::prefix('admin')->name('admin.')->group(function () {
+        Route::prefix('admin/equipment')->name('admin.')->group(function () {
             // Equipments
-            Route::get('/equipment', [EquipmentController::class, 'index'])->name('equipment.index');
-            Route::get('/equipment/add', [EquipmentController::class, 'add_equipment'])->name('equipment.create');
-            Route::post('/equipment/create', [EquipmentController::class, 'create_product'])->name('equipment.store');
-            Route::get('/equipment/{id}/edit', [EquipmentController::class, 'edit_equipment'])->name('equipment.edit');
-            Route::patch('/equipment/{id}', [EquipmentController::class, 'update_equipment'])->name('equipment.update');
-            Route::delete('/equipment/{id}', [EquipmentController::class, 'delete_equipment'])->name('equipment.delete');
+            Route::get('/', [EquipmentController::class, 'index'])->name('equipment.index');
+            Route::get('/add', [EquipmentController::class, 'add_equipment'])->name('equipment.create');
+            Route::post('/create', [EquipmentController::class, 'create_product'])->name('equipment.store');
+            Route::get('/{id}/edit', [EquipmentController::class, 'edit_equipment'])->name('equipment.edit');
+            Route::patch('/{id}', [EquipmentController::class, 'update_equipment'])->name('equipment.update');
+            Route::delete('/{id}', [EquipmentController::class, 'delete_equipment'])->name('equipment.delete');
             // test
             Route::get('/test-upload', [EquipmentController::class, 'test_upload_form'])->name('equipment.test_upload');
         });
     });
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin/category')->name('admin.')->group(function () {
         // Categories
-        Route::get('/categories', [CategoryController::class, 'index'])->name('category.index');
-        Route::get('/categories/create', [CategoryController::class, 'create'])->name('category.create');
-        Route::post('/categories', [CategoryController::class, 'store'])->name('category.store');
-        Route::get('/categories/{id}', [CategoryController::class, 'edit'])->name('category.edit');
-        Route::patch('/categories/{id}', [CategoryController::class, 'update'])->name('category.update');
-        Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('category.delete');
+        Route::get('/', [CategoryController::class, 'index'])->name('category.index');
+        Route::get('/create', [CategoryController::class, 'create'])->name('category.create');
+        Route::post('/', [CategoryController::class, 'store'])->name('category.store');
+        Route::get('/{id}', [CategoryController::class, 'edit'])->name('category.edit');
+        Route::patch('/{id}', [CategoryController::class, 'update'])->name('category.update');
+        Route::delete('/{id}', [CategoryController::class, 'destroy'])->name('category.delete');
     });
 });
 
@@ -73,10 +73,10 @@ Route::middleware('can:staff')->group(function () {
 });
 
 Route::middleware('can:borrower')->group(function () {
-        Route::prefix('/borrower')->group(function () {
-            Route::post('/borrow_request', [BorrowerCtrl::class, 'myRequests'])->name('borrower.borrow_request');
-            Route::get('/myreq', [BorrowerCtrl::class, 'myreq'])->name('borrower.equipments.myreq');
-        });
+    Route::prefix('/borrower')->group(function () {
+        Route::post('/borrow_request', [BorrowerCtrl::class, 'myRequests'])->name('borrower.borrow_request');
+        Route::get('/myreq', [BorrowerCtrl::class, 'myreq'])->name('borrower.equipments.myreq');
     });
+});
 
 require __DIR__ . '/auth.php';
