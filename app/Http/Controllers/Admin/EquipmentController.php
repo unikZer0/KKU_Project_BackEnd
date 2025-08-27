@@ -22,7 +22,7 @@ class EquipmentController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.equipment.store', compact('categories'));
+        return view('admin.equipment.create', compact('categories'));
     }
 
     //! TEST UPLOAD FORM - UnikZer0
@@ -51,11 +51,19 @@ class EquipmentController extends Controller
 
         $equipment = Equipment::create($data);
 
-        return response()->json([
-            "status" => true,
-            "message" => "Equipment created successfully",
-            "data" => $equipment
-        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                "status" => true,
+                "message" => "Equipment created successfully",
+                "data" => $equipment,
+                dd($data)
+            ]);
+        }
+
+        // 👉 otherwise (normal web form), redirect
+        return redirect()->route('admin.equipment.index')
+            ->with('success', 'เพิ่มอุปกรณ์เรียบร้อยแล้ว');
     }
 
     //!EDIT FORM

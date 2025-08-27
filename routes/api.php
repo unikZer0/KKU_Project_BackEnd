@@ -12,8 +12,6 @@ use App\Models\Equipment;
 
 // Route::apiResource("equipments", EquipmentsController::class);
 // Route::apiResource("categories", CategoriesController::class);
-Route::apiResource("equipments", EquipmentsController::class);
-Route::apiResource("categories", CategoriesController::class);
 Route::get('/equipments', function () {
     return Equipment::all();
 });
