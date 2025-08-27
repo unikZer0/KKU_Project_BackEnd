@@ -31,7 +31,7 @@
                     class="w-full h-auto object-cover rounded-lg shadow-lg">
             </div>
 
-            <div class="md:w-1/2 flex flex-col justify-start gap-4">
+            <div class="md:w-1/2 flex flex-col justify-start gap-4 p-5 border border-gray-300 rounded-lg lg:p-10">
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ $equipment->name }}</h1>
                 <p class="text-gray-500 text-lg">{{ $equipment->category->name }}</p>
                 <p class="text-gray-500 text-lg">{{ $equipment->description }}</p>
@@ -42,8 +42,9 @@
                         {{ ucfirst($equipment->status) }}
                     </span>
                 </p>
+                <p class="mt-4 font-semibold text-lg">เลือกวันที่รับ-ส่ง :</p>
                 {{-- <p class="text-green-600 font-semibold text-lg">Free</p> --}}
-                <div class="mt-4 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="ทะข/ p-6 bg-gray-50 border border-gray-200 rounded-lg">
                     <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
                         @csrf
                         <div class="mb-4">
@@ -54,6 +55,7 @@
                                 class="w-full p-2 border border-gray-300 rounded-md">
                         </div>
                         <div class="mb-6">
+                            
                             <label for="end_at"
                                 class="block text-sm font-semibold text-gray-700 mb-1">วันที่คืน:</label>
                             <input type="date" id="end_at" name="end_at" required

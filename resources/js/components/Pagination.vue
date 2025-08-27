@@ -11,7 +11,7 @@ onMounted(() => {
   if (paginationEl) {
     currentPage.value = parseInt(paginationEl.dataset.currentPage) || 1;
     totalPages.value = parseInt(paginationEl.dataset.totalPages) || 1;
-    perPage.value = parseInt(paginationEl.dataset.perPage) || 12;
+    perPage.value = parseInt(paginationEl.dataset.perPage) || 15;
     total.value = parseInt(paginationEl.dataset.total) || 0;
   }
 });
@@ -35,7 +35,7 @@ const changePage = (page) => {
 
 <template>
     <hr>
-  <nav class="flex items-center justify-center gap-1 sm:gap-2 m-4 sm:m-6">
+  <nav class="flex max-w-screen-2xl items-center justify-center gap-1 sm:gap-2 m-4 sm:m-6">
     <div class="text-xs sm:text-sm text-gray-600 mb-4 text-center w-full">
       Showing {{ (currentPage - 1) * perPage + 1 }} to {{ Math.min(currentPage * perPage, total) }} of {{ total }} results
     </div>
