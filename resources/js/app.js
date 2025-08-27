@@ -9,6 +9,7 @@ import Filter from './components/Filter.vue';
 import Pagination from './components/Pagination.vue';
 import AdminApproveTable from './components/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
+import EquipmentTable from './components/EquipmentTable.vue';
 
 // Header Search
 const headerEl = document.getElementById('header-search');
@@ -36,4 +37,9 @@ if (chartEl) {
     const unavailable = parseInt(chartEl.dataset.unavailable);
     const maintenance = parseInt(chartEl.dataset.maintenance);
     createApp(ChartDashboard, { available, unavailable, maintenance }).mount(chartEl);
+}
+
+const equipmentTableEl = document.getElementById('equipment-table');
+if (equipmentTableEl) {
+    createApp(EquipmentTable).mount(equipmentTableEl);
 }
