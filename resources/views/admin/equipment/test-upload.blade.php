@@ -3,6 +3,7 @@
 <div class="max-w-2xl mx-auto p-6">
     <h1 class="text-2xl font-semibold mb-4">Test Upload Equipment</h1>
     <form action="{{ route('admin.equipment.store') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
+    <form action="{{ route('admin.equipment.test_upload') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
         @csrf
         <div>
             <label class="block text-sm font-medium mb-1">Name</label>

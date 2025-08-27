@@ -9,23 +9,20 @@ use App\Models\Category;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    //!DISPLAY ALL CATEGORIES
     public function index()
     {
         $categories = Category::withCount('equipments')->get();
         return view('admin.category.index', compact('categories'));
     }
 
+    //!DISPLAY CREATE FORM
     public function create()
     {
         return view('admin.category.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    //!STORE A NEW CATEGORY
     public function store(Request $request)
     {
         $category = new Category();
@@ -35,18 +32,14 @@ class CategoryController extends Controller
         return redirect()->route('admin.category.index')->with('success', 'Category added successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
+    //!DISPLAY EDIT FORM
     public function edit(string $id)
     {
         $category = Category::findOrFail($id);
         return view('admin.category.edit', compact('category'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    //!UPDATE CATEGORY INFO
     public function update(Request $request, string $id)
     {
         $category = Category::findOrFail($id);
@@ -56,9 +49,7 @@ class CategoryController extends Controller
         return redirect()->route('admin.category')->with('success', 'Category updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    //!DELETE CATEGORY
     public function destroy(string $id)
     {
         $category = Category::findOrFail($id);

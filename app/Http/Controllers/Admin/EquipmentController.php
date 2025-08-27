@@ -10,7 +10,7 @@ use App\Models\Equipment;
 
 class EquipmentController extends Controller
 {
-    //!VIEW
+    //!VIEW EQUIPMENTS
     public function index()
     {
         $equipments = Equipment::with('category')->get();
@@ -18,21 +18,21 @@ class EquipmentController extends Controller
     }
 
 
-    //!ADD FORM
+    //!CREATE EQUIPMENTS FORM
     public function create()
     {
         $categories = Category::all();
-        return view('admin.equipment.create', compact('categories'));
+        return view('admin.equipment.store', compact('categories'));
     }
 
-    //! TEST UPLOAD FORM
+    //! TEST UPLOAD FORM - UnikZer0
     public function test_upload_form()
     {
         $categories = Category::all();
         return view('admin.equipment.test-upload', compact('categories'));
     }
 
-    //! CREATE EQUIPMENTS
+    //! STORE AN EQUIPMENT INTO DATABASE
     public function store(Request $request, CloudinaryService $cloudinary)
     {
         $data = $request->validate([
@@ -66,6 +66,7 @@ class EquipmentController extends Controller
         return view('admin.equipment.edit', compact('equipment', 'categories'));
     }
 
+    //!UPDATE EQUIPMENTS INFO
     public function update(Request $request, $id, CloudinaryService $cloudinary)
     {
         $equipment = Equipment::findOrFail($id);
@@ -92,8 +93,8 @@ class EquipmentController extends Controller
         ]);
     }
 
-    //!DELETE
-    public function delete($id)
+    //!DELETE EQUIPMENTS
+    public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
         $equipment->delete();
