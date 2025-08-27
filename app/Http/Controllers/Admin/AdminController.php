@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Equipment;
 use App\Models\Category;
+use App\Models\User;
 use App\Models\BorrowRequest;
 
 class AdminController extends Controller
@@ -18,7 +19,7 @@ class AdminController extends Controller
         ->map(function ($r) {
             return [
                 'id' => $r->id,
-                'user_name' => $r->user->name ?? 'N/A',
+                'user_name' => $r->user->username ?? 'N/A',
                 'equipment_name' => $r->equipment->name ?? 'N/A',
                 'date' => $r->created_at->format('Y-m-d'),
                 'status' => ucfirst($r->status),

@@ -13,9 +13,9 @@
       <tbody>
         <tr v-for="request in requests" :key="request.id">
           <td class="px-4 py-2">{{ request.id }}</td>
-          <td class="px-4 py-2">{{ request.user.name }}</td>
-          <td class="px-4 py-2">{{ request.equipment.name }}</td>
-          <td class="px-4 py-2">{{ request.created_at }}</td>
+          <td class="px-4 py-2">{{ request.user_name }}</td>
+          <td class="px-4 py-2">{{ request.equipment_name }}</td>
+          <td class="px-4 py-2">{{ request.date }}</td>
           <td class="px-4 py-2">{{ request.status }}</td>
         </tr>
       </tbody>
