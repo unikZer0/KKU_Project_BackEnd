@@ -34,7 +34,25 @@
             <div class="md:w-1/2 flex flex-col justify-start gap-4 p-5 border border-gray-300 rounded-lg lg:p-10">
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ $equipment->name }}</h1>
                 <p class="text-gray-500 text-lg">{{ $equipment->category->name }}</p>
-                <p class="text-gray-500 text-lg">{{ $equipment->description }}</p>
+                <div class="text-gray-500 text-lg">
+                    <div x-data="{ expanded: false }" class="block md:hidden">
+                        <span x-show="!expanded">
+                            {{ \Illuminate\Support\Str::limit($equipment->description, 80, '...') }}
+                        </span>
+                        <span x-show="expanded">
+                            {{ $equipment->description }}
+                        </span>
+                        <button @click="expanded = !expanded" class="ml-2 text-blue-600 underline focus:outline-none">
+                            <span x-show="!expanded">ดูเพี่มเตีม</span>
+                            <span x-show="expanded">แสดงน้อยลง</span>
+                        </button>
+                    </div>
+
+                    <div class="hidden md:block">
+                        {{ $equipment->description }}
+                    </div>
+                </div>
+
 
                 <p class="text-gray-700">Status:
                     <span
@@ -55,20 +73,19 @@
                                 class="w-full p-2 border border-gray-300 rounded-md">
                         </div>
                         <div class="mb-6">
-                            
+
                             <label for="end_at"
                                 class="block text-sm font-semibold text-gray-700 mb-1">วันที่คืน:</label>
                             <input type="date" id="end_at" name="end_at" required
                                 class="w-full p-2 border border-gray-300 rounded-md">
                         </div>
                         @if ($hasBorrowed)
-                            <a href="{{route('borrower.equipments.myreq')}}"
-                                
-                                >
-                                <button type="button" class="w-full bg-yellow-500 text-white font-bold py-2 rounded-md">
-                                     go to my req
+                            <a href="{{ route('borrower.equipments.myreq') }}">
+                                <button type="button"
+                                    class="w-full bg-yellow-500 text-white font-bold py-2 rounded-md">
+                                    go to my req
                                 </button>
-                    </a>
+                            </a>
                         @elseif ($equipment->status === 'maintenance')
                             <button type="button"
                                 class="w-full bg-red-500 text-white font-bold py-2 rounded-md cursor-not-allowed"

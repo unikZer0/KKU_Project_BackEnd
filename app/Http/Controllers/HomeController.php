@@ -29,6 +29,7 @@ class HomeController extends Controller
 
         $equipments = $query->paginate(15)->withQueryString();
 
+
         $categories = Category::all();
         return view('home', [
             'equipments' => $equipments,
