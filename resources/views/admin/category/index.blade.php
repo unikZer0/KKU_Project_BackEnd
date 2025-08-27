@@ -17,7 +17,7 @@
                     <td class="px-4 py-2">
                         <a href="{{ route('admin.category.edit', $category->id) }}" class="text-blue-600">แก้ไขข้อมูล</a>
                         |
-                        <a href="{{ route('admin.category.delete', $category->id) }}" class="text-blue-600">ลบรายการ</a>
+                        <a href="{{ route('admin.category.destroy', $category->id) }}" class="text-blue-600">ลบรายการ</a>
                     </td>
                 </tr>
                 @endforeach
