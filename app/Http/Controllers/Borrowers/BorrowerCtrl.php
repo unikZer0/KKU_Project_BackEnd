@@ -100,23 +100,40 @@ class BorrowerCtrl extends Controller
             ->orderBy('start_at')
             ->get();
         $currentDate = Carbon::now()->toDateString();
-        return view('equipments.show', compact('equipment', 'bookings', 'hasBorrowed','currentDate'));
+        return view('equipments.show', compact('equipment', 'bookings', 'hasBorrowed', 'currentDate'));
 
     }
 
     public function myreq()
-    {   
+    {
         $userId = Auth::id();
         if (!Auth::check()) {
             return redirect()->back()->with('showLoginConfirm', true);
         }
         $reQuests = BorrowRequest::with(
             'equipment:id,code,name,description,categories_id,photo_path',
-                        'user:id,uid,username,age,email,phonenumber',
-                        'equipment.category:id,name')
-                        ->where('users_id',$userId)
-                        ->get();
-                        // dd('id:',$reQuests);
-        return view('equipments.myreq',compact('reQuests'));
+            'user:id,uid,username,age,email,phonenumber',
+            'equipment.category:id,name'
+        )
+            ->where('users_id', $userId)
+            ->get();
+        // dd('id:',$reQuests);
+        return view('equipments.myreq', compact('reQuests'));
     }
+    public function cancel(Request $request, $id)
+{
+    $request->validate([
+        'cancel_reason' => 'required|array|min:1',
+    ]);
+
+    $reasons = implode(', ', $request->cancel_reason);
+
+    $req = BorrowRequest::findOrFail($id);
+    $req->status = 'cancelled';
+    $req->cancel_reason = $reasons;
+    $req->save();
+
+    return redirect()->back()->with('success', 'คำขอถูกยกเลิกแล้ว');
+}
+
 }

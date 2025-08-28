@@ -9,6 +9,7 @@ class BorrowRequest extends Model
 {
     protected $table = 'borrow_requests';
     protected $fillable = [
+        'id',
         'users_id',
         'req_id',
         'equipments_id',
@@ -16,6 +17,7 @@ class BorrowRequest extends Model
         'end_at',
         'status',
         'reject_reason',
+        'cancel_reason',
         'uid',
         'username',
         'age',
@@ -27,7 +29,10 @@ class BorrowRequest extends Model
         "description",
         "categories_id",
     ];
-
+protected $casts = [
+    'start_at' => 'datetime',
+    'end_at' => 'datetime',
+];
     public function user()
     {
         return $this->belongsTo(User::class, 'users_id', 'id');
