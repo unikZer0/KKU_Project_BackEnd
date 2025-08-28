@@ -81,7 +81,6 @@
                             <form action="{{ route('borrower.requests.cancel', $req->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
-
                                 <div class="space-y-2 mb-4">
                                     <label class="flex items-center gap-2">
                                         <input type="checkbox" name="cancel_reason[]" value="เปลี่ยนใจ"
