@@ -40,8 +40,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/edit/{id}', [EquipmentController::class, 'edit'])->name('equipment.edit');
             Route::patch('/update/{id}', [EquipmentController::class, 'update'])->name('equipment.update');
             Route::delete('/destroy/{id}', [EquipmentController::class, 'destroy'])->name('equipment.destroy');
-            // test
-            Route::get('/test-upload', [EquipmentController::class, 'test_upload_form'])->name('equipment.test_upload');
         });
     });
 

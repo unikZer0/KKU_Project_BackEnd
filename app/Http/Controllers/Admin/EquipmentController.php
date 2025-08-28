@@ -15,10 +15,6 @@ class EquipmentController extends Controller
     {
         $equipments = Equipment::with('category')->get();
         return view('admin.equipment.index', compact('equipments'));
-        // return response()->json([
-        //     'status' => true,
-        //     'data' => $equipments
-        // ]);
     }
 
 
@@ -65,7 +61,6 @@ class EquipmentController extends Controller
             ]);
         }
 
-        // 👉 otherwise (normal web form), redirect
         return redirect()->route('admin.equipment.index')
             ->with('success', 'เพิ่มอุปกรณ์เรียบร้อยแล้ว');
     }
