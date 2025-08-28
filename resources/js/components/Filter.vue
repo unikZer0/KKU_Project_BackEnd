@@ -59,10 +59,6 @@
                             <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="maintenance"/>
                             <span>Maintenance</span>
                         </label>
-                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="unavailable"/>
-                            <span>Unavailable</span>
-                        </label>
                     </div>
                 </div>
 
