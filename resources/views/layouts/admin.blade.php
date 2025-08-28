@@ -35,6 +35,29 @@
                     });
                 }
             });
+            document.addEventListener('DOMContentLoaded', function() {
+        const logoutForms = document.querySelectorAll('.logout-form');
+
+        logoutForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'ยืนยันการออกจากระบบ',
+                    text: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ตกลง',
+                    cancelButtonText: 'ยกเลิก',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
         </script>
     </body>
     </html>
