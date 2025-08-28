@@ -11,6 +11,7 @@ use App\Models\User;
 
 use App\Models\Equipment;
 use App\Models\Category;
+use Carbon\Carbon;
 
 class BorrowerCtrl extends Controller
 {
@@ -98,8 +99,8 @@ class BorrowerCtrl extends Controller
             ->whereIn('status', ['pending', 'approved', 'check_out'])
             ->orderBy('start_at')
             ->get();
-
-        return view('equipments.show', compact('equipment', 'bookings', 'hasBorrowed'));
+        $currentDate = Carbon::now()->toDateString();
+        return view('equipments.show', compact('equipment', 'bookings', 'hasBorrowed','currentDate'));
 
     }
 
@@ -110,7 +111,7 @@ class BorrowerCtrl extends Controller
             return redirect()->back()->with('showLoginConfirm', true);
         }
         $reQuests = BorrowRequest::with(
-            'equipment:id,code,name,description,categories_id',
+            'equipment:id,code,name,description,categories_id,photo_path',
                         'user:id,uid,username,age,email,phonenumber',
                         'equipment.category:id,name')
                         ->where('users_id',$userId)

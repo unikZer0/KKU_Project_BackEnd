@@ -109,20 +109,24 @@
 
                     </form>
                     <p id="message" class="text-center mt-4 font-semibold">
-                        @if($bookings->count())
-    <div class="mt-6 bg-gray-50 p-4 rounded-lg border">
-        <h3 class="font-semibold text-lg mb-2">ช่วงเวลาที่ถูกจองแล้ว:</h3>
-        <ul class="list-disc ml-5 text-gray-600">
-            @foreach($bookings as $b)
-                <li>
-                    {{ \Carbon\Carbon::parse($b->start_at)->format('d/m/Y') }}
-                    -
-                    {{ \Carbon\Carbon::parse($b->end_at)->format('d/m/Y') }}
-                </li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+                        @if ($bookings->count())
+                            <div class="mt-6 bg-gray-50 p-4 rounded-lg border">
+                                <h3 class="font-semibold text-lg mb-2">ช่วงเวลาที่ถูกจองแล้ว:</h3>
+                                <ul class="list-disc ml-5 text-gray-600">
+                                    @foreach ($bookings as $b)
+                                    @if ($currentDate < $b->end_at)
+                                        <li>
+                                            {{ \Carbon\Carbon::parse($b->start_at)->format('d/m/Y') }}
+                                            -
+                                            {{ \Carbon\Carbon::parse($b->end_at)->format('d/m/Y') }}
+                                        </li>
+                                    @endif
+                                        
+                                        
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
                     </p>
                 </div>

@@ -19,6 +19,7 @@ class BorrowRequest extends Model
         'uid',
         'username',
         'age',
+        'photo_path',
         'email',
         'phonenumber',
         "code",
@@ -36,9 +37,9 @@ class BorrowRequest extends Model
         return $this->belongsTo(Equipment::class, 'equipments_id', 'id');
     }
     public function category()
-{
-    return $this->belongsTo(Category::class, 'categories_id', 'id');
-}
+    {
+        return $this->belongsTo(Category::class, 'categories_id', 'id');
+    }
     protected static function generatereq_id()
     {
         do {
