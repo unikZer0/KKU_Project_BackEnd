@@ -46,7 +46,7 @@ class CategoryController extends Controller
         $category->name = $request->input('name');
         $category->save();
 
-        return redirect()->route('admin.category')->with('success', 'Category updated successfully.');
+        return redirect()->route('admin.category.index')->with('success', 'Category updated successfully.');
     }
 
     //!DELETE CATEGORY
@@ -55,6 +55,6 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('admin.category')->with('success', 'Category deleted successfully.');
+        return redirect()->route('admin.category.index')->with('success', 'Category deleted successfully.');
     }
 }

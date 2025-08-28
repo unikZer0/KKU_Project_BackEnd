@@ -10,6 +10,7 @@ import Pagination from './components/Pagination.vue';
 import AdminApproveTable from './components/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
 import EquipmentTable from './components/EquipmentTable.vue';
+import CategoriesTable from './components/CategoryTable.vue';
 
 // Header Search
 const headerEl = document.getElementById('header-search');
@@ -42,4 +43,9 @@ if (chartEl) {
 const equipmentTableEl = document.getElementById('equipment-table');
 if (equipmentTableEl) {
     createApp(EquipmentTable).mount(equipmentTableEl);
+}
+
+const categoryTableEl = document.getElementById('category-table');
+if (categoryTableEl) {
+    createApp(CategoriesTable).mount(categoryTableEl);
 }
