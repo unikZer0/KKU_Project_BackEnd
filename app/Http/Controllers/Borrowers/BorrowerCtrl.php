@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\BorrowRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Categories;
+use App\Models\User;
 
 use App\Models\Equipment;
 use App\Models\Category;
@@ -103,7 +104,18 @@ class BorrowerCtrl extends Controller
     }
 
     public function myreq()
-    {
-        return view('equipments.myreq');
+    {   
+        $userId = Auth::id();
+        if (!Auth::check()) {
+            return redirect()->back()->with('showLoginConfirm', true);
+        }
+        $reQuests = BorrowRequest::with(
+            'equipment:id,code,name,description,categories_id',
+                        'user:id,uid,username,age,email,phonenumber',
+                        'equipment.category:id,name')
+                        ->where('users_id',$userId)
+                        ->get();
+                        // dd('id:',$reQuests);
+        return view('equipments.myreq',compact('reQuests'));
     }
 }

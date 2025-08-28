@@ -9,25 +9,37 @@ class BorrowRequest extends Model
 {
     protected $table = 'borrow_requests';
     protected $fillable = [
-    'users_id',     
-    'req_id',     
-    'equipments_id', 
-    'start_at',      
-    'end_at',       
-    'status',
-    'reject_reason'
-];
+        'users_id',
+        'req_id',
+        'equipments_id',
+        'start_at',
+        'end_at',
+        'status',
+        'reject_reason',
+        'uid',
+        'username',
+        'age',
+        'email',
+        'phonenumber',
+        "code",
+        "name",
+        "description",
+        "categories_id",
+    ];
 
-public function user()
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id', 'id');
+    }
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class, 'equipments_id', 'id');
+    }
+    public function category()
 {
-    return $this->belongsTo(User::class, 'users_id', 'id');
+    return $this->belongsTo(Category::class, 'categories_id', 'id');
 }
-
-public function equipment()
-{
-    return $this->belongsTo(Equipment::class, 'equipments_id', 'id');
-}
-protected static function generatereq_id()
+    protected static function generatereq_id()
     {
         do {
             $req_id = 'REQ' . strtoupper(Str::random(10));
