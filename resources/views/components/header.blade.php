@@ -129,40 +129,57 @@
         <div id="header-search">
         </div>
         <!-- Navigation Links - Hidden on mobile -->
+        <!-- Desktop Menu -->
         <div class="hidden md:flex justify-end space-x-8">
-
-            <a href="{{route('home')}}" class="text-blue-600 hover:text-blue-700 font-medium">หน้าหลัก</a>
+            <a href="{{ route('home') }}"
+                class="{{ request()->routeIs('home') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }}">
+                หน้าหลัก
+            </a>
 
             <!-- Dropdown -->
             <div class="relative group">
-                <button class="flex items-center text-gray-700 hover:text-blue-700 font-medium">
+                <button
+                    class="flex items-center {{ request()->is('category*') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }}">
                     หมวดหมู่
                     <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0
-                            111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0
-                            010-1.414z" clip-rule="evenodd" />
+                        111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0
+                        010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </button>
-                <!-- Dropdown menu -->
                 <div
                     class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     @foreach ($categories ?? [] as $cat)
                         @if (is_object($cat))
                             <a href="/?category={{ $cat->cate_id }}"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ $cat->name }}</a>
+                                class="block px-4 py-2 text-sm {{ request('category') == $cat->cate_id ? 'text-blue-600 font-medium bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
+                                {{ $cat->name }}
+                            </a>
                         @endif
                     @endforeach
                 </div>
             </div>
-            <a href="#" class="text-gray-700 hover:text-blue-700 ">ติดต่อ</a>
+{{-- {{ request()->routeIs('contact') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }} --}}
+            <a href="#"
+                class="">
+                ติดต่อ
+            </a>
+
             @can('admin')
-                <a href="{{ route('admin.index') }}" class="text-gray-700 hover:text-gray-900 font-medium">แอดมิน</a>
+                <a href="{{ route('admin.index') }}"
+                    class="{{ request()->routeIs('admin.*') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-gray-900' }}">
+                    แอดมิน
+                </a>
             @endcan
+
             @can('borrower')
                 <a href="{{ route('borrower.equipments.myreq') }}"
-                    class="text-gray-700 hover:text-blue-700 0 font-medium">คำขอของฉัน</a>
+                    class="{{ request()->routeIs('borrower.equipments.myreq') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }}">
+                    คำขอของฉัน
+                </a>
             @endcan
         </div>
+
         {{-- Breadcrumb --}}
         <nav class="flex items-center text-sm text-gray-500 space-x-1 mb-4" aria-label="Breadcrumb">
             {{-- Home --}}
@@ -196,26 +213,26 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const menuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuIcon = document.getElementById('menu-icon');
-    const closeIcon = document.getElementById('close-icon');
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
 
-    menuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        menuIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-    });
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        });
 
-    document.querySelectorAll('.mobile-submenu-toggle').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const submenu = btn.nextElementSibling;
-            submenu.classList.toggle('hidden');
-            const arrow = btn.querySelector('svg');
-            arrow.classList.toggle('rotate-180');
+        document.querySelectorAll('.mobile-submenu-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const submenu = btn.nextElementSibling;
+                submenu.classList.toggle('hidden');
+                const arrow = btn.querySelector('svg');
+                arrow.classList.toggle('rotate-180');
+            });
         });
     });
-});
     document.addEventListener('DOMContentLoaded', function() {
         const logoutForms = document.querySelectorAll('.logout-form');
 
