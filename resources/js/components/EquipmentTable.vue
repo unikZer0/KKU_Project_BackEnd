@@ -96,7 +96,7 @@ export default {
     },
     deleteEquipment(id) {
       if (confirm("Are you sure you want to delete this equipment?")) {
-        fetch(`/admin/equipment/${id}`, {
+        fetch(`/admin/equipment/destroy/${id}`, {
           method: "DELETE",
           headers: { "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content }
         }).then(() => {
