@@ -40,7 +40,7 @@
       </thead>
       <tbody>
         <tr v-for="equipment in filteredEquipments" :key="equipment.id" class="border-b">
-          <td class="px-4 py-2">{{ equipment.id }}</td>
+          <td class="px-4 py-2">{{ equipment.code }}</td>
           <td class="px-4 py-2">{{ equipment.name }}</td>
           <td class="px-4 py-2">{{ equipment.category?.name || 'N/A' }}</td>
           <td class="px-4 py-2">{{ capitalize(equipment.status) }}</td>
