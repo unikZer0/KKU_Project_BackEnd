@@ -38,7 +38,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/create', [EquipmentController::class, 'create'])->name('equipment.create');
             Route::post('/store', [EquipmentController::class, 'store'])->name('equipment.store');
             Route::get('/edit/{id}', [EquipmentController::class, 'edit'])->name('equipment.edit');
-            Route::patch('/update/{id}', [EquipmentController::class, 'update'])->name('equipment.update');
+            Route::put('/update/{id}', [EquipmentController::class, 'update'])->name('equipment.update');
             Route::delete('/destroy/{id}', [EquipmentController::class, 'destroy'])->name('equipment.destroy');
         });
     });
@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [CategoryController::class, 'create'])->name('category.create');
         Route::post('/store', [CategoryController::class, 'store'])->name('category.store');
         Route::get('/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
-        Route::patch('/update/{id}', [CategoryController::class, 'update'])->name('category.update');
+        Route::put('/update/{id}', [CategoryController::class, 'update'])->name('category.update');
         Route::delete('/destroy/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
     });
 });

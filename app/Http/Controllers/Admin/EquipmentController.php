@@ -57,7 +57,6 @@ class EquipmentController extends Controller
                 "status" => true,
                 "message" => "Equipment created successfully",
                 "data" => $equipment,
-                dd($data)
             ]);
         }
 
@@ -93,11 +92,18 @@ class EquipmentController extends Controller
 
         $equipment->update($data);
 
-        return response()->json([
-            "status" => true,
-            "message" => "Equipment updated successfully",
-            "data" => $equipment
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                "status" => true,
+                "message" => "Equipment updated successfully",
+                "data" => $equipment
+            ]);
+        }
+
+        // 👇 If normal web request (Blade form)
+        return redirect()
+            ->route('admin.equipment.index')
+            ->with('success', 'Equipment updated successfully');
     }
 
     //!DELETE EQUIPMENTS
