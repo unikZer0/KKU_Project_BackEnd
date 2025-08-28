@@ -27,7 +27,7 @@ class Equipment extends Model
         return $code;
     }
 
-protected static function boot()
+    protected static function boot()
     {
         parent::boot();
 
@@ -36,10 +36,8 @@ protected static function boot()
         });
     }
 
-   public function category()
-{
-    return $this->belongsTo(\App\Models\Category::class, 'categories_id');
-}
-
-
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'categories_id', 'id');
+    }
 }

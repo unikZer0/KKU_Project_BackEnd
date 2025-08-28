@@ -76,8 +76,11 @@ export default {
     }
   },
   mounted() {
-    this.fetchEquipments();
-  }
+  const el = document.getElementById("equipment-table");
+  if (el) {
+    this.equipments = JSON.parse(el.dataset.equipments || "[]");
+    }
+  },
 };
 </script>
 
