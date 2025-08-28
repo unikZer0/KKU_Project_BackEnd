@@ -23,7 +23,6 @@
                         </span>
                     </div>
 
-                    <!-- Equipment -->
                     <div class="flex gap-4 mb-4">
                         <img src="{{ $req->equipment->photo_path }}" 
                              alt="รูปอุปกรณ์" 
@@ -32,6 +31,9 @@
                             <h3 class="font-semibold text-gray-800">{{ $req->equipment->name }}</h3>
                             <p class="text-sm text-gray-500">รหัส: {{ $req->equipment->code }}</p>
                             <p class="text-sm text-gray-500">หมวดหมู่: {{ $req->equipment->category->name }}</p>
+                            <span>
+                            {{ $req->equipment->description }}
+                        </span>
                             <div x-data="{ expanded: false }" class="block md:hidden">
                         <span x-show="!expanded">
                             {{ \Illuminate\Support\Str::limit($req->equipment->description, 80, '...') }}
@@ -63,6 +65,13 @@
                             <h3 class="font-semibold text-red-700">เหตุผลที่ถูกปฏิเสธ</h3>
                             <p class="text-sm text-red-600 italic">{{ $req->reject_reason }}</p>
                         </div>
+                    @endif
+                    @if ($req->status == 'pending')
+                        <div class="flex gap-3">
+                        <button class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition">
+                            ยกเลิกคำขอ
+                        </button>
+                    </div>
                     @endif
                 </div>
             @endforeach
