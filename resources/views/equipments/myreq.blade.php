@@ -10,7 +10,7 @@
                         <h2 class="text-lg font-semibold text-gray-800">
                             คำขอ #{{ $req->req_id }}
                         </h2>
-                        <span class="px-3 py-1 text-sm rounded-full
+                        <span class="px-7 py-2 text-sm rounded-full
                             @if($req->status === 'pending') bg-yellow-100 text-yellow-700
                             @elseif($req->status === 'approved') bg-green-100 text-green-700
                             @elseif($req->status === 'rejected') bg-red-100 text-red-700
