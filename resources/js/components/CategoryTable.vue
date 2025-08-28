@@ -37,7 +37,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="category in filteredcategory" :key="category.id" class="border-b">
+        <tr v-for="category in filteredCategories" :key="category.id" class="border-b">
           <td class="px-4 py-2">{{ category.cate_id }}</td>
           <td class="px-4 py-2">{{ category.name }}</td>
           <td class="px-4 py-2">
