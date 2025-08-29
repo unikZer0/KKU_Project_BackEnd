@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\CloudinaryService;
 use App\Models\Equipment;
 use App\Models\Category;
 use App\Models\User;
@@ -50,10 +51,10 @@ class AdminController extends Controller
         'equipmentStatusMonthly' => $equipmentStatusMonthly, // <- Add this
     ]);
 }
-public function requestIndex()
+public function requestIndex(CloudinaryService $cloudinary)
 {
     $requests = BorrowRequest::with('user', 'equipment')
-        ->where('status', 'pending')
+        ->where('status', 'pending') // only pending requests
         ->latest()
         ->get()
         ->map(function ($r) {
@@ -61,8 +62,12 @@ public function requestIndex()
                 'id' => $r->id,
                 'user_name' => $r->user->username ?? 'N/A',
                 'equipment_name' => $r->equipment->name ?? 'N/A',
+                'equipment_photo' => $r->equipment->photo_path ?? null,
+                'start_at' => $r->start_at ? $r->start_at->format('Y-m-d') : '-',
+                'end_at' => $r->end_at ? $r->end_at->format('Y-m-d') : '-',
                 'date' => $r->created_at->format('Y-m-d'),
                 'status' => ucfirst($r->status),
+                'reason' => $r->reject_reason ?? $r->cancel_reason ?? '-',
             ];
         });
 

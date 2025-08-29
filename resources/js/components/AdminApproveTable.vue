@@ -15,14 +15,17 @@
         <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">คำขอทั้งหมด</h2>
     </div>
-    <table class="min-w-full text-sm">
-      <thead class="bg-gray-50 border-t border-b">
+<div>
+    <!-- Table -->
+    <table class="min-w-full text-sm border">
+      <thead class="bg-gray-50 border-b">
         <tr>
-          <th class="text-left px-4 py-2">Request ID</th>
-          <th class="text-left px-4 py-2">User</th>
-          <th class="text-left px-4 py-2">Equipment</th>
-          <th class="text-left px-4 py-2">Date</th>
-          <th class="text-left px-4 py-2">Status</th>
+          <th class="px-4 py-2">Request ID</th>
+          <th class="px-4 py-2">User</th>
+          <th class="px-4 py-2">Equipment</th>
+          <th class="px-4 py-2">Date</th>
+          <th class="px-4 py-2">Status</th>
+          <th class="px-4 py-2">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -32,48 +35,67 @@
           <td class="px-4 py-2">{{ request.equipment_name }}</td>
           <td class="px-4 py-2">{{ request.date }}</td>
           <td class="px-4 py-2">{{ request.status }}</td>
-          <td class="px-4 py-2 space-x-2">
-              <button @click="approveRequest(request.id)" class="bg-green-500 text-white px-2 py-1 rounded">Approve</button>
-              <button @click="rejectRequest(request.id)" class="bg-red-500 text-white px-2 py-1 rounded">Reject</button>
+          <td class="px-4 py-2">
+            <button @click="openDetails(request)" class="bg-blue-500 text-white px-2 py-1 rounded">
+              View
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
+        <!-- Card / Modal -->
+    <div v-if="selectedRequest" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-96 relative">
+        <button @click="selectedRequest = null" class="absolute top-2 right-2 text-gray-500">✕</button>
+        <h2 class="text-lg font-semibold mb-2">Request #{{ selectedRequest.id }}</h2>
+        <p><strong>User:</strong> {{ selectedRequest.user_name }}</p>
+        <p><strong>Equipment:</strong> {{ selectedRequest.equipment_name }}</p>
+        <p v-if="selectedRequest.equipment_photo">
+          <img :src="selectedRequest.equipment_photo" class="h-32 w-32 object-cover rounded mt-2" />
+        </p>
+        <p><strong>Start At:</strong> {{ selectedRequest.start_at }}</p>
+        <p><strong>End At:</strong> {{ selectedRequest.end_at }}</p>
+        <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+        <p><strong>Reason:</strong> {{ selectedRequest.reason }}</p>
+        <div class="flex justify-end space-x-2 mt-4">
+          <button @click="approveRequest(selectedRequest.id)" class="bg-green-500 text-white px-3 py-1 rounded">Approve</button>
+          <button @click="rejectRequest(selectedRequest.id)" class="bg-red-500 text-white px-3 py-1 rounded">Reject</button>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'AdminApproveTable',
-  props: {
-    requests: Array
-  },
-
+  props: { requests: Array },
   data() {
     return {
-      searchQuery: ''
+      selectedRequest: null
     };
   },
-methods: {
-  approveRequest(id) {
-    axios.post(`/admin/requests/${id}/approve`)
-      .then(() => {
+  methods: {
+    openDetails(request) {
+      this.selectedRequest = request;
+    },
+    approveRequest(id) {
+      axios.post(`/admin/requests/${id}/approve`).then(() => {
         alert('Request approved');
-        window.location.reload(); // reload to see updated status
-      })
-      .catch(err => console.error(err));
-  },
-  rejectRequest(id) {
-    const reason = prompt('Enter rejection reason:');
-    if (!reason) return;
-
-    axios.post(`/admin/requests/${id}/reject`, { reason })
-      .then(() => {
+        window.location.reload();
+      });
+    },
+    rejectRequest(id) {
+      const reason = prompt('Enter rejection reason:');
+      if (!reason) return;
+      axios.post(`/admin/requests/${id}/reject`, { reason }).then(() => {
         alert('Request rejected');
         window.location.reload();
-      })
-      .catch(err => console.error(err));
+      });
+    }
   }
-}
-}
+};
 </script>
