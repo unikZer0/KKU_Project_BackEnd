@@ -1,4 +1,4 @@
-{{-- <x-app-layout>
+<x-app-layout>
     <div class="max-w-screen-2xl mx-auto py-8 px-3 sm:px-6 lg:px-8">
 
 
@@ -152,7 +152,4 @@
         </script>
     @endif
 
-</x-app-layout> --}}
-<x-app-layout>
-    hi
 </x-app-layout>
