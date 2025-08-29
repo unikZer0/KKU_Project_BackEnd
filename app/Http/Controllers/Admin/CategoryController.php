@@ -44,10 +44,14 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         $category = Category::findOrFail($id);
-        $category->name = $request->input('name');
+        $category->name = $request->name;
         $category->save();
 
-        return redirect()->route('admin.category.index')->with('success', 'Category updated successfully.');
+        return response()->json([
+            'status' => true,
+            'message' => 'Category updated successfully',
+            'data' => $category
+        ]);
     }
 
     //!DELETE CATEGORY

@@ -16,16 +16,13 @@
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold">อุปกรณ์ทั้งหมด</h2>
+      <h2 class="text-lg font-semibold mb-4">
+        อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
+      </h2>
       <button @click="goToCreate" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Assign New Equipment
+        เพิ่มอุปกรณ์ใหม่
       </button>
     </div>
-
-    <!-- Count -->
-    <h2 class="text-lg font-semibold mb-4">
-      Total Equipments: {{ filteredEquipments.length }}
-    </h2>
 
     <!-- Table -->
     <table class="min-w-full text-sm">
@@ -44,11 +41,21 @@
           <td class="px-4 py-2">{{ equipment.name }}</td>
           <td class="px-4 py-2">{{ equipment.category?.name || 'N/A' }}</td>
           <td class="px-4 py-2">{{ capitalize(equipment.status) }}</td>
-          <td class="px-4 py-2">
-            <button @click="editEquipment(equipment.id)" class="text-blue-600">แก้ไขข้อมูล</button>
-            |
-            <button @click="deleteEquipment(equipment.id)" class="text-blue-600">ลบรายการ</button>
-          </td>
+          <td class="px-4 py-2 space-x-2">
+  <button 
+    @click="editEquipment(equipment.id)" 
+    class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+  >
+    แก้ไขข้อมูล
+  </button>
+  <button 
+    @click="deleteEquipment(equipment.id)" 
+    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+  >
+    ลบรายการ
+  </button>
+</td>
+
         </tr>
       </tbody>
     </table>

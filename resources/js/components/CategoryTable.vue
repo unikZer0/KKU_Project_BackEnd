@@ -41,13 +41,44 @@
           <td class="px-4 py-2">{{ category.cate_id }}</td>
           <td class="px-4 py-2">{{ category.name }}</td>
           <td class="px-4 py-2">
-            <button @click="editCategory(category.id)" class="text-blue-600">แก้ไขข้อมูล</button>
+            <button @click="openModal(category)" class="text-blue-600">แก้ไขข้อมูล</button>
             |
             <button @click="deleteCategory(category.id)" class="text-blue-600">ลบรายการ</button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Edit Modal -->
+    <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
+        <!-- Close button -->
+        <button @click="isOpen = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+          ✕
+        </button>
+
+        <!-- Modal content -->
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Category</h2>
+        
+        <form @submit.prevent="updateCategory">
+          <div class="mb-4">
+            <label class="block text-gray-700 font-semibold mb-1">Category Name</label>
+            <input
+              type="text"
+              v-model="selectedCategory.name"
+              class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button type="button" @click="isOpen = false" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -56,17 +87,17 @@ export default {
   name: "CategoriesTable",
   data() {
     return {
-      categories: [], // fetched data
-      searchQuery: "" // <-- for the search input
+      categories: [],
+      searchQuery: "",
+      isOpen: false,
+      selectedCategory: null,
     };
   },
   computed: {
     filteredCategories() {
       if (!this.searchQuery) return this.categories;
       const q = this.searchQuery.toLowerCase();
-      return this.categories.filter(c => 
-        c.name.toLowerCase().includes(q)
-      );
+      return this.categories.filter(c => c.name.toLowerCase().includes(q));
     }
   },
   methods: {
@@ -77,15 +108,36 @@ export default {
           this.categories = data.data || [];
         });
     },
-    capitalize(str) {
-      if (!str) return "";
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    },
     goToCreate() {
       window.location.href = "/admin/category/create";
     },
-    editCategory(id) {
-      window.location.href = `/admin/category/edit/${id}`;
+    openModal(category) {
+      // clone object to avoid directly mutating table until save
+      this.selectedCategory = { ...category };
+      this.isOpen = true;
+    },
+    updateCategory() {
+      fetch(`/admin/category/update/${this.selectedCategory.id}`, {
+        method: "PUT", // must match the route
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+      },
+        body: JSON.stringify({
+        name: this.selectedCategory.name
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status) {
+          const index = this.categories.findIndex(c => c.id === this.selectedCategory.id);
+          if (index !== -1) this.categories[index].name = this.selectedCategory.name;
+          this.isOpen = false;
+        } else {
+          alert("Failed to update category");
+        }
+      })
+      .catch(() => alert("Error updating category"));
     },
     deleteCategory(id) {
       if (confirm("Are you sure you want to delete this category?")) {
