@@ -8,6 +8,7 @@ use App\Models\BorrowRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Categories;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\Equipment;
 use App\Models\Category;
@@ -15,23 +16,70 @@ use Carbon\Carbon;
 
 class BorrowerCtrl extends Controller
 {
-    public function index(Request $request)
+    public function show($encryptedId)
     {
-        $query = Equipment::query();
+        $id = decrypt($encryptedId);
 
-        if ($request->status) {
-            $query->where('status', $request->status);
+        $equipment = Cache::remember("equipment:$id", 600, function () use ($id) {
+            return Equipment::findOrFail($id);
+        });
+
+        $hasBorrowed = false;
+        if (Auth::check()) {
+            $hasBorrowed = BorrowRequest::where('users_id', Auth::id())
+                ->where('equipments_id', $equipment->id)
+                ->whereIn('status', ['pending', 'approved', 'check_out'])
+                ->exists();
         }
 
-        if ($request->q) {
-            $query->where('name', 'like', "%{$request->q}%");
-        }
+        $bookings = BorrowRequest::where('equipments_id', $equipment->id)
+            ->whereIn('status', ['pending', 'approved', 'check_out'])
+            ->orderBy('start_at')
+            ->get();
 
-        $equipments = $query->paginate(10);
-
-        return response()->json($equipments);
+        $currentDate = Carbon::now()->toDateString();
+        return view('equipments.show', compact('equipment', 'bookings', 'hasBorrowed', 'currentDate'));
     }
-    //request borrower
+
+    public function myreq()
+    {
+        if (!Auth::check()) {
+            return redirect()->back()->with('showLoginConfirm', true);
+        }
+
+        $userId = Auth::id();
+
+        $reQuests = Cache::remember("myreq:$userId", 120, function () use ($userId) {
+            return BorrowRequest::with(
+                'equipment:id,code,name,description,categories_id,photo_path',
+                'user:id,uid,username,age,email,phonenumber',
+                'equipment.category:id,name'
+            )
+            ->where('users_id', $userId)
+            ->get();
+        });
+
+        return view('equipments.myreq', compact('reQuests'));
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        $request->validate([
+            'cancel_reason' => 'required|array|min:1',
+        ]);
+
+        $reasons = implode(', ', $request->cancel_reason);
+
+        $req = BorrowRequest::findOrFail($id);
+        $req->status = 'cancelled';
+        $req->cancel_reason = $reasons;
+        $req->save();
+
+        Cache::forget("myreq:{$req->users_id}");
+
+        return redirect()->back()->with('success', 'คำขอถูกยกเลิกแล้ว');
+    }
+
     public function myRequests(Request $request)
     {
         if (!Auth::check()) {
@@ -57,11 +105,11 @@ class BorrowerCtrl extends Controller
             ->whereIn('status', ['pending', 'approved', 'check_out'])
             ->where(function ($query) use ($start, $end) {
                 $query->whereBetween('start_at', [$start, $end])
-                    ->orWhereBetween('end_at', [$start, $end])
-                    ->orWhere(function ($query2) use ($start, $end) {
-                        $query2->where('start_at', '<=', $start)
-                            ->where('end_at', '>=', $end);
-                    });
+                      ->orWhereBetween('end_at', [$start, $end])
+                      ->orWhere(function ($query2) use ($start, $end) {
+                          $query2->where('start_at', '<=', $start)
+                                 ->where('end_at', '>=', $end);
+                      });
             })
             ->exists();
 
@@ -77,63 +125,10 @@ class BorrowerCtrl extends Controller
         $borrowRequest->status = 'pending';
         $borrowRequest->save();
 
+        Cache::forget("myreq:" . Auth::id());
+
         return redirect()->back()
             ->with('success', 'ส่งคำขอยืมสำเร็จ');
     }
-
-    public function show($encryptedId)
-    {
-        $id = decrypt($encryptedId);
-        $equipment = Equipment::findOrFail($id);
-
-        $hasBorrowed = false;
-        if (Auth::check()) {
-            $hasBorrowed = BorrowRequest::where('users_id', Auth::id())
-                ->where('equipments_id', $equipment->id)
-                ->whereIn('status', ['pending', 'approved', 'check_out'])
-                ->exists();
-            // dd(Auth::id(), $equipment->id, $hasBorrowed);
-        }
-
-        $bookings = BorrowRequest::where('equipments_id', $equipment->id)
-            ->whereIn('status', ['pending', 'approved', 'check_out'])
-            ->orderBy('start_at')
-            ->get();
-        $currentDate = Carbon::now()->toDateString();
-        return view('equipments.show', compact('equipment', 'bookings', 'hasBorrowed', 'currentDate'));
-
-    }
-
-    public function myreq()
-    {
-        $userId = Auth::id();
-        if (!Auth::check()) {
-            return redirect()->back()->with('showLoginConfirm', true);
-        }
-        $reQuests = BorrowRequest::with(
-            'equipment:id,code,name,description,categories_id,photo_path',
-            'user:id,uid,username,age,email,phonenumber',
-            'equipment.category:id,name'
-        )
-            ->where('users_id', $userId)
-            ->get();
-        // dd('id:',$reQuests);
-        return view('equipments.myreq', compact('reQuests'));
-    }
-    public function cancel(Request $request, $id)
-{
-    $request->validate([
-        'cancel_reason' => 'required|array|min:1',
-    ]);
-
-    $reasons = implode(', ', $request->cancel_reason);
-
-    $req = BorrowRequest::findOrFail($id);
-    $req->status = 'cancelled';
-    $req->cancel_reason = $reasons;
-    $req->save();
-
-    return redirect()->back()->with('success', 'คำขอถูกยกเลิกแล้ว');
 }
 
-}

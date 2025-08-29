@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\Category;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Cache;
 class HomeController extends Controller
 {
+
+
     public function index(Request $request)
     {
         $query = Equipment::query();
@@ -19,6 +21,7 @@ class HomeController extends Controller
                 $query->where('categories_id', $categoryId);
             }
         }
+
         if ($request->filled('status')) {
             $status = (string) $request->get('status');
             $allowed = ['available', 'unavailable', 'maintenance'];
@@ -27,13 +30,22 @@ class HomeController extends Controller
             }
         }
 
-        $equipments = $query->paginate(15)->withQueryString();
+        $page = $request->get('page', 1);
+        $queryString = $request->getQueryString();
+        $equipmentsCacheKey = "equipments:page:{$page}:{$queryString}";
 
+        $equipments = Cache::remember($equipmentsCacheKey, now()->addMinutes(5), function () use ($query) {
+            return $query->paginate(15)->withQueryString();
+        });
 
-        $categories = Category::all();
+        $categories = Cache::remember('categories:all', now()->addMinutes(10), function () {
+            return Category::all();
+        });
+
         return view('home', [
             'equipments' => $equipments,
             'categories' => $categories,
         ]);
     }
+
 }

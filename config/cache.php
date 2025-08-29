@@ -73,9 +73,13 @@ return [
 
         'redis' => [
             'driver' => 'redis',
-            'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
-            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
+            'connection' => 'default',
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
+            'lock_connection' => 'default',
+            'serialize' => 'php',
+            'encrypt' => true,
         ],
+
 
         'dynamodb' => [
             'driver' => 'dynamodb',
@@ -103,6 +107,6 @@ return [
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-cache-'),
 
 ];
