@@ -1,10 +1,19 @@
 <x-app-layout>
     <div class="max-w-screen-2xl mx-auto py-8 px-3 sm:px-6 lg:px-8">
-
+        @php
+            $activeRequests = $reQuests->where('status', '!=', 'cancelled');
+        @endphp
 
         <div class="space-y-6">
-            @foreach ($reQuests as $req)
-                @if ($req->status != 'cancelled')
+            @if ($activeRequests->isEmpty())
+                <div class="text-center py-10 text-gray-500">
+                    <svg class="mx-auto mb-4 w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6M9 8l6 6"></path>
+                    </svg>
+                    <p class="font-medium">คุณยังไม่มีคำขอ</p>
+                </div>
+            @else
+                @foreach ($activeRequests as $req)
                     <h1 class="text-2xl font-bold text-gray-800 mb-6">คำขอยืมอุปกรณ์</h1>
                     <div class="bg-white rounded-2xl shadow p-3 mb-10" x-data="{ openModal: false }">
                         <!-- Header -->
@@ -80,25 +89,31 @@
                             <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
                                 <h3 class="text-lg font-semibold mb-4">เลือกเหตุผลการยกเลิก</h3>
 
-                                <form action="{{ route('borrower.requests.cancel', $req->id) }}" method="POST">
+                                <form action="{{ route('borrower.requests.cancel', $req->id) }}" method="POST"
+                                    x-data="{ otherChecked: false }">
                                     @csrf
                                     @method('PATCH')
                                     <div class="space-y-2 mb-4">
                                         <label class="flex items-center gap-2">
                                             <input type="checkbox" name="cancel_reason[]" value="เปลี่ยนใจ"
-                                                class="text-red-600 rounded">
+                                                class="text-red-600 rounded" @click="otherChecked = false">
                                             <span>เปลี่ยนใจ</span>
                                         </label>
                                         <label class="flex items-center gap-2">
                                             <input type="checkbox" name="cancel_reason[]" value="เลือกอุปกรณ์ผิด"
-                                                class="text-red-600 rounded">
+                                                class="text-red-600 rounded" @click="otherChecked = false">
                                             <span>เลือกอุปกรณ์ผิด</span>
                                         </label>
                                         <label class="flex items-center gap-2">
                                             <input type="checkbox" name="cancel_reason[]" value="อื่น ๆ"
-                                                class="text-red-600 rounded">
+                                                class="text-red-600 rounded" x-model="otherChecked">
                                             <span>อื่น ๆ</span>
                                         </label>
+
+                                        <!-- Input appears only if "อื่น ๆ" is checked -->
+                                        <input type="text" name="cancel_reason[]" placeholder="ระบุเหตุผลอื่น..."
+                                            class="mt-2 w-full border rounded px-3 py-2" x-show="otherChecked"
+                                            x-transition>
                                     </div>
 
                                     <div class="flex justify-end gap-3">
@@ -114,20 +129,13 @@
                                 </form>
                             </div>
                         </div>
+
                     </div>
-                @else
-                    <div class="text-center py-10 text-gray-500">
-                        <svg class="mx-auto mb-4 w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6M9 8l6 6">
-                            </path>
-                        </svg>
-                        <p class="font-medium">คุณยังไม่มีคำขอ</p>
-                    </div>
-                @endif
-            @endforeach
+                @endforeach
+            @endif
         </div>
     </div>
+
     @if (session('success'))
         <script>
             Swal.fire({
@@ -151,5 +159,4 @@
             });
         </script>
     @endif
-
 </x-app-layout>
