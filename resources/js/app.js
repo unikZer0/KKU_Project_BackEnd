@@ -1,5 +1,6 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
+import axios from 'axios';
 window.Alpine = Alpine;
 Alpine.start();
 
@@ -11,6 +12,7 @@ import AdminApproveTable from './components/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
 import EquipmentTable from './components/EquipmentTable.vue';
 import CategoriesTable from './components/CategoryTable.vue';
+import RecentAct from './components/RecentAct.vue';
 
 // Header Search
 const headerEl = document.getElementById('header-search');
@@ -31,6 +33,12 @@ if (tableEl) {
     createApp(AdminApproveTable, { requests }).mount(tableEl);
 }
 
+const recentActivitiesEl = document.getElementById('recent-activities');
+if (recentActivitiesEl) {
+    const requests = JSON.parse(recentActivitiesEl.dataset.requests);
+    createApp(RecentAct, { requests }).mount(recentActivitiesEl);
+}
+
 // Chart Dashboard
 const chartEl = document.getElementById('dashboard-chart');
 if (chartEl) {
@@ -40,11 +48,13 @@ if (chartEl) {
     createApp(ChartDashboard, { available, unavailable, maintenance }).mount(chartEl);
 }
 
+// Equipment Table
 const equipmentTableEl = document.getElementById('equipment-table');
 if (equipmentTableEl) {
     createApp(EquipmentTable).mount(equipmentTableEl);
 }
 
+// Category Table
 const categoryTableEl = document.getElementById('category-table');
 if (categoryTableEl) {
     createApp(CategoriesTable).mount(categoryTableEl);

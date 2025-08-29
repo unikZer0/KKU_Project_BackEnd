@@ -34,11 +34,13 @@
         </div>
 
         <!-- Recent Activities Table (Vue component) -->
-        <div id="admin-table" class="lg:col-span-12 bg-white rounded-lg border"
-             data-requests='@json($recentRequests)'>
-            <div class="flex items-center justify-between p-4">
-                <div class="text-sm font-medium">Recent Activities</div>
-                <a href="#" class="text-xs text-blue-600">View all</a>
+
+<div id="recent-activities" 
+     data-requests='@json($recentRequests)' 
+     class="lg:col-span-12 bg-white rounded-lg border">
+</div>
+</div>
+                
             </div>
         </div>
 

@@ -52,6 +52,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/update/{id}', [CategoryController::class, 'update'])->name('category.update');
         Route::delete('/destroy/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
     });
+    //Requests
+    Route::get('/admin/requests', [AdminController::class, 'requestIndex'])->name('admin.requests.index');
+    Route::post('/admin/requests/{id}/approve', [AdminController::class, 'approveRequest'])->name('admin.requests.approve');
+    Route::post('/admin/requests/{id}/reject', [AdminController::class, 'rejectRequest'])->name('admin.requests.reject');
+    Route::get('/admin/requests/report', [AdminController::class, 'requestReport'])->name('admin.requests.report');
 });
 
 // Route::prefix('/admin/borrow-request')->group(function () {

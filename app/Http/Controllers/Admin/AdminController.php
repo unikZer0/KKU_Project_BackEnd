@@ -7,6 +7,7 @@ use App\Models\Equipment;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\BorrowRequest;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -49,4 +50,67 @@ class AdminController extends Controller
         'equipmentStatusMonthly' => $equipmentStatusMonthly, // <- Add this
     ]);
 }
+public function requestIndex()
+{
+    $requests = BorrowRequest::with('user', 'equipment')
+        ->where('status', 'pending')
+        ->latest()
+        ->get()
+        ->map(function ($r) {
+            return [
+                'id' => $r->id,
+                'user_name' => $r->user->username ?? 'N/A',
+                'equipment_name' => $r->equipment->name ?? 'N/A',
+                'date' => $r->created_at->format('Y-m-d'),
+                'status' => ucfirst($r->status),
+            ];
+        });
+
+    return view('admin.request.index', [
+        'requests' => $requests
+    ]);
+}
+
+//Approve Request
+public function approveRequest($id)
+{
+    $request = BorrowRequest::findOrFail($id);
+    $request->status = 'approved';
+    $request->save();
+
+    return redirect()->route('admin.requests.index')->with('success', 'Request approved successfully.');
+}
+//Reject Request
+public function rejectRequest($id)
+{
+    $request = BorrowRequest::findOrFail($id);
+    $request->status = 'rejected';
+    $request->save();
+
+    return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
+}
+//Request Report
+public function requestReport()
+{
+    // Only get requests with status = approved, rejected, or cancelled
+    $requests = BorrowRequest::with('user', 'equipment')
+        ->whereIn('status', ['approved', 'rejected', 'cancelled'])
+        ->latest()
+        ->get()
+        ->map(function ($r) {
+            return [
+                'id' => $r->id,
+                'user_name' => $r->user->username ?? 'N/A',
+                'equipment_name' => $r->equipment->name ?? 'N/A',
+                'date' => $r->created_at->format('Y-m-d'),
+                'status' => ucfirst($r->status),
+                'reason' => $r->reject_reason ?? $r->cancel_reason ?? '-'
+            ];
+        });
+
+    return view('admin.request.report', [
+        'requests' => $requests
+    ]);
+}
+
 }
