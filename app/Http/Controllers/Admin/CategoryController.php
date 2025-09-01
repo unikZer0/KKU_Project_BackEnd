@@ -45,7 +45,7 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         $category->name = $request->name;
-        $category->save();
+        $category->update();
 
         return response()->json([
             'status' => true,
@@ -60,6 +60,11 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('admin.category.index')->with('success', 'Category deleted successfully.');
+        return response()->json(
+            [
+                "status" => true,
+                "message" => "Category deleted successfully"
+            ]
+        );
     }
 }
