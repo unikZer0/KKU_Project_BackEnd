@@ -52,16 +52,7 @@
                         {{ $equipment->description }}
                     </div>
                 </div>
-
-
-                <p class="text-gray-700">Status:
-                    <span
-                        class="font-semibold {{ $equipment->status == 'available' ? 'text-green-600' : 'text-red-500' }}">
-                        {{ ucfirst($equipment->status) }}
-                    </span>
-                </p>
                 <p class="mt-4 font-semibold text-lg">เลือกวันที่รับ-ส่ง :</p>
-                {{-- <p class="text-green-600 font-semibold text-lg">Free</p> --}}
                 <div class="ทะข/ p-6 bg-gray-50 border border-gray-200 rounded-lg">
                     <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
                         @csrf
@@ -120,9 +111,7 @@
                                             -
                                             {{ \Carbon\Carbon::parse($b->end_at)->format('d/m/Y') }}
                                         </li>
-                                    @endif
-                                        
-                                        
+                                    @endif   
                                     @endforeach
                                 </ul>
                             </div>

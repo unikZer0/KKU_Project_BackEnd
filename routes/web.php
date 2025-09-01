@@ -15,12 +15,12 @@ use App\Http\Controllers\Borrowers\BorrowController;
 use App\Http\Controllers\Borrowers\BorrowerCtrl;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/equipments', [HomeController::class, 'index'])->name('equipments.index');
+//search 
+Route::get('/equipments/search', [BorrowerCtrl::class, 'search']);
+Route::get('/equipments/all', [BorrowerCtrl::class, 'getAllEquipment']);
 //show equipment details
-Route::get('/equipments/{equipment:code}', [BorrowerCtrl::class, 'show'])->name('equipments.show');
-
-// Route::get('//', function () {
-//     return view('/');
-// })->middleware(['auth', 'verified'])->name('/');
+Route::get('/equipments/{code}', [BorrowerCtrl::class, 'show'])->name('equipments.show');
 
 Route::middleware('auth')->group(function () {
     //api for auth

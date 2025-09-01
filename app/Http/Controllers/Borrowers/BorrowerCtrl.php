@@ -13,15 +13,16 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Equipment;
 use App\Models\Category;
 use Carbon\Carbon;
+use PhpParser\Node\Stmt\TryCatch;
+
+use function Laravel\Prompts\error;
 
 class BorrowerCtrl extends Controller
 {
-    public function show($encryptedId)
+    public function show($code)
     {
-        $id = decrypt($encryptedId);
-
-        $equipment = Cache::remember("equipment:$id", 600, function () use ($id) {
-            return Equipment::findOrFail($id);
+        $equipment = Cache::remember("equipment:$code", 600, function () use ($code) {
+            return Equipment::where('code', $code)->firstOrFail();
         });
 
         $hasBorrowed = false;
@@ -48,16 +49,13 @@ class BorrowerCtrl extends Controller
         }
 
         $userId = Auth::id();
-
-        $reQuests = Cache::remember("myreq:$userId", 120, function () use ($userId) {
-            return BorrowRequest::with(
-                'equipment:id,code,name,description,categories_id,photo_path',
-                'user:id,uid,username,age,email,phonenumber',
-                'equipment.category:id,name'
-            )
+        $reQuests = BorrowRequest::with(
+            'equipment:id,code,name,description,categories_id,photo_path',
+            'user:id,uid,username,age,email,phonenumber',
+            'equipment.category:id,name'
+        )
             ->where('users_id', $userId)
             ->get();
-        });
 
         return view('equipments.myreq', compact('reQuests'));
     }
@@ -105,11 +103,11 @@ class BorrowerCtrl extends Controller
             ->whereIn('status', ['pending', 'approved', 'check_out'])
             ->where(function ($query) use ($start, $end) {
                 $query->whereBetween('start_at', [$start, $end])
-                      ->orWhereBetween('end_at', [$start, $end])
-                      ->orWhere(function ($query2) use ($start, $end) {
-                          $query2->where('start_at', '<=', $start)
-                                 ->where('end_at', '>=', $end);
-                      });
+                    ->orWhereBetween('end_at', [$start, $end])
+                    ->orWhere(function ($query2) use ($start, $end) {
+                        $query2->where('start_at', '<=', $start)
+                            ->where('end_at', '>=', $end);
+                    });
             })
             ->exists();
 
@@ -130,5 +128,45 @@ class BorrowerCtrl extends Controller
         return redirect()->back()
             ->with('success', 'ส่งคำขอยืมสำเร็จ');
     }
+    public function search(Request $request)
+    {
+        try {
+            $q = $request->query('q');
+            $equipments = Equipment::with('category')
+                ->when($q, function($query) use ($q) {
+                    $query->where(function($subQuery) use ($q) {
+                        $subQuery->where('name', 'like', "%$q%")
+                            ->orWhere('code', 'like', "%$q%")
+                            ->orWhere('description', 'like', "%$q%")
+                            ->orWhere('status', 'like', "%$q%")
+                            ->orWhereHas('category', function($catQuery) use ($q) {
+                                $catQuery->where('name', 'like', "%$q%");
+                            });
+                    });
+                })
+                ->orderBy('name')
+                ->limit(20)
+                ->get();
+
+            return response()->json(['data' => $equipments]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getAllEquipment()
+    {
+        try {
+            $equipments = Equipment::with('category')
+                ->orderBy('name')
+                ->limit(50)
+                ->get();
+
+            return response()->json(['data' => $equipments]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
 }
+
 

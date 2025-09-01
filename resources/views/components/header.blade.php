@@ -1,9 +1,9 @@
-<header class="bg-white shadow-sm border-b  border-gray-200">
+<header class="bg-white shadow-sm border-b  border-gray-200 ">
     <!-- Top Navigation Bar -->
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
-            <div class="flex items-center">
+            <div class="flex items-center"> 
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
                     <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
                         KKU

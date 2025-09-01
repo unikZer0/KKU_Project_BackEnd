@@ -73,6 +73,12 @@
                             <p class="text-sm text-gray-600">เริ่มต้น: {{ $req->start_at->format('d/m/Y') }}</p>
                             <p class="text-sm text-gray-600">สิ้นสุด: {{ $req->end_at->format('d/m/Y') }}</p>
                         </div>
+                        @if ($req->status ==='rejected')
+                            <h1 class="text-lg text-red-600 font-semibold ">
+                                เหตุผลปฏิเสธ
+                            </h1>
+                            <p class="text-sm text-red-600">{{ $req->reject_reason}}</p>
+                        @endif
 
                         @if ($req->status === 'pending')
                             <div class="flex justify-end mt-4">
@@ -109,8 +115,6 @@
                                                 class="text-red-600 rounded" x-model="otherChecked">
                                             <span>อื่น ๆ</span>
                                         </label>
-
-                                        <!-- Input appears only if "อื่น ๆ" is checked -->
                                         <input type="text" name="cancel_reason[]" placeholder="ระบุเหตุผลอื่น..."
                                             class="mt-2 w-full border rounded px-3 py-2" x-show="otherChecked"
                                             x-transition>

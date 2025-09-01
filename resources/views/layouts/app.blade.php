@@ -16,7 +16,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased ">
-        <div class="bg-gray-10">   
+        <div class="bg-gray-10 sticky">   
             <!-- Page Heading -->
             <x-header />
         <hr>
