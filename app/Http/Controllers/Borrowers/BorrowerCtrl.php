@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Categories;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use App\Notifications\BorrowRequestCreated;
 
 use App\Models\Equipment;
 use App\Models\Category;
@@ -123,8 +124,11 @@ class BorrowerCtrl extends Controller
         $borrowRequest->status = 'pending';
         $borrowRequest->save();
 
-        Cache::forget("myreq:" . Auth::id());
-
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new BorrowRequestCreated($borrowRequest));
+        }
+            Cache::forget("myreq:" . Auth::id());
         return redirect()->back()
             ->with('success', 'ส่งคำขอยืมสำเร็จ');
     }

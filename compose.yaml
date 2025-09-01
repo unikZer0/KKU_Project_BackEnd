@@ -25,6 +25,12 @@ services:
       - redis_data:/data
     networks:
       - mysql_database_network
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

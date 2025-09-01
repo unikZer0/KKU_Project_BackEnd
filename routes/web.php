@@ -4,6 +4,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\NotificationController;
 
 //Support 
 use Illuminate\Support\Facades\Route;
@@ -21,10 +22,13 @@ Route::get('/equipments/search', [BorrowerCtrl::class, 'search']);
 Route::get('/equipments/all', [BorrowerCtrl::class, 'getAllEquipment']);
 //show equipment details
 Route::get('/equipments/{code}', [BorrowerCtrl::class, 'show'])->name('equipments.show');
+//mark read
+
 
 Route::middleware('auth')->group(function () {
-    //api for auth
-
+    // routes/web.php
+Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
+Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
     // Role-based areas
     Route::middleware('can:admin')->group(function () {
 

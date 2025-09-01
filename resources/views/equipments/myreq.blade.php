@@ -6,7 +6,7 @@
 
         <div class="space-y-6">
             @if ($activeRequests->isEmpty())
-                <div class="text-center py-10 text-gray-500">
+                <div class="text-center py-10 text-gray-500 ">
                     <svg class="mx-auto mb-4 w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6M9 8l6 6"></path>
                     </svg>

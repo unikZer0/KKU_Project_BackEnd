@@ -125,7 +125,7 @@ function handleImageError(event) {
           >
             <a :href="getEquipmentUrl(item)" class="block">
               <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                <!-- <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
                   <img 
                     v-if="item.photo_path" 
                     :src="item.photo_path" 
@@ -139,12 +139,12 @@ function handleImageError(event) {
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                </div>
+                </div> -->
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-gray-800 hover:text-blue-600 transition-colors duration-200">
                     {{ item.name }}
                   </div>
-                  <div class="text-gray-500 text-xs mt-1">
+                  <!-- <div class="text-gray-500 text-xs mt-1">
                     <span class="inline-block px-2 py-1 rounded mr-2">{{ item.code }}</span>
                     <span class="inline-block px-2 py-1 rounded mr-2">
                       {{ item.category?.name || 'ไม่มีหมวดหมู่' }}
@@ -152,7 +152,7 @@ function handleImageError(event) {
                   </div>
                   <div v-if="item.description" class="text-gray-600 text-xs mt-1 line-clamp-2">
                     {{ item.description }}
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </a>

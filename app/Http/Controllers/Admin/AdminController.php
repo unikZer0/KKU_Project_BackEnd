@@ -9,6 +9,8 @@ use App\Models\Category;
 use App\Models\User;
 use App\Models\BorrowRequest;
 use Illuminate\Http\Request;
+use App\Notifications\BorrowRequestApproved;
+use App\Notifications\BorrowRequestRejected;
 
 class AdminController extends Controller
 {
@@ -97,6 +99,9 @@ public function approveRequest($id)
     $request->status = 'approved';
     $request->save();
 
+    $user = $request->user; // assume BorrowRequest model has 'user' relation
+    $user->notify(new BorrowRequestApproved($request));
+
     return redirect()->route('admin.requests.index')->with('success', 'Request approved successfully.');
 }
 
@@ -107,6 +112,11 @@ public function rejectRequest(Request $req, $id)
     $request->status = 'rejected';
     $request->reject_reason = $req->input('reason');
     $request->save();
+
+    $user = $request->user;
+    if ($user) {
+        $user->notify(new BorrowRequestRejected($request));
+    }
 
     return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
 }

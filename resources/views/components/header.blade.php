@@ -3,7 +3,7 @@
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
-            <div class="flex items-center"> 
+            <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
                     <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
                         KKU
@@ -11,54 +11,119 @@
                     <span class="text-xl font-semibold text-gray-800">Borrow</span>
                 </a>
             </div>
-
             <!-- User Authentication - Hidden on mobile -->
-            <div class="hidden md:flex items-center space-x-4">
-                <div class="w-px h-6 bg-gray-300"></div>
-                @auth
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center  font-medium">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex">
+                <div class="relative inline-block">
+                    <!-- Notification Button -->
+                    <button id="notiBtn" class="p-2 rounded-full hover:bg-gray-200 relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 64 64">
+                            <path
+                                d="M 32 10 C 29.662 10 28.306672 11.604938 27.638672 13.085938 C 24.030672 13.809937 17.737984 16.956187 16.958984 24.742188 C 16.665984 29.334188 16.1185 37.883781 13.0625 39.300781 C 12.8505 39.398781 12.655234 39.533219 12.490234 39.699219 C 12.235234 39.954219 10 42.294 10 46 C 10 47.104 10.896 48 12 48 L 25.257812 48 C 25.652433 51.372928 28.522752 54 32 54 C 35.477248 54 38.347567 51.372928 38.742188 48 L 52 48 C 53.104 48 54 47.104 54 46 C 54 42.294 51.764766 39.954219 51.509766 39.699219 C 51.344766 39.534219 51.1495 39.397828 50.9375 39.298828 C 47.8825 37.881828 47.333203 29.333922 47.033203 24.669922 C 46.258203 16.945922 39.966375 13.806984 36.359375 13.083984 C 35.692375 11.603984 34.338 10 32 10 z M 32 14 C 32.603 14 32.766719 14.619859 32.886719 15.255859 C 33.063719 16.190859 33.884422 16.914062 34.857422 16.914062 C 34.931422 16.914063 42.311828 17.650047 43.048828 24.998047 C 43.557828 32.932047 44.389891 40.250797 48.837891 42.716797 C 49.024891 42.956797 49.333937 43.401 49.585938 44 L 14.414062 44 C 14.667063 43.397 14.976203 42.95375 15.158203 42.71875 C 19.609203 40.25475 20.442312 32.935313 20.945312 25.070312 C 21.688313 17.650312 29.068578 16.914062 29.142578 16.914062 C 30.099578 16.914062 30.934375 16.156391 31.109375 15.275391 C 31.232375 14.660391 31.396 14 32 14 z M 29.335938 48 L 34.664062 48 C 34.319789 49.152328 33.262739 50 32 50 C 30.737261 50 29.680211 49.152328 29.335938 48 z">
+                            </path>
+                        </svg>
+                        @auth
+                            <span id="notiCount"
+                                class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @else
+                            <span id="notiCount"
+                                class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                0
+                            </span>
+                        @endauth
+
+                    </button>
+
+                    <!-- Notification Dropdown -->
+                    <div id="notiMenu"
+                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="p-4 border-b flex justify-between items-center">
+                            <span class="font-semibold text-gray-700">Notifications</span>
+                            <button id="markAllReadBtn" class="text-sm text-blue-600 hover:underline">Mark all
+                                read</button>
+                        </div>
+
+                        <div id="notiList" class="max-h-72 overflow-y-auto">
+                            @auth
+                                @forelse(auth()->user()->unreadNotifications as $notification)
+                                    <div class="px-4 py-3 hover:bg-gray-100 border-b flex justify-between items-start"
+                                        data-id="{{ $notification->id }}" data-url="{{ $notification->data['url'] }}">
+                                        <div class="cursor-pointer noti-link">
+                                            <div class="font-semibold text-gray-800">
+                                                {{ $notification->data['user'] ?? 'Someone' }}
+                                            </div>
+                                            <div class="text-sm text-gray-600">
+                                                {{ $notification->data['message'] }}
+                                            </div>
+                                            <div class="text-xs text-gray-400 mt-1">
+                                                อุปกรณ์: {{ $notification->data['equipment'] }} |
+                                                {{ $notification->created_at->diffForHumans() }}
+                                            </div>
+                                        </div>
+                                        <button class="mark-read-btn text-xs text-blue-600 hover:underline ml-2">Mark
+                                            read</button>
+                                    </div>
+                                @empty
+                                    <div class="p-4 text-gray-500">ยังไม่มีการแจ้งเตือน</div>
+                                @endforelse
+                            @else
+                                <div class="p-4 text-gray-500">กรุณาเข้าสู่ระบบเพื่อดูการแจ้งเตือน</div>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <div class="w-px h-6 bg-gray-300"></div>
+                    @auth
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center  font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span>{{ Auth::user()->username }}</span>
+                            </div>
+                            <form method="POST" action="{{ route('logout') }}" class="logout-form">
+                                @csrf
+                                <button type="submit"
+                                    class="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition">
+                                    ออกจากระบบ
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span>{{ Auth::user()->username }}</span>
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}" class="logout-form">
-                            @csrf
-                            <button type="submit"
-                                class="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition">
-                                ออกจากระบบ
-                            </button>
-                        </form>
-                    </div>
-                @else
-                    <a href="{{ route('login') }}" class="flex items-center text-gray-700 hover:text-gray-900 font-medium">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        เข้าสู่ระบบ
-                    </a>
-                    <span class="text-gray-400">/</span>
-                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900 font-medium">ลงทะเบียน</a>
-                @endauth
-            </div>
+                            เข้าสู่ระบบ
+                        </a>
+                        <span class="text-gray-400">/</span>
+                        <a href="{{ route('register') }}"
+                            class="text-gray-700 hover:text-gray-900 font-medium">ลงทะเบียน</a>
+                    @endauth
+                </div>
 
-            <!-- Mobile menu button -->
-            <div class="md:hidden">
-                <button id="mobile-menu-button"
-                    class="text-gray-700 hover:text-gray-900 p-2 rounded-md hover:bg-gray-100 transition-colors duration-200">
-                    <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                    <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button"
+                        class="text-gray-700 hover:text-gray-900 p-2 rounded-md hover:bg-gray-100 transition-colors duration-200">
+                        <svg id="menu-icon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg id="close-icon" class="w-7 h-7 hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -115,7 +180,8 @@
                         <a href="{{ route('login') }}" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
                             เข้าสู่ระบบ
                         </a>
-                        <a href="{{ route('register') }}" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+                        <a href="{{ route('register') }}"
+                            class="block text-gray-700 hover:text-gray-900 font-medium py-2">
                             ลงทะเบียน
                         </a>
                     </div>
@@ -159,9 +225,8 @@
                     @endforeach
                 </div>
             </div>
-{{-- {{ request()->routeIs('contact') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }} --}}
-            <a href="#"
-                class="">
+            {{-- {{ request()->routeIs('contact') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }} --}}
+            <a href="#" class="">
                 ติดต่อ
             </a>
 
@@ -255,5 +320,54 @@
                 });
             });
         });
+    });
+    const btn = document.getElementById("notiBtn");
+    const menu = document.getElementById("notiMenu");
+
+    btn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+    });
+
+    window.addEventListener("click", (e) => {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.add("hidden");
+        }
+    });
+    document.querySelectorAll('.mark-read-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const item = e.target.closest('[data-id]');
+            const id = item.getAttribute('data-id');
+
+            fetch(`/notifications/mark-read/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                }).then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        item.remove();
+                        document.getElementById('notiCount').innerText = data.unread_count;
+                    }
+                });
+        });
+    });
+
+    document.getElementById('markAllReadBtn').addEventListener('click', () => {
+        fetch(`/notifications/mark-all-read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            }).then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('notiList').innerHTML =
+                        '<div class="p-4 text-gray-500">ยังไม่มีการแจ้งเตือน</div>';
+                    document.getElementById('notiCount').innerText = 0;
+                }
+            });
     });
 </script>

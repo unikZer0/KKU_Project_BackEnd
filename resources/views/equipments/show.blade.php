@@ -42,7 +42,7 @@
                         <span x-show="expanded">
                             {{ $equipment->description }}
                         </span>
-                        <button @click="expanded = !expanded" class="ml-2 text-blue-600 underline focus:outline-none">
+                        <button @click="expanded = !expanded" class="ml-2 text-gray-600 underline focus:outline-none">
                             <span x-show="!expanded">ดูเพี่มเตีม</span>
                             <span x-show="expanded">แสดงน้อยลง</span>
                         </button>
