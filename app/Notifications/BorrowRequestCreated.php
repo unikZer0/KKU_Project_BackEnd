@@ -35,6 +35,7 @@ class BorrowRequestCreated extends Notification
             'equipment'  => $this->borrowRequest->equipment->name,
             'user'       => $this->borrowRequest->user->username,
             'message'    => 'มีคำขอยืมอุปกรณ์ใหม่',
+            'url'        => url('/admin/requests/')
         ];
     }
 }

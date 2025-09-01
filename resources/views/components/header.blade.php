@@ -48,7 +48,8 @@
                             @auth
                                 @forelse(auth()->user()->unreadNotifications as $notification)
                                     <div class="px-4 py-3 hover:bg-gray-100 border-b flex justify-between items-start"
-                                        data-id="{{ $notification->id }}" data-url="{{ $notification->data['url'] }}">
+                                        data-id="{{ $notification->id }}" >
+                                        {{-- data-url="{{ $notification->data['url'] }}" --}}
                                         <div class="cursor-pointer noti-link">
                                             <div class="font-semibold text-gray-800">
                                                 {{ $notification->data['user'] ?? 'Someone' }}
