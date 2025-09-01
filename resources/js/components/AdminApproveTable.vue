@@ -13,23 +13,23 @@
       </svg>
     </div>
         <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold">คำขอทั้งหมด</h2>
+      <h2 class="text-lg font-semibold">คำขอทั้งหมด: {{ filteredRequests.length }}</h2>
     </div>
 <div>
     <!-- Table -->
     <table class="min-w-full text-sm border">
       <thead class="bg-gray-50 border-b">
         <tr>
-          <th class="px-4 py-2">Request ID</th>
-          <th class="px-4 py-2">User</th>
-          <th class="px-4 py-2">Equipment</th>
-          <th class="px-4 py-2">Date</th>
-          <th class="px-4 py-2">Status</th>
-          <th class="px-4 py-2">Action</th>
+          <th class="text-left px-4 py-2">Request ID</th>
+          <th class="text-left px-4 py-2">User</th>
+          <th class="text-left px-4 py-2">Equipment</th>
+          <th class="text-left px-4 py-2">Date</th>
+          <th class="text-left px-4 py-2">Status</th>
+          <th class="text-left px-4 py-2">Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="request in requests" :key="request.id">
+        <tr v-for="request in filteredRequests" :key="request.id">
           <td class="px-4 py-2">{{ request.id }}</td>
           <td class="px-4 py-2">{{ request.user_name }}</td>
           <td class="px-4 py-2">{{ request.equipment_name }}</td>
@@ -78,24 +78,80 @@ export default {
       selectedRequest: null
     };
   },
+  computed: {
+  filteredRequests() {
+    if (!this.searchQuery) {
+      return this.requests;
+    }
+    const q = this.searchQuery.toLowerCase();
+    return this.requests.filter(r =>
+      r.user_name.toLowerCase().includes(q) ||
+      r.equipment_name.toLowerCase().includes(q) ||
+      r.status.toLowerCase().includes(q)
+    );
+  }
+},
   methods: {
     openDetails(request) {
       this.selectedRequest = request;
     },
-    approveRequest(id) {
+approveRequest(id) {
+  Swal.fire({
+    title: 'อนุมัติคำขอ?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, อนุมัติ!',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
       axios.post(`/admin/requests/${id}/approve`).then(() => {
-        alert('Request approved');
-        window.location.reload();
-      });
-    },
-    rejectRequest(id) {
-      const reason = prompt('Enter rejection reason:');
-      if (!reason) return;
-      axios.post(`/admin/requests/${id}/reject`, { reason }).then(() => {
-        alert('Request rejected');
-        window.location.reload();
+        Swal.fire({
+          icon: 'success',
+          title: 'คำขอได้รับการอนุมัติ',
+          text: 'คำขอได้รับการอนุมัติเรียบร้อยแล้ว',
+          confirmButtonColor: '#3085d6'
+        }).then(() => {
+          window.location.reload(); // or update your table dynamically
+        });
       });
     }
+  });
+},
+
+rejectRequest(id) {
+  Swal.fire({
+    title: 'ปฏิเสธคำขอ',
+    text: 'กรุณาใส่เหตุผลสำหรับการปฏิเสธ:',
+    input: 'text',
+    inputPlaceholder: 'กรุณาใส่เหตุผลที่นี่...',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ปฏิเสธ',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true,
+    inputValidator: (value) => {
+      if (!value) {
+        return 'คุณต้องระบุเหตุผล!'
+      }
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      axios.post(`/admin/requests/${id}/reject`, { reason: result.value })
+        .then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'คำขอถูกปฏิเสธ',
+            text: 'คำขอถูกปฏิเสธเรียบร้อยแล้ว',
+            confirmButtonColor: '#3085d6'
+          }).then(() => {
+            window.location.reload(); // or update your table dynamically
+          });
+        });
+    }
+  });
+}
+
   }
 };
 </script>

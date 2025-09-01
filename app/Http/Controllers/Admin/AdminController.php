@@ -85,15 +85,18 @@ public function approveRequest($id)
 
     return redirect()->route('admin.requests.index')->with('success', 'Request approved successfully.');
 }
+
 //Reject Request
-public function rejectRequest($id)
+public function rejectRequest(Request $req, $id)
 {
     $request = BorrowRequest::findOrFail($id);
     $request->status = 'rejected';
+    $request->reject_reason = $req->input('reason');
     $request->save();
 
     return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
 }
+
 //Request Report
 public function requestReport()
 {
