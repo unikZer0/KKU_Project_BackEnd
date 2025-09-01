@@ -40,7 +40,7 @@
         <tr v-for="category in filteredCategories" :key="category.id" class="border-b">
           <td class="px-4 py-2">{{ category.cate_id }}</td>
           <td class="px-4 py-2">{{ category.name }}</td>
-          <td class="px-4 py-2">
+          <td class="px-4 py-2 space-x-2">
             <button @click="openModal(category)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">แก้ไขข้อมูล</button>
             <button @click="deleteCategory(category.id)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">ลบรายการ</button>
           </td>
@@ -70,7 +70,7 @@
             >
           </div>
 
-          <div class="flex justify-end gap-2 space-x-2">
+          <div class="flex justify-end gap-2">
             <button type="button" @click="isOpen = false" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Cancel</button>
             <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
           </div>
@@ -101,7 +101,7 @@ export default {
   },
   methods: {
     fetchCategories() {
-      fetch("/admin/category/index")
+      fetch("/admin/category")
         .then(res => res.json())
         .then(data => {
           this.categories = data.data || [];

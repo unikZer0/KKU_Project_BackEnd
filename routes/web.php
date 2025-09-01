@@ -27,8 +27,8 @@ Route::get('/equipments/{code}', [BorrowerCtrl::class, 'show'])->name('equipment
 
 Route::middleware('auth')->group(function () {
     // routes/web.php
-Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
-Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
+    Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
     // Role-based areas
     Route::middleware('can:admin')->group(function () {
 
@@ -60,13 +60,12 @@ Route::post('/notifications/mark-all-read', [NotificationController::class, 'mar
     Route::get('/admin/requests', [AdminController::class, 'requestIndex'])->name('admin.requests.index');
     Route::post('/admin/requests/{id}/approve', [AdminController::class, 'approveRequest'])->name('admin.requests.approve');
     Route::post('/admin/requests/{id}/reject', [AdminController::class, 'rejectRequest'])->name('admin.requests.reject');
-    
+
     // Reports
     Route::get('/admin/report/index', [AdminController::class, 'requestReport'])->name('admin.report.index');
     Route::get('/admin/report/users', [AdminController::class, 'userReport'])->name('admin.report.users');
     Route::get('/admin/report/equipments', [AdminController::class, 'equipmentReport'])->name('admin.report.equipments');
     Route::get('/admin/report/categories', [AdminController::class, 'categoryReport'])->name('admin.report.categories');
-
 });
 
 
@@ -91,7 +90,6 @@ Route::middleware('can:borrower')->group(function () {
         Route::post('/borrow_request', [BorrowerCtrl::class, 'myRequests'])->name('borrower.borrow_request');
         Route::get('/myreq', [BorrowerCtrl::class, 'myreq'])->name('borrower.equipments.myreq');
         Route::patch('/borrower/requests/{id}/cancel', [BorrowerCtrl::class, 'cancel'])->name('borrower.requests.cancel');
-
     });
 });
 

@@ -77,9 +77,10 @@ class EquipmentController extends Controller
     public function update(Request $request, $id, CloudinaryService $cloudinary)
     {
         $equipment = Equipment::findOrFail($id);
+
         $data = $request->validate([
             "name" => "required|string|max:20",
-            "description" => "required|string|max:255",
+            "description" => "nullable|string|max:255",
             "categories_id" => "required|integer|exists:categories,id",
             "status" => "required|in:available,unavailable,maintenance",
             "photo_path" => "nullable|string|max:255",
@@ -96,7 +97,7 @@ class EquipmentController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Equipment updated successfully",
-            "data" => $equipment
+            "data" => $equipment->load('category')
         ]);
     }
 
