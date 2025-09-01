@@ -140,9 +140,53 @@ public function requestReport()
             ];
         });
 
-    return view('admin.request.report', [
+    return view('admin.report.index', [
         'requests' => $requests
     ]);
+}
+
+// User Report
+public function userReport()
+{
+    $users = User::all()->map(function ($user) {
+        return [
+            'id' => $user->id,
+            'username' => $user->username,
+            'age' => $user->age ?? '-', // assuming you have age column
+            'phonenumber' => $user->phonenumber ?? '-',
+            'created_at' => $user->created_at->format('Y-m-d'),
+        ];
+    });
+
+    return view('admin.report.users', compact('users'));
+}
+
+// Equipment Report
+public function equipmentReport()
+{
+    $equipments = Equipment::with('category')->get()->map(function ($eq) {
+        return [
+            'id' => $eq->id,
+            'name' => $eq->name,
+            'category_name' => $eq->category->name ?? 'N/A',
+            'created_at' => $eq->created_at->format('Y-m-d'),
+        ];
+    });
+
+    return view('admin.report.equipments', compact('equipments'));
+}
+
+    // Category Report
+public function categoryReport()
+{
+    $categories = Category::all()->map(function ($cat) {
+        return [
+            'id' => $cat->id,
+            'name' => $cat->name,
+        ];
+    });
+
+    return view('admin.report.categories', compact('categories'));
 }
 
 }

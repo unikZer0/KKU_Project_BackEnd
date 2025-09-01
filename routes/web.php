@@ -60,8 +60,15 @@ Route::post('/notifications/mark-all-read', [NotificationController::class, 'mar
     Route::get('/admin/requests', [AdminController::class, 'requestIndex'])->name('admin.requests.index');
     Route::post('/admin/requests/{id}/approve', [AdminController::class, 'approveRequest'])->name('admin.requests.approve');
     Route::post('/admin/requests/{id}/reject', [AdminController::class, 'rejectRequest'])->name('admin.requests.reject');
-    Route::get('/admin/requests/report', [AdminController::class, 'requestReport'])->name('admin.requests.report');
+    
+    // Reports
+    Route::get('/admin/report/index', [AdminController::class, 'requestReport'])->name('admin.report.index');
+    Route::get('/admin/report/users', [AdminController::class, 'userReport'])->name('admin.report.users');
+    Route::get('/admin/report/equipments', [AdminController::class, 'equipmentReport'])->name('admin.report.equipments');
+    Route::get('/admin/report/categories', [AdminController::class, 'categoryReport'])->name('admin.report.categories');
+
 });
+
 
 // Route::prefix('/admin/borrow-request')->group(function () {
 //     Route::get('/', [BorrowRequestController::class, 'index'])->name('admin.borrow_request');

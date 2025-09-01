@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\CloudinaryService;
+
 use App\Models\Category;
 use App\Models\Equipment;
 
@@ -14,9 +15,9 @@ class EquipmentController extends Controller
     public function index()
     {
         $equipments = Equipment::with('category')->get();
-        return view('admin.equipment.index', compact('equipments'));
+        $categories = Category::all();
+        return view('admin.equipment.index', compact('equipments', 'categories'));
     }
-
 
     //!CREATE EQUIPMENTS FORM
     public function create()
@@ -92,18 +93,11 @@ class EquipmentController extends Controller
 
         $equipment->update($data);
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                "status" => true,
-                "message" => "Equipment updated successfully",
-                "data" => $equipment
-            ]);
-        }
-
-        // 👇 If normal web request (Blade form)
-        return redirect()
-            ->route('admin.equipment.index')
-            ->with('success', 'Equipment updated successfully');
+        return response()->json([
+            "status" => true,
+            "message" => "Equipment updated successfully",
+            "data" => $equipment
+        ]);
     }
 
     //!DELETE EQUIPMENTS
