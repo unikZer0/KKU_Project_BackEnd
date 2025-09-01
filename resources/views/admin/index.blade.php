@@ -22,16 +22,26 @@
         </div>
 
         <!-- Spline Area Chart (Vue component) -->
-        <div id="dashboard-chart" class="lg:col-span-7 bg-white rounded-lg border p-4"
-             data-available="{{ $equipmentStatus['available'] }}"
-             data-unavailable="{{ $equipmentStatus['borrowed'] }}"
-             data-maintenance="{{ $equipmentStatus['maintenance'] }}">
-        </div>
+<div id="dashboard-chart" class="lg:col-span-7 bg-white rounded-lg border p-4"
+     @foreach ($equipmentStatus as $status => $count)
+         data-{{ $status }}="{{ $count }}"
+         data-{{ $status }}-monthly='@json($equipmentStatusMonthly[$status] ?? [])'
+     @endforeach
+     data-months='@json($equipmentStatusMonthly['months'])'>
+     
+    <!-- Show current counts -->
+    @foreach ($equipmentStatus as $status => $count)
+        <div>{{ ucfirst($status) }}: {{ $count }}</div>
+    @endforeach
+
+    <!-- Canvas for chart -->
+    <canvas></canvas>
+</div>
         <!-- Category Bar Chart (Chart.js) -->
-        <div class="lg:col-span-5 bg-white rounded-lg border p-4">
-            <div class="text-sm font-medium">Category Distribution</div>
-            <canvas id="categoryBar" class="mt-4"></canvas>
-        </div>
+<div class="lg:col-span-5 bg-white rounded-lg border p-4">
+    <div class="text-sm font-medium">Category Distribution</div>
+    <canvas id="categoryBar" class="mt-4"></canvas>
+</div>
 
         <!-- Recent Activities Table (Vue component) -->
 
@@ -49,26 +59,59 @@
     <!-- Chart.js for Category Bar -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ mix('js/app.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const barEl = document.getElementById('categoryBar');
-            if (barEl) {
-                new Chart(barEl, {
-                    type: 'bar',
-                    data: {
-                        labels: @json($categoryCounts->pluck('name')),
-                        datasets: [{
-                            label: 'Items',
-                            data: @json($categoryCounts->pluck('equipments_count')),
-                            backgroundColor: '#3b82f6'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { display: false } }
-                    }
-                });
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ---------- Equipment Status Chart ----------
+    const chartDiv = document.getElementById('dashboard-chart');
+    if (chartDiv) {
+        const months = JSON.parse(chartDiv.dataset.months || '[]');
+
+        const statuses = ['available', 'retired', 'maintenance'];
+        const datasets = statuses.map(status => {
+            const monthlyData = JSON.parse(chartDiv.dataset[`${status}Monthly`] || '[]');
+            return {
+                label: status.charAt(0).toUpperCase() + status.slice(1),
+                data: monthlyData,
+                backgroundColor: status === 'available' ? '#10B981' 
+                               : status === 'retired' ? '#EF4444' 
+                               : '#F59E0B',
+            };
+        });
+
+        const canvas = chartDiv.querySelector('canvas');
+        new Chart(canvas, {
+            type: 'bar',
+            data: { labels: months, datasets: datasets },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Monthly Equipment Status' }
+                },
+                scales: { y: { beginAtZero: true } }
             }
         });
-    </script>
+    }
+
+    // ---------- Category Bar Chart ----------
+    const barEl = document.getElementById('categoryBar');
+    if (barEl) {
+        new Chart(barEl, {
+            type: 'bar',
+            data: {
+                labels: @json($categoryCounts->pluck('name')),
+                datasets: [{
+                    label: 'Items',
+                    data: @json($categoryCounts->pluck('equipments_count')),
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+});
+</script>
 </x-admin-layout>

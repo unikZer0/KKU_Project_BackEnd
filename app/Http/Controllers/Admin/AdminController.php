@@ -14,6 +14,7 @@ class AdminController extends Controller
 {
     public function index()
 {
+    // Recent requests (last 5)
     $recentRequests = BorrowRequest::with('user', 'equipment')
         ->latest()
         ->take(5)
@@ -28,29 +29,42 @@ class AdminController extends Controller
             ];
         });
 
-    // Example monthly data for chart
+    // Get all possible statuses from the database dynamically
+    $statuses = ['available', 'borrowed', 'retired', 'maintenance']; // Add more if needed
+
+    // Count equipment per status
+    $equipmentStatus = [];
+    foreach ($statuses as $status) {
+        $equipmentStatus[$status] = Equipment::where('status', $status)->count();
+    }
+
+    // Monthly chart data
     $equipmentStatusMonthly = [
-        'available'   => [10, 12, 15, 11, 14, 16, 18, 20, 19, 17, 15, 12],
-        'borrowed'    => [5, 3, 2, 4, 3, 2, 1, 2, 3, 4, 5, 6],
-        'maintenance' => [1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1],
-        'months'      => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+        'months' => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     ];
+
+    foreach ($statuses as $status) {
+        $monthlyCounts = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlyCounts[] = Equipment::where('status', $status)
+                ->whereMonth('created_at', $month)
+                ->count();
+        }
+        $equipmentStatusMonthly[$status] = $monthlyCounts;
+    }
 
     return view('admin.index', [
         'totalRequests'   => BorrowRequest::count(),
         'bestRatedItems'  => Equipment::latest()->take(5)->get(),
         'pendingRequests' => BorrowRequest::where('status', 'pending')->count(),
         'penaltyNotices'  => BorrowRequest::where('status', 'overdue')->count(),
-        'equipmentStatus' => [
-            'available'   => Equipment::where('status', 'available')->count(),
-            'borrowed'    => Equipment::where('status', 'borrowed')->count(),
-            'maintenance' => Equipment::where('status', 'maintenance')->count(),
-        ],
-        'categoryCounts'       => Category::withCount('equipments')->get(),
-        'recentRequests'       => $recentRequests,
-        'equipmentStatusMonthly' => $equipmentStatusMonthly, // <- Add this
+        'equipmentStatus' => $equipmentStatus,
+        'categoryCounts'  => Category::withCount('equipments')->get(),
+        'recentRequests'  => $recentRequests,
+        'equipmentStatusMonthly' => $equipmentStatusMonthly,
     ]);
 }
+
 public function requestIndex(CloudinaryService $cloudinary)
 {
     $requests = BorrowRequest::with('user', 'equipment')

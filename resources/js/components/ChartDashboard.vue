@@ -16,11 +16,11 @@ export default {
       type: Array,
       default: () => [],
     },
-    unavailableData: {
+    maintenanceData: {
       type: Array,
       default: () => [],
     },
-    maintenanceData: {
+    retiredData: {
       type: Array,
       default: () => [],
     },
@@ -36,7 +36,11 @@ export default {
     renderChart() {
       const ctx = this.$refs.chartCanvas.getContext("2d");
 
-      new Chart(ctx, {
+      if (this.chart) {
+        this.chart.destroy(); // cleanup before re-render
+      }
+
+      this.chart = new Chart(ctx, {
         type: "line",
         data: {
           labels: this.months,
@@ -50,18 +54,18 @@ export default {
               fill: true,
             },
             {
-              label: "Unavailable",
-              data: this.unavailableData,
-              borderColor: "#f87171",
-              backgroundColor: "rgba(248, 113, 113, 0.2)",
-              tension: 0.4,
-              fill: true,
-            },
-            {
               label: "Maintenance",
               data: this.maintenanceData,
               borderColor: "#facc15",
               backgroundColor: "rgba(250, 204, 21, 0.2)",
+              tension: 0.4,
+              fill: true,
+            },
+            {
+              label: "Retired",
+              data: this.retiredData,
+              borderColor: "#94a3b8",
+              backgroundColor: "rgba(148, 163, 184, 0.2)",
               tension: 0.4,
               fill: true,
             },

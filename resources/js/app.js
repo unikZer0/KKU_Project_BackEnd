@@ -1,6 +1,5 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
-import axios from 'axios';
 window.Alpine = Alpine;
 Alpine.start();
 
@@ -42,11 +41,19 @@ if (recentActivitiesEl) {
 // Chart Dashboard
 const chartEl = document.getElementById('dashboard-chart');
 if (chartEl) {
-    const available = parseInt(chartEl.dataset.available);
-    const unavailable = parseInt(chartEl.dataset.unavailable);
-    const maintenance = parseInt(chartEl.dataset.maintenance);
-    createApp(ChartDashboard, { available, unavailable, maintenance }).mount(chartEl);
+  const available = JSON.parse(chartEl.dataset.available || "[]");
+  const maintenance = JSON.parse(chartEl.dataset.maintenance || "[]");
+  const retired = JSON.parse(chartEl.dataset.retired || "[]");
+  const months = JSON.parse(chartEl.dataset.months || "[]");
+
+  createApp(ChartDashboard, {
+    availableData: available,
+    maintenanceData: maintenance,
+    retiredData: retired,
+    months: months,
+  }).mount(chartEl);
 }
+
 
 // Equipment Table
 const equipmentTableEl = document.getElementById('equipment-table');
