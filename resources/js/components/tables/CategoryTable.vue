@@ -2,23 +2,19 @@
   <div class="bg-white p-6 rounded-lg shadow">
     <!-- Search Bar -->
     <div class="relative mb-4">
-      <input 
-        type="text" 
-        v-model="searchQuery"
-        placeholder="Search"
-        class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
+      <input type="text" v-model="searchQuery" placeholder="Search"
+        class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
       <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
       </svg>
     </div>
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">หมวดหมู่ทั้งหมด</h2>
-      <button @click="goToCreate" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Assign New Category
+      <button @click="openModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        เพิ่มหมวดหมู่ใหม่
       </button>
     </div>
 
@@ -41,54 +37,41 @@
           <td class="px-4 py-2">{{ category.cate_id }}</td>
           <td class="px-4 py-2">{{ category.name }}</td>
           <td class="px-4 py-2 space-x-2">
-            <button @click="openModal(category)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">แก้ไขข้อมูล</button>
-            <button @click="deleteCategory(category.id)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">ลบรายการ</button>
+            <button @click="openModal(category)"
+              class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">แก้ไขข้อมูล</button>
+            <button @click="deleteCategory(category.id)"
+              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">ลบรายการ</button>
           </td>
         </tr>
       </tbody>
     </table>
 
     <!-- Edit Modal -->
-    <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
-        <!-- Close button -->
-        <button @click="isOpen = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
-          ✕
-        </button>
+    <CategoryEditModal :isOpen="isOpen" :category="selectedCategory" @close="isOpen = false"
+      @save="updateCategoryFromModal" />
 
-        <!-- Modal content -->
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Category</h2>
-        
-        <form @submit.prevent="updateCategory">
-          <div class="mb-4">
-            <label class="block text-gray-700 font-semibold mb-1">Category Name</label>
-            <input
-              type="text"
-              v-model="selectedCategory.name"
-              class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-          </div>
-
-          <div class="flex justify-end gap-2">
-            <button type="button" @click="isOpen = false" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Cancel</button>
-            <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- Create Modal -->
+    <CategoryCreateModal :isOpen="createModalOpen" @close="createModalOpen = false" @create="handleCreateCategory" />
 
   </div>
 </template>
 
 <script>
+import CategoryEditModal from '../modals/CategoryEditModal.vue';
+import CategoryCreateModal from '../modals/CategoryCreateModal.vue';
+
 export default {
   name: "CategoriesTable",
+  components: {
+    CategoryEditModal,
+    CategoryCreateModal
+  },
   data() {
     return {
       categories: [],
       searchQuery: "",
       isOpen: false,
+      createModalOpen: false,
       selectedCategory: null,
     };
   },
@@ -115,28 +98,27 @@ export default {
       this.selectedCategory = { ...category };
       this.isOpen = true;
     },
-    updateCategory() {
-      fetch(`/admin/category/update/${this.selectedCategory.id}`, {
-        method: "PUT", // must match the route
+    updateCategoryFromModal(updatedCategory) {
+      // Use your existing update logic, but with the passed category
+      fetch(`/admin/category/update/${updatedCategory.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-      },
-        body: JSON.stringify({
-        name: this.selectedCategory.name
+        },
+        body: JSON.stringify({ name: updatedCategory.name })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status) {
+            const index = this.categories.findIndex(c => c.id === updatedCategory.id);
+            if (index !== -1) this.categories[index].name = updatedCategory.name;
+            this.isOpen = false;
+          } else {
+            alert("Failed to update category");
+          }
         })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status) {
-          const index = this.categories.findIndex(c => c.id === this.selectedCategory.id);
-          if (index !== -1) this.categories[index].name = this.selectedCategory.name;
-          this.isOpen = false;
-        } else {
-          alert("Failed to update category");
-        }
-      })
-      .catch(() => alert("Error updating category"));
+        .catch(() => alert("Error updating category"));
     },
     deleteCategory(id) {
       if (confirm("Are you sure you want to delete this category?")) {
@@ -147,6 +129,27 @@ export default {
           this.categories = this.categories.filter(c => c.id !== id);
         });
       }
+    },
+    handleCreateCategory(newCategory) {
+      // Logic to handle the creation of a new category
+      fetch('/admin/category/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(newCategory)
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status) {
+            this.categories.push(data.category);
+            this.createModalOpen = false;
+          } else {
+            alert('Failed to create category');
+          }
+        })
+        .catch(() => alert('Error creating category'));
     }
   },
   mounted() {
