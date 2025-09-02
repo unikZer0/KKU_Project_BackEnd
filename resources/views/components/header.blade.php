@@ -48,15 +48,26 @@
                             @auth
                                 @forelse(auth()->user()->unreadNotifications as $notification)
                                     <div class="px-4 py-3 hover:bg-gray-100 border-b flex justify-between items-start"
-                                        data-id="{{ $notification->id }}" >
+                                        data-id="{{ $notification->id }}">
                                         {{-- data-url="{{ $notification->data['url'] }}" --}}
                                         <div class="cursor-pointer noti-link">
                                             <div class="font-semibold text-gray-800">
-                                                {{ $notification->data['user'] ?? 'Someone' }}
+                                                {{ $notification->data['user'] ?? 'admin' }}
                                             </div>
-                                            <div class="text-sm text-gray-600">
-                                                {{ $notification->data['message'] }}
-                                            </div>
+                                            @isset($notification->data['status'])
+                                                @if ($notification->data['status'] === 'rejected')
+                                                    <div class="text-sm text-red-600">{{ $notification->data['message'] }}</div>
+                                                @elseif ($notification->data['status'] === 'approved')
+                                                    <div class="text-sm text-green-600">{{ $notification->data['message'] }}
+                                                    </div>
+                                                @else
+                                                    <div class="text-sm text-yellow-600">{{ $notification->data['message'] }}
+                                                    </div>
+                                                @endif
+                                            @endisset
+
+
+
                                             <div class="text-xs text-gray-400 mt-1">
                                                 อุปกรณ์: {{ $notification->data['equipment'] }} |
                                                 {{ $notification->created_at->diffForHumans() }}
