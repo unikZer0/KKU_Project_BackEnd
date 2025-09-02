@@ -25,7 +25,7 @@
             <label class="block text-sm font-medium mb-1">Status</label>
             <select name="status" class="w-full border rounded px-3 py-2" required>
                 <option value="available">available</option>
-                <option value="unavailable">unavailable</option>
+                <option value="retired">retired</option>
                 <option value="maintenance">maintenance</option>
             </select>
         </div>
