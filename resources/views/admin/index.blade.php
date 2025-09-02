@@ -8,7 +8,7 @@
                 <div class="text-xs text-gray-500">Total Requests</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
-                <div class="text-2xl font-semibold mt-1">87</div>
+                <div class="text-2xl font-semibold mt-1">NaN</div>
                 <div class="text-xs text-gray-500">Best Rated Items</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
@@ -21,7 +21,6 @@
             </div>
         </div>
 
-        <!-- Spline Area Chart (Vue component) -->
 <div id="dashboard-chart" class="lg:col-span-7 bg-white rounded-lg border p-4"
      @foreach ($equipmentStatus as $status => $count)
          data-{{ $status }}="{{ $count }}"
@@ -29,21 +28,16 @@
      @endforeach
      data-months='@json($equipmentStatusMonthly['months'])'>
      
-    <!-- Show current counts -->
     @foreach ($equipmentStatus as $status => $count)
         <div>{{ ucfirst($status) }}: {{ $count }}</div>
     @endforeach
 
-    <!-- Canvas for chart -->
     <canvas></canvas>
 </div>
-        <!-- Category Bar Chart (Chart.js) -->
 <div class="lg:col-span-5 bg-white rounded-lg border p-4">
     <div class="text-sm font-medium">Category Distribution</div>
     <canvas id="categoryBar" class="mt-4"></canvas>
 </div>
-
-        <!-- Recent Activities Table (Vue component) -->
 
 <div id="recent-activities" 
      data-requests='@json($recentRequests)' 
@@ -55,13 +49,10 @@
         </div>
 
     </div>
-
-    <!-- Chart.js for Category Bar -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ mix('js/app.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ---------- Equipment Status Chart ----------
     const chartDiv = document.getElementById('dashboard-chart');
     if (chartDiv) {
         const months = JSON.parse(chartDiv.dataset.months || '[]');

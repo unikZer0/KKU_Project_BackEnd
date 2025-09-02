@@ -10,7 +10,8 @@
           <th class="text-left px-4 py-2">Request ID</th>
           <th class="text-left px-4 py-2">User</th>
           <th class="text-left px-4 py-2">Equipment</th>
-          <th class="text-left px-4 py-2">Date</th>
+          <th class="text-left px-4 py-2">Start</th>
+          <th class="text-left px-4 py-2">End</th>
           <th class="text-left px-4 py-2">Status</th>
         </tr>
       </thead>
@@ -19,7 +20,8 @@
           <td class="px-4 py-2">{{ request.id }}</td>
           <td class="px-4 py-2">{{ request.user_name }}</td>
           <td class="px-4 py-2">{{ request.equipment_name }}</td>
-          <td class="px-4 py-2">{{ request.date }}</td>
+          <td class="px-4 py-2">{{ request.start }}</td>
+          <td class="px-4 py-2">{{ request.end }}</td>
           <td class="px-4 py-2">{{ request.status }}</td>
         </tr>
       </tbody>

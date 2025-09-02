@@ -16,25 +16,22 @@ class AdminController extends Controller
 {
     public function index()
 {
-    // Recent requests (last 5)
     $recentRequests = BorrowRequest::with('user', 'equipment')
         ->latest()
         ->take(5)
         ->get()
         ->map(function ($r) {
             return [
-                'id' => $r->id,
+                'id' => $r->req_id,
                 'user_name' => $r->user->username ?? 'N/A',
                 'equipment_name' => $r->equipment->name ?? 'N/A',
-                'date' => $r->created_at->format('Y-m-d'),
+                'start' => $r->start_at->format('Y-m-d'),
+                'end' => $r->end_at->format('Y-m-d'),
                 'status' => ucfirst($r->status),
             ];
         });
+    $statuses = ['available', 'borrowed', 'retired', 'maintenance']; 
 
-    // Get all possible statuses from the database dynamically
-    $statuses = ['available', 'borrowed', 'retired', 'maintenance']; // Add more if needed
-
-    // Count equipment per status
     $equipmentStatus = [];
     foreach ($statuses as $status) {
         $equipmentStatus[$status] = Equipment::where('status', $status)->count();
@@ -67,10 +64,10 @@ class AdminController extends Controller
     ]);
 }
 
-public function requestIndex(CloudinaryService $cloudinary)
+public function requestIndex()
 {
     $requests = BorrowRequest::with('user', 'equipment')
-        ->where('status', 'pending') // only pending requests
+        ->where('status', 'pending')
         ->latest()
         ->get()
         ->map(function ($r) {
