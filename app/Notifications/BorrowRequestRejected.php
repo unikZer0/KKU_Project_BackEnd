@@ -37,6 +37,7 @@ class BorrowRequestRejected extends Notification
             'request_id' => $this->borrowRequest->id,
             'equipment' => $this->borrowRequest->equipment->name,
             'status' => 'rejected',
+            'message' => 'คำขอยืมของคุณถูกปฏิเสธ',
             'reason' => $this->borrowRequest->reject_reason,
             'type' => 'borrow_request_rejected',
             'created_at' => now()->toDateTimeString(),

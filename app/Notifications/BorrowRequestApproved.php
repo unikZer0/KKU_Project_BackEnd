@@ -37,6 +37,7 @@ class BorrowRequestApproved extends Notification
             'request_id' => $this->borrowRequest->id,
             'equipment'  => $this->borrowRequest->equipment->name,
             'message'    => 'คำขอยืมของคุณได้รับการอนุมัติแล้ว',
+            'status' => 'approved',
             'type'       => 'borrow_request_approved',
             'created_at' => now()->toDateTimeString(),
         ];
