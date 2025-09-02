@@ -490,6 +490,7 @@ export default {
                     this.ensureSwal().then(() => {
                         window.Swal.fire({
                             title: "อัปเดตสำเร็จ",
+                            text: "อัปเดตละนะ",
                             icon: "success",
                             timer: 1200,
                             showConfirmButton: false,
@@ -538,6 +539,7 @@ export default {
                                 );
                                 window.Swal.fire({
                                     title: "ลบแล้ว",
+                                    text: "ลบละนะ",
                                     icon: "success",
                                     timer: 1200,
                                     showConfirmButton: false,
@@ -625,6 +627,7 @@ export default {
                     this.ensureSwal().then(() => {
                         window.Swal.fire({
                             title: "เพิ่มข้อมูลสำเร็จ",
+                            text: "เพิ่มละนะ",
                             icon: "success",
                             timer: 1200,
                             showConfirmButton: false,
