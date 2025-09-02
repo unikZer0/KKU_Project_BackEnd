@@ -40,7 +40,7 @@ class EquipmentController extends Controller
             "name" => "required|string|max:20",
             "description" => "required|string|max:255",
             "categories_id" => "required|integer|exists:categories,id",
-            "status" => "required|in:available,unavailable,maintenance",
+            "status" => "required|in:available,retired,maintenance",
             "photo_path" => "nullable|string|max:255",
         ]);
 
@@ -82,7 +82,7 @@ class EquipmentController extends Controller
             "name" => "required|string|max:20",
             "description" => "nullable|string|max:255",
             "categories_id" => "required|integer|exists:categories,id",
-            "status" => "required|in:available,unavailable,maintenance",
+            "status" => "required|in:available,retired,maintenance",
             "photo_path" => "nullable|string|max:255",
         ]);
 

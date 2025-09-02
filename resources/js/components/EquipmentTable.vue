@@ -2,24 +2,12 @@
     <div class="bg-white p-6 rounded-lg shadow">
         <!-- Search Bar -->
         <div class="relative mb-4">
-            <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search"
-                class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <svg
-                class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
-                />
+            <input type="text" v-model="searchQuery" placeholder="Search"
+                class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
             </svg>
         </div>
 
@@ -28,10 +16,7 @@
             <h2 class="text-lg font-semibold mb-4">
                 อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
             </h2>
-            <button
-                @click="openCreateModal"
-                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
+            <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                 เพิ่มอุปกรณ์ใหม่
             </button>
         </div>
@@ -50,20 +35,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr
-                    v-for="equipment in paginatedEquipments"
-                    :key="equipment.id"
-                    class="border-b"
-                >
+                <tr v-for="equipment in paginatedEquipments" :key="equipment.id" class="border-b">
                     <!-- Photo -->
                     <td class="px-4 py-2 flex items-center space-x-2">
-                        <img
-                            v-if="equipment.photo_path"
-                            :src="equipment.photo_path"
-                            alt="Equipment Photo"
+                        <img v-if="equipment.photo_path" :src="equipment.photo_path" alt="Equipment Photo"
                             class="w-8 h-8 object-cover rounded cursor-pointer"
-                            @click="openPhotoModal(equipment.photo_path)"
-                        />
+                            @click="openPhotoModal(equipment.photo_path)" />
                     </td>
                     <td class="px-4 py-2">{{ equipment.code }}</td>
                     <td class="px-4 py-2">{{ equipment.name }}</td>
@@ -77,16 +54,12 @@
                         {{ capitalize(equipment.status) }}
                     </td>
                     <td class="px-4 py-2 space-x-2">
-                        <button
-                            @click="openModal(equipment)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
-                        >
+                        <button @click="openModal(equipment)"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
                             แก้ไขข้อมูล
                         </button>
-                        <button
-                            @click="deleteEquipment(equipment.id)"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                        >
+                        <button @click="deleteEquipment(equipment.id)"
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                             ลบรายการ
                         </button>
                     </td>
@@ -100,62 +73,33 @@
                 แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด {{ filteredEquipments.length }} รายการ
             </div>
             <div class="flex items-center space-x-1">
-                <button
-                    class="px-3 py-1 border rounded disabled:opacity-50"
-                    :disabled="currentPage === 1"
-                    @click="prevPage"
-                >ก่อนหน้า</button>
-                <button
-                    v-for="p in pageCount"
-                    :key="p"
-                    class="px-3 py-1 border rounded"
-                    :class="{ 'bg-blue-600 text-white': currentPage === p }"
-                    @click="goToPage(p)"
-                >{{ p }}</button>
-                <button
-                    class="px-3 py-1 border rounded disabled:opacity-50"
-                    :disabled="currentPage === pageCount || pageCount === 0"
-                    @click="nextPage"
-                >ถัดไป</button>
+                <button class="px-3 py-1 border rounded disabled:opacity-50" :disabled="currentPage === 1"
+                    @click="prevPage">ก่อนหน้า</button>
+                <button v-for="p in pageCount" :key="p" class="px-3 py-1 border rounded"
+                    :class="{ 'bg-blue-600 text-white': currentPage === p }" @click="goToPage(p)">{{ p }}</button>
+                <button class="px-3 py-1 border rounded disabled:opacity-50"
+                    :disabled="currentPage === pageCount || pageCount === 0" @click="nextPage">ถัดไป</button>
             </div>
         </div>
 
         <!-- Edit Modal -->
-        <div
-            v-if="isOpen"
-            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40"
-        >
+        <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40">
             <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
                 <h3 class="text-lg font-semibold mb-4">แก้ไขอุปกรณ์</h3>
 
                 <!-- Name -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >ชื่ออุปกรณ์</label
-                    >
-                    <input
-                    
-                        type="text"
-                        v-model="selectedEquipment.name"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
+                    <input type="text" v-model="selectedEquipment.name"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
 
                 <!-- Category -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >หมวดหมู่</label
-                    >
-                    <select
-                    
-                        v-model="selectedCategoryId"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option
-                            v-for="cat in categories"
-                            :key="cat.id"
-                            :value="cat.id"
-                        >
+                    <label class="block text-gray-700 font-semibold mb-1">หมวดหมู่</label>
+                    <select v-model="selectedCategoryId"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                             {{ cat.name }}
                         </option>
                     </select>
@@ -163,25 +107,16 @@
 
                 <!-- Description -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >รายละเอียด</label
-                    >
-                    <textarea
-                    
-                        v-model="selectedEquipment.description"
+                    <label class="block text-gray-700 font-semibold mb-1">รายละเอียด</label>
+                    <textarea v-model="selectedEquipment.description"
                         class="w-full h-24 border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                        placeholder="กรอกรายละเอียดอุปกรณ์"
-                    ></textarea>
+                        placeholder="กรอกรายละเอียดอุปกรณ์"></textarea>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >สถานะ</label
-                    >
-                    <select
-                        v-model="selectedEquipment.status"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                    <label class="block text-gray-700 font-semibold mb-1">สถานะ</label>
+                    <select v-model="selectedEquipment.status"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option v-for="s in statuses" :key="s" :value="s">
                             {{ capitalize(s) }}
                         </option>
@@ -190,36 +125,20 @@
 
                 <!-- Image -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >รูปภาพ</label
-                    >
-                    <input
-                    
-                        type="file"
-                        accept="image/*"
-                        @change="onEditImageChange"
-                    />
+                    <label class="block text-gray-700 font-semibold mb-1">รูปภาพ</label>
+                    <input type="file" accept="image/*" @change="onEditImageChange" />
                     <div v-if="selectedEquipment.photo_path" class="mt-2">
                         <p class="text-sm text-gray-600">รูปปัจจุบัน:</p>
-                        <img
-                            :src="selectedEquipment.photo_path"
-                            alt="Current Image"
-                            class="w-24 h-24 object-cover rounded"
-                        />
+                        <img :src="selectedEquipment.photo_path" alt="Current Image"
+                            class="w-24 h-24 object-cover rounded" />
                     </div>
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <button
-                        @click="isOpen = false"
-                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-                    >
+                    <button @click="isOpen = false" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
                         Cancel
                     </button>
-                    <button
-                        @click="updateEquipment"
-                        class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-                    >
+                    <button @click="updateEquipment" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
                         Save
                     </button>
                 </div>
@@ -227,40 +146,25 @@
         </div>
 
         <!-- Create Modal -->
-        <div
-            v-if="createModal.isOpen"
-            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40"
-        >
+        <div v-if="createModal.isOpen"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40">
             <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
                 <h3 class="text-lg font-semibold mb-4">เพิ่มอุปกรณ์ใหม่</h3>
 
                 <!-- Name -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >ชื่ออุปกรณ์</label
-                    >
-                    <input required
-                        type="text"
-                        v-model="createModal.form.name"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
+                    <input required type="text" v-model="createModal.form.name"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
 
                 <!-- Category -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >หมวดหมู่</label
-                    >
-                    <select required
-                        v-model="createModal.form.categories_id"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                    <label class="block text-gray-700 font-semibold mb-1">หมวดหมู่</label>
+                    <select required v-model="createModal.form.categories_id"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="" disabled>เลือกหมวดหมู่</option>
-                        <option
-                            v-for="cat in categories"
-                            :key="cat.id"
-                            :value="cat.id"
-                        >
+                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                             {{ cat.name }}
                         </option>
                     </select>
@@ -268,26 +172,17 @@
 
                 <!-- Description -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >รายละเอียด</label
-                    >
-                    <textarea
-                    
-                        v-model="createModal.form.description"
+                    <label class="block text-gray-700 font-semibold mb-1">รายละเอียด</label>
+                    <textarea v-model="createModal.form.description"
                         class="w-full h-24 border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                        placeholder="กรอกรายละเอียดอุปกรณ์"
-                    ></textarea>
+                        placeholder="กรอกรายละเอียดอุปกรณ์"></textarea>
                 </div>
 
                 <!-- Status -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >สถานะ</label
-                    >
-                    <select required
-                        v-model="createModal.form.status"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                    <label class="block text-gray-700 font-semibold mb-1">สถานะ</label>
+                    <select required v-model="createModal.form.status"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option v-for="s in statuses" :key="s" :value="s">
                             {{ capitalize(s) }}
                         </option>
@@ -296,45 +191,24 @@
 
                 <!-- Image -->
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1"
-                        >รูปภาพ</label
-                    >
-                    <input required
-                        type="file"
-                        accept="image/*"
-                        @change="onCreateImageChange"
-                    />
+                    <label class="block text-gray-700 font-semibold mb-1">รูปภาพ</label>
+                    <input required type="file" accept="image/*" @change="onCreateImageChange" />
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <button
-                        @click="closeCreateModal"
-                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
-                    >
+                    <button @click="closeCreateModal" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
                         Cancel
                     </button>
-                    <button
-                        @click="createEquipment"
-                        class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-                    >
+                    <button @click="createEquipment" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
                         Create
                     </button>
                 </div>
             </div>
         </div>
-        <div
-            v-if="photoModal.isOpen"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            @click.self="closePhotoModal"
-        >
-            <div
-                class="bg-white rounded-lg shadow-lg p-4 max-w-[90%] max-h-[90%] flex flex-col items-center"
-            >
-                <img
-                    :src="photoModal.url"
-                    alt="Equipment Photo"
-                    class="max-w-full max-h-full rounded mb-2"
-                />
+        <div v-if="photoModal.isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            @click.self="closePhotoModal">
+            <div class="bg-white rounded-lg shadow-lg p-4 max-w-[90%] max-h-[90%] flex flex-col items-center">
+                <img :src="photoModal.url" alt="Equipment Photo" class="max-w-full max-h-full rounded mb-2" />
             </div>
         </div>
     </div>
@@ -348,7 +222,7 @@ export default {
         return {
             equipments: JSON.parse(el.dataset.equipments || "[]"),
             categories: JSON.parse(el.dataset.categories || "[]"),
-            statuses: ["available", "unavailable", "maintenance"],
+            statuses: ["available", "retired", "maintenance"],
             searchQuery: "",
             currentPage: 1,
             pageSize: 15,
@@ -451,7 +325,7 @@ export default {
                 "status",
                 this.selectedEquipment.status || "available"
             );
-            
+
             if (this.selectedImageFile) {
                 formData.append("image", this.selectedImageFile);
             }
@@ -472,7 +346,7 @@ export default {
                         try {
                             const j = await res.json();
                             msg = j.message || JSON.stringify(j);
-                        } catch (e) {}
+                        } catch (e) { }
                         throw new Error(msg);
                     }
                     return res.json();
@@ -528,7 +402,7 @@ export default {
                                     try {
                                         const j = await res.json();
                                         msg = j.message || JSON.stringify(j);
-                                    } catch (e) {}
+                                    } catch (e) { }
                                     throw new Error(msg);
                                 }
                                 return res.json();
@@ -607,7 +481,7 @@ export default {
                         try {
                             const j = await res.json();
                             msg = j.message || JSON.stringify(j);
-                        } catch (e) {}
+                        } catch (e) { }
                         throw new Error(msg);
                     }
                     return res.json();

@@ -6,6 +6,7 @@ use App\Models\Equipment;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+
 class HomeController extends Controller
 {
 
@@ -24,7 +25,7 @@ class HomeController extends Controller
 
         if ($request->filled('status')) {
             $status = (string) $request->get('status');
-            $allowed = ['available', 'unavailable', 'maintenance'];
+            $allowed = ['available', 'retired', 'maintenance'];
             if (in_array($status, $allowed, true)) {
                 $query->where('status', $status);
             }
@@ -47,5 +48,4 @@ class HomeController extends Controller
             'categories' => $categories,
         ]);
     }
-
 }
