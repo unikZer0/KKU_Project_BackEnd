@@ -49,9 +49,9 @@
             <thead>
                 <tr>
                     <th class="border px-2 py-1">ID</th>
-                    <th class="border px-2 py-1">Name</th>
-                    <th class="border px-2 py-1">Category</th>
-                    <th class="border px-2 py-1">Added Date</th>
+                    <th class="border px-2 py-1">ชื่อผู้ใช้</th>
+                    <th class="border px-2 py-1">หมวดหมู่</th>
+                    <th class="border px-2 py-1">วันที่เพิ่ม</th>
                 </tr>
             </thead>
             <tbody>

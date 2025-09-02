@@ -154,7 +154,7 @@ public function userReport()
             'username' => $user->username,
             'age' => $user->age ?? '-', // assuming you have age column
             'phonenumber' => $user->phonenumber ?? '-',
-            'created_at' => $user->created_at->format('Y-m-d'),
+            'created_at' => optional($user->created_at)->format('d/m/Y'),
         ];
     });
 
@@ -169,7 +169,7 @@ public function equipmentReport()
             'id' => $eq->id,
             'name' => $eq->name,
             'category_name' => $eq->category->name ?? 'N/A',
-            'created_at' => $eq->created_at->format('Y-m-d'),
+            'created_at' => optional($eq->created_at)->format('d/m/Y'),
         ];
     });
 

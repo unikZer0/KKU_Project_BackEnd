@@ -48,7 +48,7 @@
             <thead>
                 <tr>
                     <th class="border px-2 py-1">ID</th>
-                    <th class="border px-2 py-1">Name</th>
+                    <th class="border px-2 py-1">ชื่อหมวดหมู่</th>
                 </tr>
             </thead>
             <tbody>

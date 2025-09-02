@@ -51,11 +51,11 @@
             <thead class="bg-gray-50 border-b">
                 <tr>
                     <th class="px-4 py-2 text-left">Request ID</th>
-                    <th class="px-4 py-2 text-left">User</th>
-                    <th class="px-4 py-2 text-left">Equipment</th>
-                    <th class="px-4 py-2 text-left">Date</th>
-                    <th class="px-4 py-2 text-left">Status</th>
-                    <th class="px-4 py-2 text-left">Reason</th>
+                    <th class="px-4 py-2 text-left">ชื่อผู้ใช้</th>
+                    <th class="px-4 py-2 text-left">ชื่ออุปกรณ์</th>
+                    <th class="px-4 py-2 text-left">วันที่ส่งคำขอ</th>
+                    <th class="px-4 py-2 text-left">สถานะ</th>
+                    <th class="px-4 py-2 text-left">เหตุผล</th>
                 </tr>
             </thead>
             <tbody>

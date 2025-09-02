@@ -49,10 +49,10 @@
             <thead>
                 <tr>
                     <th class="border px-2 py-1">ID</th>
-                    <th class="border px-2 py-1">Username</th>
-                    <th class="border px-2 py-1">Age</th>
-                    <th class="border px-2 py-1">Phone</th>
-                    <th class="border px-2 py-1">Created At</th>
+                    <th class="border px-2 py-1">ชื่อผู้ใช้</th>
+                    <th class="border px-2 py-1">อายุ</th>
+                    <th class="border px-2 py-1">เบอร์โทร</th>
+                    <th class="border px-2 py-1">วันที่สร้าง</th>
                 </tr>
             </thead>
             <tbody>

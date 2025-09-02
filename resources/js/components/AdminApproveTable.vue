@@ -21,11 +21,11 @@
       <thead class="bg-gray-50 border-b">
         <tr>
           <th class="text-left px-4 py-2">Request ID</th>
-          <th class="text-left px-4 py-2">User</th>
-          <th class="text-left px-4 py-2">Equipment</th>
-          <th class="text-left px-4 py-2">Date</th>
-          <th class="text-left px-4 py-2">Status</th>
-          <th class="text-left px-4 py-2">Action</th>
+          <th class="text-left px-4 py-2">ผู้ใช้</th>
+          <th class="text-left px-4 py-2">อุปกรณ์</th>
+          <th class="text-left px-4 py-2">วันที่ส่งคำขอ</th>
+          <th class="text-left px-4 py-2">สถานะ</th>
+          <th class="text-left px-4 py-2">การดำเนินการ</th>
         </tr>
       </thead>
       <tbody>
