@@ -83,140 +83,30 @@
         </div>
 
         <!-- Edit Modal -->
-        <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40">
-            <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
-                <h3 class="text-lg font-semibold mb-4">แก้ไขอุปกรณ์</h3>
-
-                <!-- Name -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
-                    <input type="text" v-model="selectedEquipment.name"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-
-                <!-- Category -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">หมวดหมู่</label>
-                    <select v-model="selectedCategoryId"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                            {{ cat.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Description -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">รายละเอียด</label>
-                    <textarea v-model="selectedEquipment.description"
-                        class="w-full h-24 border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                        placeholder="กรอกรายละเอียดอุปกรณ์"></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">สถานะ</label>
-                    <select v-model="selectedEquipment.status"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option v-for="s in statuses" :key="s" :value="s">
-                            {{ capitalize(s) }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Image -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">รูปภาพ</label>
-                    <input type="file" accept="image/*" @change="onEditImageChange" />
-                    <div v-if="selectedEquipment.photo_path" class="mt-2">
-                        <p class="text-sm text-gray-600">รูปปัจจุบัน:</p>
-                        <img :src="selectedEquipment.photo_path" alt="Current Image"
-                            class="w-24 h-24 object-cover rounded" />
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-2">
-                    <button @click="isOpen = false" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
-                        Cancel
-                    </button>
-                    <button @click="updateEquipment" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
+        <EquipmentEditModal :isOpen="isOpen" :equipment="selectedEquipment" :categories="categories"
+            :statuses="statuses" @cancel="isOpen = false" @save="updateEquipment" />
 
         <!-- Create Modal -->
-        <div v-if="createModal.isOpen"
-            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-40">
-            <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
-                <h3 class="text-lg font-semibold mb-4">เพิ่มอุปกรณ์ใหม่</h3>
+        <EquipmentCreateModal :isOpen="createModal.isOpen" :categories="categories" :statuses="statuses"
+            @cancel="closeCreateModal" @create="createEquipment" />
 
-                <!-- Name -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
-                    <input required type="text" v-model="createModal.form.name"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-
-                <!-- Category -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">หมวดหมู่</label>
-                    <select required v-model="createModal.form.categories_id"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" disabled>เลือกหมวดหมู่</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                            {{ cat.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Description -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">รายละเอียด</label>
-                    <textarea v-model="createModal.form.description"
-                        class="w-full h-24 border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                        placeholder="กรอกรายละเอียดอุปกรณ์"></textarea>
-                </div>
-
-                <!-- Status -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">สถานะ</label>
-                    <select required v-model="createModal.form.status"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option v-for="s in statuses" :key="s" :value="s">
-                            {{ capitalize(s) }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Image -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">รูปภาพ</label>
-                    <input required type="file" accept="image/*" @change="onCreateImageChange" />
-                </div>
-
-                <div class="flex justify-end space-x-2">
-                    <button @click="closeCreateModal" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
-                        Cancel
-                    </button>
-                    <button @click="createEquipment" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
-                        Create
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div v-if="photoModal.isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            @click.self="closePhotoModal">
-            <div class="bg-white rounded-lg shadow-lg p-4 max-w-[90%] max-h-[90%] flex flex-col items-center">
-                <img :src="photoModal.url" alt="Equipment Photo" class="max-w-full max-h-full rounded mb-2" />
-            </div>
-        </div>
+        <!-- Photo Modal -->
+        <PhotoModal :isOpen="photoModal.isOpen" :url="photoModal.url" @close="closePhotoModal" />
     </div>
 </template>
 
 <script>
+import EquipmentEditModal from '../modals/EquipmentEditModal.vue';
+import EquipmentCreateModal from '../modals/EquipmentCreateModal.vue';
+import PhotoModal from '../modals/PhotoModal.vue';
+
 export default {
     name: "EquipmentTable",
+    components: {
+        EquipmentEditModal,
+        EquipmentCreateModal,
+        PhotoModal
+    },
     data() {
         const el = document.getElementById("equipment-table");
         return {

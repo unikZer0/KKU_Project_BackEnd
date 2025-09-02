@@ -7,10 +7,10 @@ import { createApp } from 'vue';
 import HeaderSearch from './components/HeaderSearch.vue';
 import Filter from './components/Filter.vue';
 import Pagination from './components/Pagination.vue';
-import AdminApproveTable from './components/AdminApproveTable.vue';
+import AdminApproveTable from './components/tables/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
-import EquipmentTable from './components/EquipmentTable.vue';
-import CategoriesTable from './components/CategoryTable.vue';
+import EquipmentTable from './components/tables/EquipmentTable.vue';
+import CategoriesTable from './components/tables/CategoryTable.vue';
 import RecentAct from './components/RecentAct.vue';
 
 // Header Search
