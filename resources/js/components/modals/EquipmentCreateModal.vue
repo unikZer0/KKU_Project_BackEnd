@@ -74,6 +74,20 @@ export default {
             imageFile: null
         };
     },
+    watch: {
+        isOpen(newVal) {
+            if (newVal) {
+                // Reset form when modal opens
+                this.form = {
+                    name: "",
+                    description: "",
+                    categories_id: "",
+                    status: "available"
+                };
+                this.imageFile = null;
+            }
+        }
+    },
     methods: {
         capitalize(str) {
             if (!str) return "";
