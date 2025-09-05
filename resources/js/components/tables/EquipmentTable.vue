@@ -336,8 +336,10 @@ export default {
             const files = event.target.files;
             this.createModal.imageFile = files && files[0] ? files[0] : null;
         },
+        
         createEquipment() {
             const formData = new FormData();
+                        console.log("name", this.createModal);
             formData.append("name", this.createModal.form.name || "");
             formData.append(
                 "description",
@@ -354,7 +356,6 @@ export default {
             if (this.createModal.imageFile) {
                 formData.append("image", this.createModal.imageFile);
             }
-
             fetch(`/admin/equipment/store`, {
                 method: "POST",
                 headers: {
