@@ -84,11 +84,12 @@
 
         <!-- Edit Modal -->
         <EquipmentEditModal :isOpen="isOpen" :equipment="selectedEquipment" :categories="categories"
-            :statuses="statuses" @cancel="isOpen = false" @save="updateEquipment" />
+            :statuses="statuses" @cancel="isOpen = false" @save="updateEquipment"
+            @image-change="selectedImageFile = $event" />
 
         <!-- Create Modal -->
         <EquipmentCreateModal :isOpen="createModal.isOpen" :categories="categories" :statuses="statuses"
-            @cancel="closeCreateModal" @create="createEquipment" />
+            @cancel="closeCreateModal" @create="createEquipment" @image-change="createModal.imageFile = $event" />
 
         <!-- Photo Modal -->
         <PhotoModal :isOpen="photoModal.isOpen" :url="photoModal.url" @close="closePhotoModal" />
@@ -202,30 +203,21 @@ export default {
             const files = event.target.files;
             this.selectedImageFile = files && files[0] ? files[0] : null;
         },
-        updateEquipment() {
+        updateEquipment(payload) {
+            // Use payload from modal
             const formData = new FormData();
-            formData.append("name", this.selectedEquipment.name || "");
-            formData.append(
-                "description",
-                this.selectedEquipment.description || ""
-            );
-            const categoryId = this.selectedCategoryId == null ? "" : this.selectedCategoryId;
-            formData.append("categories_id", String(categoryId));
-            formData.append(
-                "status",
-                this.selectedEquipment.status || "available"
-            );
-
-            if (this.selectedImageFile) {
-                formData.append("image", this.selectedImageFile);
+            formData.append("name", payload.name || "");
+            formData.append("description", payload.description || "");
+            formData.append("categories_id", String(payload.categories_id ?? ""));
+            formData.append("status", payload.status || "available");
+            if (payload.imageFile) {
+                formData.append("image", payload.imageFile);
             }
             formData.append("_method", "PUT");
             fetch(`/admin/equipment/update/${this.selectedEquipment.id}`, {
                 method: "POST",
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector(
-                        'meta[name="csrf-token"]'
-                    ).content,
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
                     "Accept": "application/json",
                 },
                 body: formData,
@@ -336,32 +328,20 @@ export default {
             const files = event.target.files;
             this.createModal.imageFile = files && files[0] ? files[0] : null;
         },
-        
-        createEquipment() {
+        createEquipment(payload) {
+            // Use payload from modal
             const formData = new FormData();
-                        console.log("name", this.createModal);
-            formData.append("name", this.createModal.form.name || "");
-            formData.append(
-                "description",
-                this.createModal.form.description || ""
-            );
-            formData.append(
-                "categories_id",
-                this.createModal.form.categories_id || ""
-            );
-            formData.append(
-                "status",
-                this.createModal.form.status || "available"
-            );
-            if (this.createModal.imageFile) {
-                formData.append("image", this.createModal.imageFile);
+            formData.append("name", payload.name || "");
+            formData.append("description", payload.description || "");
+            formData.append("categories_id", payload.categories_id || "");
+            formData.append("status", payload.status || "available");
+            if (payload.imageFile) {
+                formData.append("image", payload.imageFile);
             }
             fetch(`/admin/equipment/store`, {
                 method: "POST",
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector(
-                        'meta[name="csrf-token"]'
-                    ).content,
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
                     Accept: "application/json",
                 },
                 body: formData,
