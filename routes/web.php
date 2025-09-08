@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\BorrowTransactionController;
+use App\Http\Controllers\Admin\BorrowRequestController;
 use App\Http\Controllers\NotificationController;
 
 //Support 
@@ -64,9 +65,9 @@ Route::middleware('auth')->group(function () {
 
     //Requests
     Route::prefix('admin/requests')->name('admin.')->group(function () {
-        Route::get('/', [AdminController::class, 'requestIndex'])->name('requests.index');
-        Route::post('/{id}/approve', [AdminController::class, 'approveRequest'])->name('requests.approve');
-        Route::post('/{id}/reject', [AdminController::class, 'rejectRequest'])->name('requests.reject');
+        Route::get('/', [BorrowRequestController::class, 'index'])->name('requests.index');
+        Route::post('/{id}/approve', [BorrowRequestController::class, 'approve'])->name('requests.approve');
+        Route::post('/{id}/reject', [BorrowRequestController::class, 'reject'])->name('requests.reject');
     });
 
     // Reports

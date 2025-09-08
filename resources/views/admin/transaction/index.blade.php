@@ -25,10 +25,12 @@
                     @foreach ($requests as $req)
                         <tr class="border-b">
                             <td class="p-2 border">{{ $req->req_id }}</td>
-                            <td class="p-2 border">{{ $req->start_at }}</td>
-                            <td class="p-2 border">{{ $req->end_at }}</td>
-                            <td class="p-2 border">{{ $req->transaction?->checked_out_at ?? 'ยังไม่ได้เข้ามายืม' }}</td>
-                            <td class="p-2 border">{{ $req->transaction?->checked_in_at ?? 'ยังไม่ได้ส่งคืน' }}</td>
+                            <td class="p-2 border">{{ $req->start_at_formatted }}</td>
+                            <td class="p-2 border">{{ $req->end_at_formatted }}</td>
+                            <td class="p-2 border">
+                                {{ $req->transaction?->checked_out_at_formatted ?? 'ยังไม่ได้เข้ามายืม' }}</td>
+                            <td class="p-2 border">
+                                {{ $req->transaction?->checked_in_at_formatted ?? 'ยังไม่ได้ส่งคืน' }}</td>
                             <td class="p-2 border text-red-600 font-bold">
                                 {{ $req->transaction?->penalty_amount ?? 'ยังไม่ได้คิดค่าปรับ' }}</td>
                             <td class="p-2 border">

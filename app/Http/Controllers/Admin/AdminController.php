@@ -15,175 +15,117 @@ use App\Notifications\BorrowRequestRejected;
 class AdminController extends Controller
 {
     public function index()
-{
-    $recentRequests = BorrowRequest::with('user', 'equipment')
-        ->latest()
-        ->take(5)
-        ->get()
-        ->map(function ($r) {
-            return [
-                'id' => $r->req_id,
-                'user_name' => $r->user->username ?? 'N/A',
-                'equipment_name' => $r->equipment->name ?? 'N/A',
-                'start' => $r->start_at->format('Y-m-d'),
-                'end' => $r->end_at->format('Y-m-d'),
-                'status' => ucfirst($r->status),
-            ];
-        });
-    $statuses = ['available', 'borrowed', 'retired', 'maintenance']; 
+    {
+        $recentRequests = BorrowRequest::with('user', 'equipment')
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'id' => $r->req_id,
+                    'user_name' => $r->user->username ?? 'N/A',
+                    'equipment_name' => $r->equipment->name ?? 'N/A',
+                    'start' => $r->start_at->format('Y-m-d'),
+                    'end' => $r->end_at->format('Y-m-d'),
+                    'status' => ucfirst($r->status),
+                ];
+            });
+        $statuses = ['available', 'borrowed', 'retired', 'maintenance'];
 
-    $equipmentStatus = [];
-    foreach ($statuses as $status) {
-        $equipmentStatus[$status] = Equipment::where('status', $status)->count();
-    }
-
-    // Monthly chart data
-    $equipmentStatusMonthly = [
-        'months' => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-    ];
-
-    foreach ($statuses as $status) {
-        $monthlyCounts = [];
-        for ($month = 1; $month <= 12; $month++) {
-            $monthlyCounts[] = Equipment::where('status', $status)
-                ->whereMonth('created_at', $month)
-                ->count();
+        $equipmentStatus = [];
+        foreach ($statuses as $status) {
+            $equipmentStatus[$status] = Equipment::where('status', $status)->count();
         }
-        $equipmentStatusMonthly[$status] = $monthlyCounts;
+
+        // Monthly chart data
+        $equipmentStatusMonthly = [
+            'months' => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        ];
+
+        foreach ($statuses as $status) {
+            $monthlyCounts = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $monthlyCounts[] = Equipment::where('status', $status)
+                    ->whereMonth('created_at', $month)
+                    ->count();
+            }
+            $equipmentStatusMonthly[$status] = $monthlyCounts;
+        }
+
+        return view('admin.index', [
+            'totalRequests'   => BorrowRequest::count(),
+            'bestRatedItems'  => Equipment::latest()->take(5)->get(),
+            'pendingRequests' => BorrowRequest::where('status', 'pending')->count(),
+            'penaltyNotices'  => BorrowRequest::where('status', 'overdue')->count(),
+            'equipmentStatus' => $equipmentStatus,
+            'categoryCounts'  => Category::withCount('equipments')->get(),
+            'recentRequests'  => $recentRequests,
+            'equipmentStatusMonthly' => $equipmentStatusMonthly,
+        ]);
     }
 
-    return view('admin.index', [
-        'totalRequests'   => BorrowRequest::count(),
-        'bestRatedItems'  => Equipment::latest()->take(5)->get(),
-        'pendingRequests' => BorrowRequest::where('status', 'pending')->count(),
-        'penaltyNotices'  => BorrowRequest::where('status', 'overdue')->count(),
-        'equipmentStatus' => $equipmentStatus,
-        'categoryCounts'  => Category::withCount('equipments')->get(),
-        'recentRequests'  => $recentRequests,
-        'equipmentStatusMonthly' => $equipmentStatusMonthly,
-    ]);
-}
-
-public function requestIndex()
-{
-    $requests = BorrowRequest::with('user', 'equipment')
-        ->where('status', 'pending')
-        ->latest()
-        ->get()
-        ->map(function ($r) {
+    // User Report
+    public function userReport()
+    {
+        $users = User::all()->map(function ($user) {
             return [
-                'id' => $r->id,
-                'user_name' => $r->user->username ?? 'N/A',
-                'equipment_name' => $r->equipment->name ?? 'N/A',
-                'equipment_photo' => $r->equipment->photo_path ?? null,
-                'start_at' => $r->start_at ? $r->start_at->format('Y-m-d') : '-',
-                'end_at' => $r->end_at ? $r->end_at->format('Y-m-d') : '-',
-                'date' => $r->created_at->format('Y-m-d'),
-                'status' => ucfirst($r->status),
-                'reason' => $r->reject_reason ?? $r->cancel_reason ?? '-',
+                'id' => $user->id,
+                'username' => $user->username,
+                'age' => $user->age ?? '-', // assuming you have age column
+                'phonenumber' => $user->phonenumber ?? '-',
+                'created_at' => optional($user->created_at)->format('d/m/Y'),
             ];
         });
 
-    return view('admin.request.index', [
-        'requests' => $requests
-    ]);
-}
-
-//Approve Request
-public function approveRequest($id)
-{
-    $request = BorrowRequest::findOrFail($id);
-    $request->status = 'approved';
-    $request->save();
-
-    $user = $request->user; // assume BorrowRequest model has 'user' relation
-    $user->notify(new BorrowRequestApproved($request));
-
-    return redirect()->route('admin.requests.index')->with('success', 'Request approved successfully.');
-}
-
-//Reject Request
-public function rejectRequest(Request $req, $id)
-{
-    $request = BorrowRequest::findOrFail($id);
-    $request->status = 'rejected';
-    $request->reject_reason = $req->input('reason');
-    $request->save();
-
-    $user = $request->user;
-    if ($user) {
-        $user->notify(new BorrowRequestRejected($request));
+        return view('admin.report.users', compact('users'));
     }
 
-    return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
-}
-
-//Request Report
-public function requestReport()
-{
-    // Only get requests with status = approved, rejected, or cancelled
-    $requests = BorrowRequest::with('user', 'equipment')
-        ->whereIn('status', ['approved', 'rejected', 'cancelled'])
-        ->latest()
-        ->get()
-        ->map(function ($r) {
+    // Equipment Report
+    public function equipmentReport()
+    {
+        $equipments = Equipment::with('category')->get()->map(function ($eq) {
             return [
-                'id' => $r->id,
-                'user_name' => $r->user->username ?? 'N/A',
-                'equipment_name' => $r->equipment->name ?? 'N/A',
-                'date' => $r->created_at->format('Y-m-d'),
-                'status' => ucfirst($r->status),
-                'reason' => $r->reject_reason ?? $r->cancel_reason ?? '-'
+                'id' => $eq->id,
+                'name' => $eq->name,
+                'category_name' => $eq->category->name ?? 'N/A',
+                'created_at' => optional($eq->created_at)->format('d/m/Y'),
             ];
         });
 
-    return view('admin.report.index', [
-        'requests' => $requests
-    ]);
-}
-
-// User Report
-public function userReport()
-{
-    $users = User::all()->map(function ($user) {
-        return [
-            'id' => $user->id,
-            'username' => $user->username,
-            'age' => $user->age ?? '-', // assuming you have age column
-            'phonenumber' => $user->phonenumber ?? '-',
-            'created_at' => optional($user->created_at)->format('d/m/Y'),
-        ];
-    });
-
-    return view('admin.report.users', compact('users'));
-}
-
-// Equipment Report
-public function equipmentReport()
-{
-    $equipments = Equipment::with('category')->get()->map(function ($eq) {
-        return [
-            'id' => $eq->id,
-            'name' => $eq->name,
-            'category_name' => $eq->category->name ?? 'N/A',
-            'created_at' => optional($eq->created_at)->format('d/m/Y'),
-        ];
-    });
-
-    return view('admin.report.equipments', compact('equipments'));
-}
+        return view('admin.report.equipments', compact('equipments'));
+    }
 
     // Category Report
-public function categoryReport()
-{
-    $categories = Category::all()->map(function ($cat) {
-        return [
-            'id' => $cat->id,
-            'name' => $cat->name,
-        ];
-    });
+    public function categoryReport()
+    {
+        $categories = Category::all()->map(function ($cat) {
+            return [
+                'id' => $cat->id,
+                'name' => $cat->name,
+            ];
+        });
 
-    return view('admin.report.categories', compact('categories'));
-}
+        return view('admin.report.categories', compact('categories'));
+    }
 
+    // Request Report
+    public function requestReport()
+    {
+        $requests = BorrowRequest::with('user', 'equipment')
+            ->whereIn('status', ['approved', 'rejected', 'cancelled'])
+            ->latest()
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'user_name' => $r->user->username ?? 'N/A',
+                    'equipment_name' => $r->equipment->name ?? 'N/A',
+                    'date' => $r->created_at->format('Y-m-d'),
+                    'status' => ucfirst($r->status),
+                    'reason' => $r->reject_reason ?? $r->cancel_reason ?? '-'
+                ];
+            });
+
+        return view('admin.report.index', compact('requests'));
+    }
 }
