@@ -41,7 +41,7 @@ class EquipmentController extends Controller
             "description" => "required|string|max:255",
             "categories_id" => "required|integer|exists:categories,id",
             "status" => "required|in:available,retired,maintenance",
-            "photo_path" => "required|string|max:255",
+            "photo_path" => "string|max:255",
         ]);
 
         if ($request->hasFile('image')) {
