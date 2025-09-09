@@ -14,9 +14,6 @@ use App\Notifications\BorrowRequestCreated;
 use App\Models\Equipment;
 use App\Models\Category;
 use Carbon\Carbon;
-use PhpParser\Node\Stmt\TryCatch;
-
-use function Laravel\Prompts\error;
 
 class BorrowerCtrl extends Controller
 {
@@ -170,6 +167,20 @@ class BorrowerCtrl extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+    public function reqdetail($req_id){
+
+        if (!Auth::check()) {
+            return redirect()->back()->with('showLoginConfirm', true);
+        }
+        $reQuests = BorrowRequest::with(
+            'equipment:id,code,name,description,categories_id,photo_path',
+            'user:id,uid,username,age,email,phonenumber',
+            'equipment.category:id,name'
+        )
+            ->where('req_id', $req_id)
+            ->get();
+        return view('equipments.reqdetail',compact('reQuests'));
     }
 }
 

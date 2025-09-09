@@ -238,9 +238,9 @@
                 </div>
             </div>
             {{-- {{ request()->routeIs('contact') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }} --}}
-            <a href="#" class="">
+            {{-- <a href="#" class="">
                 ติดต่อ
-            </a>
+            </a> --}}
 
             @can('admin')
                 <a href="{{ route('admin.index') }}"
@@ -277,10 +277,19 @@
                     {{ $equipment->name ?? 'รายละเอียด' }}
                 </span>
             @endif
-            @if (request()->routeIs('borrower.equipments.myreq'))
-                <span class="text-gray-700 font-medium">
-                    {{ 'คำขอของฉัน' }}
-                </span>
+            @if (request()->routeIs('borrower.equipments.myreq') || request()->routeIs('borrower.equipments.reqdetail'))
+                <a href="{{ route('borrower.equipments.myreq') }}"
+                    class="hover:text-blue-600 {{ request()->routeIs('borrower.equipments.myreq') ? 'text-blue-600 font-medium' : '' }}">
+                    คำขอของฉัน
+                </a>
+            @endif
+            @if (request()->routeIs('borrower.equipments.reqdetail'))
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            @endif
+            @if (request()->routeIs('borrower.equipments.reqdetail'))
+                <span class="text-gray-700 font-medium">รายละเอียดคำขอ</span>
             @endif
         </nav>
 

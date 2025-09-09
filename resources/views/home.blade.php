@@ -13,7 +13,7 @@
                         <div class="relative">
                             <img src="{{ $equipment->photo_path }}" alt="{{ $equipment->name }}"
                                 class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
-                            {{-- @if ($equipment->status === 'maintenance')
+                            @if ($equipment->status === 'maintenance')
                                 <span
                                     class="absolute top-2 right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded">
                                     {{ ucfirst($equipment->status) }}
@@ -28,7 +28,7 @@
                                     class="absolute top-2 right-2 bg-green-600 text-white text-xs px-1.5 py-0.5 rounded">
                                     {{ ucfirst($equipment->status) }}
                                 </span>
-                            @endif --}}
+                            @endif
                         </div>
                         <div class="p-2 sm:p-4 p-5 pb-0">
                             <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">

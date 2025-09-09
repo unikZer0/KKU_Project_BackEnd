@@ -25,7 +25,7 @@ class BorrowRequestCreated extends Notification
             ->subject('มีคำขอยืมอุปกรณ์ใหม่')
             ->line("ผู้ใช้ {$this->borrowRequest->user->username} ได้สร้างคำขอยืมอุปกรณ์")
             ->line("อุปกรณ์: {$this->borrowRequest->equipment->name}")
-            ->action('ดูรายละเอียด', url('/borrower/myreq'.$this->borrowRequest->id))
+            ->action('ดูรายละเอียด', url('/borrower/myreq'))
             ->line('กรุณาตรวจสอบคำขอนี้ด้วยครับ');
     }
     public function toDatabase($notifiable)

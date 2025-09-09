@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">คำขอยืมอุปกรณ์</h1>
-        <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 lg:gap-5 my-5">
             @php
                 $activeRequests = $reQuests->where('status', '!=', 'cancelled');
             @endphp
@@ -85,8 +84,8 @@
                                 <div class="flex flex mt-6 justify-between ">
                                     <button
                                         class="bg-blue-600 text-white px-8 py-1 rounded-lg hover:bg-blue-700 transition">
-                                        <a href="{{route('borrower.equipments.reqdetail',$req->req_id)}}">
-                                            ดูรายละเอียด
+                                        <a href="{{route('borrower.equipments.myreq')}}">
+                                            กลับ
                                         </a>
                                     </button>
                                     @if ($req->status === 'pending')
@@ -146,7 +145,6 @@
                     </div>
                 @endforeach
             @endif
-        </div>
     </div>
 
     @if (session('success'))
