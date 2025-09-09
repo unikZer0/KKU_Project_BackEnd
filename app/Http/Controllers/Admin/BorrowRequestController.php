@@ -34,6 +34,12 @@ class BorrowRequestController extends Controller
         return view('admin.request.index', compact('requests'));
     }
 
+    public function show($id)
+    {
+        $requests = \App\Models\BorrowRequest::with(['user', 'equipment'])->findOrFail($id);
+        return view('admin.request.show', compact('requests'));
+    }
+
     // Approve request
     public function approve($id)
     {

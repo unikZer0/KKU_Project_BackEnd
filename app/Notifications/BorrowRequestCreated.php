@@ -17,7 +17,7 @@ class BorrowRequestCreated extends Notification
 
     public function via($notifiable)
     {
-        return ['mail', 'database']; 
+        return ['mail', 'database'];
     }
     public function toMail($notifiable)
     {
@@ -36,7 +36,7 @@ class BorrowRequestCreated extends Notification
             'user'       => $this->borrowRequest->user->username,
             'status' => 'created',
             'message'    => 'มีคำขอยืมอุปกรณ์ใหม่',
-            'url'        => url('/admin/requests')
+            'url'        => route('admin.requests.show', $this->borrowRequest->id),
         ];
     }
 }
