@@ -18,6 +18,21 @@ class BorrowTransaction extends Model
         'notes'
     ];
 
+    protected $casts = [
+        'checked_out_at' => 'datetime',
+        'checked_in_at'  => 'datetime',
+    ];
+
+    public function getCheckedOutAtFormattedAttribute()
+    {
+        return $this->checked_out_at?->format('d-m-y');
+    }
+
+    public function getCheckedInAtFormattedAttribute()
+    {
+        return $this->checked_in_at?->format('d-m-y');
+    }
+
     public function borrowRequest()
     {
         return $this->belongsTo(BorrowRequest::class, 'borrow_requests_id');
