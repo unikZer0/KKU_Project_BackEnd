@@ -28,7 +28,7 @@ class BorrowRequestRejected extends Notification
             ->line("คำขอยืมอุปกรณ์: {$this->borrowRequest->equipment->name}")
             ->line('สถานะ: ถูกปฏิเสธ')
             ->line('เหตุผล: ' . ($this->borrowRequest->reject_reason ?: '-'))
-            ->action('ดูรายละเอียด', url('/borrower/myreq'));
+            ->action('ดูรายละเอียด', url('/borrower/reqdetail', $this->borrowRequest->req_id));
     }
 
     public function toDatabase($notifiable)
@@ -40,6 +40,7 @@ class BorrowRequestRejected extends Notification
             'message' => 'คำขอยืมของคุณถูกปฏิเสธ',
             'reason' => $this->borrowRequest->reject_reason,
             'type' => 'borrow_request_rejected',
+            'url' => route('borrower.equipments.reqdetail', $this->borrowRequest->req_id),
             'created_at' => now()->toDateTimeString(),
         ];
     }

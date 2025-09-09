@@ -27,7 +27,7 @@ class BorrowRequestApproved extends Notification
             ->greeting("สวัสดี {$notifiable->username}")
             ->line("คำขอยืมอุปกรณ์: {$this->borrowRequest->equipment->name}")
             ->line("ได้รับการอนุมัติเรียบร้อยแล้ว ")
-            ->action('ดูรายละเอียด', url('/borrower/myreq'))
+            ->action('ดูรายละเอียด', url('/borrower/reqdetail', $this->borrowRequest->req_id))
             ->line('กรุณามารับอุปกรณ์ตามเวลาที่กำหนด');
     }
 
@@ -39,6 +39,7 @@ class BorrowRequestApproved extends Notification
             'message'    => 'คำขอยืมของคุณได้รับการอนุมัติแล้ว',
             'status' => 'approved',
             'type'       => 'borrow_request_approved',
+            'url'        => route('borrower.equipments.reqdetail', $this->borrowRequest->req_id),
             'created_at' => now()->toDateTimeString(),
         ];
     }

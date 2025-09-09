@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
     //Requests
     Route::prefix('admin/requests')->name('admin.')->group(function () {
         Route::get('/', [BorrowRequestController::class, 'index'])->name('requests.index');
+        Route::get('/{id}', [BorrowRequestController::class, 'show'])->name('requests.show');
         Route::post('/{id}/approve', [BorrowRequestController::class, 'approve'])->name('requests.approve');
         Route::post('/{id}/reject', [BorrowRequestController::class, 'reject'])->name('requests.reject');
     });

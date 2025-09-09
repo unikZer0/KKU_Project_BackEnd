@@ -1,3 +1,16 @@
+<style>
+.read-notification {
+    opacity: 0.6 !important;
+    background-color: #f9fafb;
+}
+.read-notification .font-semibold {
+    color: #6b7280 !important;
+}
+.read-notification .text-sm {
+    color: #9ca3af !important;
+}
+</style>
+
 <header class="bg-white border-b">
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
@@ -44,9 +57,8 @@
                         @auth
                             @forelse(auth()->user()->unreadNotifications as $notification)
                                 <div class="px-4 py-3 hover:bg-gray-100 border-b flex justify-between items-start"
-                                    data-id="{{ $notification->id }}">
-                                    {{-- data-url="{{ $notification->data['url'] }}" --}}
-                                    <div class="cursor-pointer noti-link">
+                                    data-id="{{ $notification->id }}" data-url="{{ $notification->data['url'] ?? '#' }}">
+                                    <div class="cursor-pointer noti-link flex-1">
                                         <div class="font-semibold text-gray-800">
                                             {{ $notification->data['user'] ?? 'admin' }}
                                         </div>
@@ -61,8 +73,6 @@
                                                 </div>
                                             @endif
                                         @endisset
-
-
 
                                         <div class="text-xs text-gray-400 mt-1">
                                             อุปกรณ์: {{ $notification->data['equipment'] }} |
@@ -112,9 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event delegation for marking single notification as read
+    // Event delegation for notification clicks and marking as read
     notiList.addEventListener("click", (e) => {
         if (e.target.classList.contains("mark-read-btn")) {
+            e.stopPropagation(); // Prevent triggering the noti-link click
             const item = e.target.closest("[data-id]");
             const id = item.getAttribute("data-id");
 
@@ -128,11 +139,42 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    item.remove();
+                    // Mark notification as read visually instead of removing
+                    item.style.opacity = '0.6';
+                    item.classList.add('read-notification');
                     const notiCount = document.getElementById("notiCount");
                     if (notiCount) notiCount.innerText = data.unread_count;
-                    if (notiList.children.length === 0) {
-                        notiList.innerHTML = '<div class="p-4 text-gray-500">ยังไม่มีการแจ้งเตือน</div>';
+                }
+            });
+        } else if (e.target.closest(".noti-link")) {
+            // Handle notification click for redirection
+            e.preventDefault();
+            const item = e.target.closest("[data-id]");
+            const url = item.getAttribute("data-url");
+            const id = item.getAttribute("data-id");
+            
+            // Mark as read first
+            fetch(`/notifications/mark-read/${id}`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Accept": "application/json"
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Update notification count
+                    const notiCount = document.getElementById("notiCount");
+                    if (notiCount) notiCount.innerText = data.unread_count;
+                    // Mark notification as read visually
+                    item.style.opacity = '0.6';
+                    item.classList.add('read-notification');
+                    // Close notification dropdown
+                    menu.classList.add("hidden");
+                    // Redirect to the URL
+                    if (url && url !== '#') {
+                        window.location.href = url;
                     }
                 }
             });
@@ -153,7 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    notiList.innerHTML = '<div class="p-4 text-gray-500">ยังไม่มีการแจ้งเตือน</div>';
+                    // Mark all notifications as read visually instead of removing them
+                    const allNotifications = document.querySelectorAll('[data-id]');
+                    allNotifications.forEach(item => {
+                        item.style.opacity = '0.6';
+                        item.classList.add('read-notification');
+                    });
                     const notiCount = document.getElementById("notiCount");
                     if (notiCount) notiCount.innerText = 0;
                 }
