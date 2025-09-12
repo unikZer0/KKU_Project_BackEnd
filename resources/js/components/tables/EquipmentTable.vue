@@ -58,7 +58,7 @@
                             class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
                             แก้ไขข้อมูล
                         </button>
-                        <button @click="deleteEquipment(equipment.id)"
+                        <button @click="deleteEquipment(equipment)"
                             class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                             ลบรายการ
                         </button>
@@ -257,57 +257,59 @@ export default {
                     this.notifyError(err.message || "ไม่สามารถอัปเดตได้");
                 });
         },
-        deleteEquipment(id) {
-            this.ensureSwal().then(() => {
-                window.Swal.fire({
-                    title: "ลบรายการ?",
-                    text: "การกระทำนี้ไม่สามารถย้อนกลับได้",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "ลบ",
-                    cancelButtonText: "ยกเลิก",
-                    confirmButtonColor: "#ef4444",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`/admin/equipment/destroy/${id}`, {
-                            method: "DELETE",
-                            headers: {
-                                "X-CSRF-TOKEN": document.querySelector(
-                                    'meta[name="csrf-token"]'
-                                ).content,
-                                "Accept": "application/json",
-                            },
-                        })
-                            .then(async (res) => {
-                                if (!res.ok) {
-                                    let msg = "Delete failed";
-                                    try {
-                                        const j = await res.json();
-                                        msg = j.message || JSON.stringify(j);
-                                    } catch (e) { }
-                                    throw new Error(msg);
-                                }
-                                return res.json();
-                            })
-                            .then(() => {
-                                this.equipments = this.equipments.filter(
-                                    (e) => e.id !== id
-                                );
-                                window.Swal.fire({
-                                    title: "ลบแล้ว",
-                                    text: "ลบละนะ",
-                                    icon: "success",
-                                    timer: 1200,
-                                    showConfirmButton: false,
-                                });
-                            })
-                            .catch((err) => {
-                                this.notifyError(err.message || "ลบไม่สำเร็จ");
-                            });
-                    }
-                });
+deleteEquipment(equipment) {
+  this.ensureSwal().then(() => {
+    window.Swal.fire({
+      title: "ลบรายการ?",
+      text: `คุณกำลังจะลบ: ${equipment.name} (ID: ${equipment.code})`,
+      icon: "warning",
+      imageUrl: equipment.photo_path || null,   // cloud URL from DB
+      imageWidth: 120,                          // adjust size if needed
+      imageHeight: 120,
+      imageAlt: equipment.name,
+      showCancelButton: true,
+      confirmButtonText: "ลบ",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#ef4444",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`/admin/equipment/destroy/${equipment.id}`, {
+          method: "DELETE",
+          headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+            "Accept": "application/json",
+          },
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              let msg = "Delete failed";
+              try {
+                const j = await res.json();
+                msg = j.message || JSON.stringify(j);
+              } catch (e) {}
+              throw new Error(msg);
+            }
+            return res.json();
+          })
+          .then(() => {
+            this.equipments = this.equipments.filter(
+              (e) => e.id !== equipment.id
+            );
+            window.Swal.fire({
+              title: "ลบแล้ว",
+              text: `${equipment.name} ถูกลบเรียบร้อย`,
+              icon: "success",
+              timer: 1200,
+              showConfirmButton: false,
             });
-        },
+          })
+          .catch((err) => {
+            this.notifyError(err.message || "ลบไม่สำเร็จ");
+          });
+      }
+    });
+  });
+},
         ensureSwal() {
             return new Promise((resolve) => {
                 if (window.Swal) return resolve();
