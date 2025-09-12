@@ -3,6 +3,12 @@
         <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
             <h3 class="text-lg font-semibold mb-4">แก้ไขอุปกรณ์</h3>
             <form @submit.prevent="onSave">
+                <!-- Code -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-1">หมายเลขครุภัณฑ์</label>
+                    <input type="text" v-model="equipment.code"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
                 <!-- Name -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
@@ -92,9 +98,16 @@ export default {
             this.$emit('image-change', this.imageFile);
         },
         onSave() {
+            if (!this.equipment.code) {
+                alert("กรุณากรอกหมายเลขครุภัณฑ์");
+                return;
+            }
+
+            // Ensure status is lowercase to match MySQL ENUM
             this.$emit('save', {
                 ...this.equipment,
                 categories_id: this.selectedCategoryId,
+                status: (this.equipment.status || 'available').toLowerCase(),
                 imageFile: this.imageFile
             });
         }

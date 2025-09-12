@@ -107,12 +107,18 @@ export default {
             this.$emit('image-change', this.imageFile);
         },
         onCreate() {
-            S
+            // Optional: simple frontend validation
+            if (!this.form.code) {
+                alert("กรุณากรอกหมายเลขครุภัณฑ์");
+                return;
+            }
+
+            // Emit the form data + image file to parent
             this.$emit('create', {
-                ...this.form,
-                imageFile: this.imageFile
+                ...this.form,      // code, name, description, categories_id, status
+                imageFile: this.imageFile  // the selected image
             });
-        }
+        },
     }
 };
 </script>

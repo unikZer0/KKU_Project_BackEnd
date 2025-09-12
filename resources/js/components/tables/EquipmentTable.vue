@@ -206,6 +206,7 @@ export default {
         updateEquipment(payload) {
             // Use payload from modal
             const formData = new FormData();
+            formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
             formData.append("categories_id", String(payload.categories_id ?? ""));
@@ -333,6 +334,7 @@ export default {
         createEquipment(payload) {
             // Use payload from modal
             const formData = new FormData();
+            formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
             formData.append("categories_id", payload.categories_id || "");

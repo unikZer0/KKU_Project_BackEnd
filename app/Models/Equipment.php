@@ -9,7 +9,6 @@ class Equipment extends Model
 {
     protected $table = 'equipments';
     protected $fillable = [
-        "id",
         "code",
         "name",
         "description",
