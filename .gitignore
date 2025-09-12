@@ -27,3 +27,4 @@ Homestead.yaml
 Thumbs.db
 borrow_mysqldb.sql
 nginx.conf
+db_borrow_eq (1).sql
