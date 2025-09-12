@@ -33,9 +33,9 @@
             <div class="w-full lg:w-1/2 flex flex-col justify-start gap-4 p-4 sm:p-5 border border-gray-300 rounded-lg lg:p-10">
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900 break-words">{{ $equipment->name }}</h1>
                 <p class="text-gray-500 text-lg break-words">{{ $equipment->category->name }}</p>
-                <div class="text-gray-500 text-lg break-words">
+                <div class="text-gray-500 text-lg">
                     <div x-data="{ expanded: false }" class="block md:hidden">
-                        <span x-show="!expanded">
+                        <span x-show="!expanded" class="break-words">
                             {{ \Illuminate\Support\Str::limit($equipment->description, 80, '...') }}
                         </span>
                         <span x-show="expanded" class="break-words">
@@ -46,8 +46,8 @@
                             <span x-show="expanded">แสดงน้อยลง</span>
                         </button>
                     </div>
-                    <div class="hidden md:block break-words">
-                        {{ $equipment->description }}
+                    <div class="hidden md:block">
+                        <span class="break-words">{{ $equipment->description }}</span>
                     </div>
                 </div>
 

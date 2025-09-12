@@ -39,34 +39,38 @@
                             </span>
                         </div>
                         <!-- Equipment -->
-                        <div class="mb-4 flex flex-col sm:flex-row gap-4">
-                            <img src="{{ $req->equipment->photo_path }}" alt="equipment photo"
-                                class="w-full sm:w-28 h-28 object-cover rounded-lg shadow">
-                            <div class="space-y-3 flex-1">
-                                <h3 class="font-semibold text-gray-800 break-words">{{ $req->equipment->name }}</h3>
-                                <p class="text-sm text-gray-500 break-words">รหัส: {{ $req->equipment->code }}</p>
-                                <p class="text-sm text-gray-500 break-words">หมวดหมู่: {{ $req->equipment->category->name }}</p>
-                                <div class="text-gray-500 text-sm break-words">
-                                    <div x-data="{ expanded: false }" class="block md:hidden">
-                                        <span x-show="!expanded">
-                                            {{ \Illuminate\Support\Str::limit($req->equipment->description, 80, '...') }}
-                                        </span>
-                                        <span x-show="expanded" class="break-words">
-                                            {{ $req->equipment->description }}
-                                        </span>
-                                        <button @click="expanded = !expanded"
-                                            class="ml-2 text-blue-600 underline focus:outline-none">
-                                            <span x-show="!expanded">ดูเพี่มเตีม</span>
-                                            <span x-show="expanded">แสดงน้อยลง</span>
-                                        </button>
-                                    </div>
+                        <div class="mb-4 grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <!-- Equipment Image -->
+    <img src="{{ $req->equipment->photo_path }}" alt="equipment photo"
+        class="w-full h-28 object-cover rounded-lg shadow col-span-1 sm:col-span-1">
 
-                                    <div class="hidden md:block break-words">
-                                        {{ $req->equipment->description }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Equipment Details -->
+    <div class="col-span-1 sm:col-span-3 space-y-3">
+        <h3 class="font-semibold text-gray-800 break-words">{{ $req->equipment->name }}</h3>
+        <p class="text-sm text-gray-500 break-words">รหัส: {{ $req->equipment->code }}</p>
+        <p class="text-sm text-gray-500 break-words">หมวดหมู่: {{ $req->equipment->category->name }}</p>
+        <div class="text-gray-500 text-sm">
+            <!-- Mobile collapsible description -->
+            <div x-data="{ expanded: false }" class="block md:hidden">
+                <span x-show="!expanded" class="break-words">
+                    {{ \Illuminate\Support\Str::limit($req->equipment->description, 80, '...') }}
+                </span>
+                <span x-show="expanded" class="break-words">
+                    {{ $req->equipment->description }}
+                </span>
+                <button @click="expanded = !expanded"
+                    class="ml-2 text-blue-600 underline focus:outline-none">
+                    <span x-show="!expanded">ดูเพิ่มเติม</span>
+                    <span x-show="expanded">แสดงน้อยลง</span>
+                </button>
+            </div>
+            <div class="hidden md:block">
+                <span class="break-words">{{ $req->equipment->description }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 
                         <div class="mb-4">
                             <h3 class="font-semibold text-gray-700">ระยะเวลายืม</h3>

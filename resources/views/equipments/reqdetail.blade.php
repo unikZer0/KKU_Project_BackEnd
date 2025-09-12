@@ -45,9 +45,9 @@
                                 <h3 class="font-semibold text-gray-800 break-words">{{ $req->equipment->name }}</h3>
                                 <p class="text-sm text-gray-500 break-words">รหัส: {{ $req->equipment->code }}</p>
                                 <p class="text-sm text-gray-500 break-words">หมวดหมู่: {{ $req->equipment->category->name }}</p>
-                                <div class="text-gray-500 text-sm break-words">
+                                <div class="text-gray-500 text-sm">
                                     <div x-data="{ expanded: false }" class="block md:hidden">
-                                        <span x-show="!expanded">
+                                        <span x-show="!expanded" class="break-words">
                                             {{ \Illuminate\Support\Str::limit($req->equipment->description, 80, '...') }}
                                         </span>
                                         <span x-show="expanded" class="break-words">
@@ -60,8 +60,8 @@
                                         </button>
                                     </div>
 
-                                    <div class="hidden md:block break-words">
-                                        {{ $req->equipment->description }}
+                                    <div class="hidden md:block">
+                                        <span class="break-words">{{ $req->equipment->description }}</span>
                                     </div>
                                 </div>
                             </div>
