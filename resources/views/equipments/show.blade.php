@@ -24,10 +24,10 @@
     @endif
 
     <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row gap-6 items-start">
+        <div class="flex flex-col md:flex-row gap-6 items-center">
             <div class="md:w-1/2">
                 <img src="{{ $equipment->photo_path }}" alt="{{ $equipment->name }}"
-                    class="w-full h-auto object-cover rounded-lg shadow-lg">
+                    class="w-full h-auto max-h-[50vh] lg:max-h-[70vh] object-contain rounded-lg shadow-lg">
             </div>
 
             <div class="md:w-1/2 flex flex-col justify-start gap-4 p-5 border border-gray-300 rounded-lg lg:p-10">

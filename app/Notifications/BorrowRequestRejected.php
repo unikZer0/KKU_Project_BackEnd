@@ -5,7 +5,7 @@ namespace App\Notifications;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class BorrowRequestRejected extends Notification
+class BorrowRequestRejected extends Notification 
 {
 
     protected $borrowRequest;

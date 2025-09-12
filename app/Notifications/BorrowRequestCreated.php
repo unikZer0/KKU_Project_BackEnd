@@ -36,7 +36,7 @@ class BorrowRequestCreated extends Notification
             'user'       => $this->borrowRequest->user->name,
             'status' => 'created',
             'message'    => 'มีคำขอยืมอุปกรณ์ใหม่',
-            'url'        => route('admin.requests.show', $this->borrowRequest->id),
+            'url'        => route('admin.requests.show', $this->borrowRequest->req_id),
         ];
     }
 }

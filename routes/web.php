@@ -56,20 +56,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/destroy/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
     });
 
-    Route::prefix('admin/transaction')->name('admin.')->group(function () {
-        // Transactions
-        Route::get('/', [BorrowTransactionController::class, 'index'])->name('transaction.index');
-        Route::post('/checkin/{id}', [BorrowTransactionController::class, 'checkin'])->name('transaction.checkin');
-        Route::post('/checkout/{id}', [BorrowTransactionController::class, 'checkout'])->name('transaction.checkout');
-        Route::post('/store', [BorrowTransactionController::class, 'store'])->name('transaction.store');
-    });
-
     //Requests
     Route::prefix('admin/requests')->name('admin.')->group(function () {
         Route::get('/', [BorrowRequestController::class, 'index'])->name('requests.index');
-        Route::get('/{id}', [BorrowRequestController::class, 'show'])->name('requests.show');
-        Route::post('/{id}/approve', [BorrowRequestController::class, 'approve'])->name('requests.approve');
-        Route::post('/{id}/reject', [BorrowRequestController::class, 'reject'])->name('requests.reject');
+        Route::get('/{req_id}', [BorrowRequestController::class, 'show'])->name('requests.show');
+        Route::patch('/{req_id}', [BorrowRequestController::class, 'update'])->name('requests.update');
+        Route::match(['post','patch'],'/{req_id}/approve', [BorrowRequestController::class, 'approve'])->name('requests.approve');
+        Route::post('/{req_id}/reject', [BorrowRequestController::class, 'reject'])->name('requests.reject');
     });
 
     // Reports
