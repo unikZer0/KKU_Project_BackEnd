@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\BorrowTransactionController;
 use App\Http\Controllers\Admin\BorrowRequestController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\NotificationController;
 
 //Support 
@@ -77,6 +78,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', [AdminController::class, 'userReport'])->name('report.users');
         Route::get('/equipments', [AdminController::class, 'equipmentReport'])->name('report.equipments');
         Route::get('/categories', [AdminController::class, 'categoryReport'])->name('report.categories');
+        Route::get('/report/logs', [LogController::class, 'index'])->name('report.logs');
     });
 });
 

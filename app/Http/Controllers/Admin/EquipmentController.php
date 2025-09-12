@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\CloudinaryService;
-
+use App\Models\Log;
 use App\Models\Category;
 use App\Models\Equipment;
 
@@ -52,7 +52,13 @@ class EquipmentController extends Controller
 
         $equipment = Equipment::create($data);
 
-
+Log::create([
+    'admin_id' => auth()->id(),
+    'action' => 'create',
+    'target_type' => 'equipment',
+    'target_id' => $equipment->id,
+    'description' => "Created equipment: {$equipment->name} (ID {$equipment->id})",
+]);
         if ($request->wantsJson()) {
             return response()->json([
                 "status" => true,
@@ -74,37 +80,58 @@ class EquipmentController extends Controller
     }
 
     //!UPDATE EQUIPMENTS INFO
-    public function update(Request $request, $id, CloudinaryService $cloudinary)
-    {
-        $equipment = Equipment::findOrFail($id);
+public function update(Request $request, $id, CloudinaryService $cloudinary)
+{
+    $equipment = Equipment::findOrFail($id);
 
-        $data = $request->validate([
-            "name" => "required|string|max:20",
-            "description" => "nullable|string|max:255",
-            "categories_id" => "required|integer|exists:categories,id",
-            "status" => "required|in:available,retired,maintenance",
-            "photo_path" => "nullable|string|max:255",
-        ]);
+    // Save the old name for logging
+    $oldName = $equipment->name;
 
-        if ($request->hasFile('image')) {
-            $file = $request->file('image')->getRealPath();
-            $url = $cloudinary->upload($file, 'equipment');
-            $data['photo_path'] = $url;
-        }
+    // Validate incoming data
+    $data = $request->validate([
+        "name" => "required|string|max:20",
+        "description" => "nullable|string|max:255",
+        "categories_id" => "required|integer|exists:categories,id",
+        "status" => "required|in:available,retired,maintenance",
+        "photo_path" => "nullable|string|max:255",
+    ]);
 
-        $equipment->update($data);
-
-        return response()->json([
-            "status" => true,
-            "message" => "Equipment updated successfully",
-            "data" => $equipment->load('category')
-        ]);
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        $file = $request->file('image')->getRealPath();
+        $url = $cloudinary->upload($file, 'equipment');
+        $data['photo_path'] = $url;
     }
 
+    // Update the equipment
+    $equipment->update($data);
+
+    // Log the update
+    Log::create([
+        'admin_id' => auth()->id(),
+        'action' => 'update',
+        'target_type' => 'equipment',
+        'target_id' => $equipment->id,
+        'description' => "Updated equipment: {$oldName} → {$equipment->name} (ID {$equipment->id})",
+    ]);
+
+    return response()->json([
+        "status" => true,
+        "message" => "Equipment updated successfully",
+        "data" => $equipment->load('category')
+    ]);
+}
     //!DELETE EQUIPMENTS
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
+    Log::create([
+        'admin_id' => auth()->id(),
+        'action' => 'delete',
+        'target_type' => 'equipment',
+        'target_id' => $id,
+        'description' => "Deleted equipment: {$equipment->name} (ID {$equipment->code})",
+    ]);
         $equipment->delete();
 
         return response()->json(

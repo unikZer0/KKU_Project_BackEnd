@@ -43,6 +43,16 @@
                   d="M4 6h16M4 10h16M4 14h16M4 18h16" />
         </svg>
     </a>
+
+    <a href="{{ route('admin.report.logs') }}" 
+   class="p-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center"
+   title="Logs">
+   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+             d="M3 7h18M3 12h18M3 17h18" />
+   </svg>
+</a>
 </div>
 
         <table class="min-w-full border">
