@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\CloudinaryService;
 use App\Models\Log;
 use App\Models\Category;
 use App\Models\Equipment;
+use Illuminate\Support\Facades\Storage;
 
 class EquipmentController extends Controller
 {
@@ -20,7 +20,7 @@ class EquipmentController extends Controller
     }
 
     //! STORE AN EQUIPMENT INTO DATABASE
-    public function store(Request $request, CloudinaryService $cloudinary)
+    public function store(Request $request)
     {
         try {
             // Validate incoming data
@@ -34,16 +34,8 @@ class EquipmentController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                $file = $request->file('image')->getRealPath();
-                try {
-                    $url = $cloudinary->upload($file, 'equipment');
-                    $data['photo_path'] = $url;
-                } catch (\Exception $e) {
-                    return response()->json([
-                        "status" => false,
-                        "message" => "Failed to upload image: " . $e->getMessage()
-                    ], 422);
-                }
+                $path = $request->file('image')->store('equipments', 'public');
+                $data['photo_path'] = '/storage/' . $path; // For frontend
             }
 
             // Create equipment
@@ -77,36 +69,36 @@ class EquipmentController extends Controller
         }
     }
 
-
-    //!UPDATE EQUIPMENTS INFO
-    public function update(Request $request, $id, CloudinaryService $cloudinary)
+    //! UPDATE EQUIPMENTS INFO
+    public function update(Request $request, $id)
     {
         $equipment = Equipment::findOrFail($id);
-
-        // Save the old name for logging
         $oldName = $equipment->name;
 
         // Validate incoming data
         $data = $request->validate([
-            "code" => "required|string|unique:equipments,code|max:10",
+            "code" => "required|string|unique:equipments,code,{$id}|max:10",
             "name" => "required|string|max:20",
             "description" => "nullable|string|max:255",
             "categories_id" => "required|integer|exists:categories,id",
             "status" => "required|in:available,retired,maintenance",
-            "photo_path" => "nullable|string|max:255",
         ]);
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $file = $request->file('image')->getRealPath();
-            $url = $cloudinary->upload($file, 'equipment');
-            $data['photo_path'] = $url;
+            // Delete old image if exists
+            if ($equipment->photo_path) {
+                $oldPath = str_replace('/storage/', '', $equipment->photo_path);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('image')->store('equipments', 'public');
+            $data['photo_path'] = '/storage/' . $path;
         }
 
-        // Update the equipment
+        // Update equipment
         $equipment->update($data);
 
-        // Log the update
+        // Log update
         Log::create([
             'admin_id' => auth()->id(),
             'action' => 'update',
@@ -121,10 +113,19 @@ class EquipmentController extends Controller
             "data" => $equipment->load('category')
         ]);
     }
-    //!DELETE EQUIPMENTS
+
+    //! DELETE EQUIPMENTS
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
+
+        // Delete image from storage if exists
+        if ($equipment->photo_path) {
+            $oldPath = str_replace('/storage/', '', $equipment->photo_path);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        // Log deletion
         Log::create([
             'admin_id' => auth()->id(),
             'action' => 'delete',
@@ -132,13 +133,12 @@ class EquipmentController extends Controller
             'target_id' => $id,
             'description' => "Deleted equipment: {$equipment->name} (ID {$equipment->code})",
         ]);
+
         $equipment->delete();
 
-        return response()->json(
-            [
-                "status" => true,
-                "message" => "Equipment deleted successfully"
-            ]
-        );
+        return response()->json([
+            "status" => true,
+            "message" => "Equipment deleted successfully"
+        ]);
     }
 }
