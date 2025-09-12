@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class EquipmentController extends Controller
 {
-    //!VIEW EQUIPMENTS
     public function index()
     {
         $equipments = Equipment::with('category')->get();
@@ -19,11 +18,9 @@ class EquipmentController extends Controller
         return view('admin.equipment.index', compact('equipments', 'categories'));
     }
 
-    //! STORE AN EQUIPMENT INTO DATABASE
     public function store(Request $request)
     {
         try {
-            // Validate incoming data
             $data = $request->validate([
                 "code" => "nullable|string|unique:equipments,code|max:10",
                 "name" => "required|string|max:20",
@@ -31,17 +28,12 @@ class EquipmentController extends Controller
                 "categories_id" => "required|integer|exists:categories,id",
                 "status" => "required|in:available,retired,maintenance",
             ]);
-
-            // Handle image upload
             if ($request->hasFile('image')) {
                 $path = $request->file('image')->store('equipments', 'public');
-                $data['photo_path'] = '/storage/' . $path; // For frontend
+                $data['photo_path'] = '/storage/' . $path;
             }
-
-            // Create equipment
             $equipment = Equipment::create($data);
 
-            // Log creation
             Log::create([
                 'admin_id' => auth()->id(),
                 'action' => 'create',
@@ -68,14 +60,11 @@ class EquipmentController extends Controller
             ], 500);
         }
     }
-
-    //! UPDATE EQUIPMENTS INFO
     public function update(Request $request, $id)
     {
         $equipment = Equipment::findOrFail($id);
         $oldName = $equipment->name;
 
-        // Validate incoming data
         $data = $request->validate([
             "code" => "required|string|unique:equipments,code,{$id}|max:10",
             "name" => "required|string|max:20",
@@ -83,10 +72,7 @@ class EquipmentController extends Controller
             "categories_id" => "required|integer|exists:categories,id",
             "status" => "required|in:available,retired,maintenance",
         ]);
-
-        // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($equipment->photo_path) {
                 $oldPath = str_replace('/storage/', '', $equipment->photo_path);
                 Storage::disk('public')->delete($oldPath);
@@ -95,10 +81,7 @@ class EquipmentController extends Controller
             $data['photo_path'] = '/storage/' . $path;
         }
 
-        // Update equipment
         $equipment->update($data);
-
-        // Log update
         Log::create([
             'admin_id' => auth()->id(),
             'action' => 'update',
@@ -113,19 +96,15 @@ class EquipmentController extends Controller
             "data" => $equipment->load('category')
         ]);
     }
-
-    //! DELETE EQUIPMENTS
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
 
-        // Delete image from storage if exists
         if ($equipment->photo_path) {
             $oldPath = str_replace('/storage/', '', $equipment->photo_path);
             Storage::disk('public')->delete($oldPath);
         }
 
-        // Log deletion
         Log::create([
             'admin_id' => auth()->id(),
             'action' => 'delete',
