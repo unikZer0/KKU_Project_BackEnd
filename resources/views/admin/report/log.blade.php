@@ -98,7 +98,7 @@
                 @foreach($logs as $log)
                     <tr class="border-b">
                         <td class="px-4 py-2">{{ $log->id }}</td>
-                        <td class="px-4 py-2">{{ $log->admin->username ?? 'N/A' }}</td>
+                        <td class="px-4 py-2">{{ $log->admin->name ?? 'N/A' }}</td>
                         <td class="px-4 py-2">{{ $log->action }}</td>
                         <td class="px-4 py-2">{{ $log->target_type }}</td>
                         <td class="px-4 py-2">{{ $log->target_id }}</td>

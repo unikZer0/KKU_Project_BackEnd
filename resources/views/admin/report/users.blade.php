@@ -68,7 +68,7 @@
                 @foreach ($users as $user)
                     <tr>
                         <td class="border px-2 py-1">{{ $user['id'] }}</td>
-                        <td class="border px-2 py-1">{{ $user['username'] }}</td>
+                        <td class="border px-2 py-1">{{ $user['name'] }}</td>
                         <td class="border px-2 py-1">{{ $user['age'] }}</td>
                         <td class="border px-2 py-1">{{ $user['phonenumber'] }}</td>
                         <td class="border px-2 py-1">{{ $user['created_at'] }}</td>

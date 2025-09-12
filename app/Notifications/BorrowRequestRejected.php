@@ -24,7 +24,7 @@ class BorrowRequestRejected extends Notification
     {
         return (new MailMessage)
             ->subject('คำขอยืมของคุณถูกปฏิเสธ')
-            ->greeting("สวัสดี {$notifiable->username}")
+            ->greeting("สวัสดี {$notifiable->name}")
             ->line("คำขอยืมอุปกรณ์: {$this->borrowRequest->equipment->name}")
             ->line('สถานะ: ถูกปฏิเสธ')
             ->line('เหตุผล: ' . ($this->borrowRequest->reject_reason ?: '-'))

@@ -23,7 +23,7 @@ class BorrowRequestCreated extends Notification
     {
         return (new MailMessage)
             ->subject('มีคำขอยืมอุปกรณ์ใหม่')
-            ->line("ผู้ใช้ {$this->borrowRequest->user->username} ได้สร้างคำขอยืมอุปกรณ์")
+            ->line("ผู้ใช้ {$this->borrowRequest->user->name} ได้สร้างคำขอยืมอุปกรณ์")
             ->line("อุปกรณ์: {$this->borrowRequest->equipment->name}")
             ->action('ดูรายละเอียด', url('/borrower/myrequest'))
             ->line('กรุณาตรวจสอบคำขอนี้ด้วยครับ');
@@ -33,7 +33,7 @@ class BorrowRequestCreated extends Notification
         return [
             'request_id' => $this->borrowRequest->id,
             'equipment'  => $this->borrowRequest->equipment->name,
-            'user'       => $this->borrowRequest->user->username,
+            'user'       => $this->borrowRequest->user->name,
             'status' => 'created',
             'message'    => 'มีคำขอยืมอุปกรณ์ใหม่',
             'url'        => route('admin.requests.show', $this->borrowRequest->id),

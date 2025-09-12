@@ -24,7 +24,7 @@ class BorrowRequestApproved extends Notification
     {
         return (new MailMessage)
             ->subject('คำขอยืมของคุณได้รับการอนุมัติ')
-            ->greeting("สวัสดี {$notifiable->username}")
+            ->greeting("สวัสดี {$notifiable->name}")
             ->line("คำขอยืมอุปกรณ์: {$this->borrowRequest->equipment->name}")
             ->line("ได้รับการอนุมัติเรียบร้อยแล้ว ")
             ->action('ดูรายละเอียด', url('/borrower/reqdetail', $this->borrowRequest->req_id))

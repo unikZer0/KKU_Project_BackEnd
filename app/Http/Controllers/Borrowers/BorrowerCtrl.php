@@ -49,7 +49,7 @@ class BorrowerCtrl extends Controller
         $userId = Auth::id();
         $reQuests = BorrowRequest::with(
             'equipment:id,code,name,description,categories_id,photo_path',
-            'user:id,uid,username,age,email,phonenumber',
+            'user:id,uid,name,email,phonenumber',
             'equipment.category:id,name'
         )
             ->where('users_id', $userId)
@@ -175,7 +175,7 @@ class BorrowerCtrl extends Controller
         }
         $reQuests = BorrowRequest::with(
             'equipment:id,code,name,description,categories_id,photo_path',
-            'user:id,uid,username,age,email,phonenumber',
+            'user:id,uid,name,email,phonenumber',
             'equipment.category:id,name'
         )
             ->where('req_id', $req_id)

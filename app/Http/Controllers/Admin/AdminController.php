@@ -23,7 +23,7 @@ class AdminController extends Controller
             ->map(function ($r) {
                 return [
                     'id' => $r->req_id,
-                    'user_name' => $r->user->username ?? 'N/A',
+                    'user_name' => $r->user->name ?? 'N/A',
                     'equipment_name' => $r->equipment->name ?? 'N/A',
                     'start' => $r->start_at->format('Y-m-d'),
                     'end' => $r->end_at->format('Y-m-d'),
@@ -64,14 +64,12 @@ class AdminController extends Controller
         ]);
     }
 
-    // User Report
     public function userReport()
     {
         $users = User::all()->map(function ($user) {
             return [
                 'id' => $user->id,
-                'username' => $user->username,
-                'age' => $user->age ?? '-', // assuming you have age column
+                'username' => $user->name,
                 'phonenumber' => $user->phonenumber ?? '-',
                 'created_at' => optional($user->created_at)->format('d/m/Y'),
             ];
@@ -80,7 +78,6 @@ class AdminController extends Controller
         return view('admin.report.users', compact('users'));
     }
 
-    // Equipment Report
     public function equipmentReport()
     {
         $equipments = Equipment::with('category')->get()->map(function ($eq) {
@@ -95,7 +92,6 @@ class AdminController extends Controller
         return view('admin.report.equipments', compact('equipments'));
     }
 
-    // Category Report
     public function categoryReport()
     {
         $categories = Category::all()->map(function ($cat) {
@@ -118,7 +114,7 @@ class AdminController extends Controller
             ->map(function ($r) {
                 return [
                     'id' => $r->id,
-                    'user_name' => $r->user->username ?? 'N/A',
+                    'user_name' => $r->user->name ?? 'N/A',
                     'equipment_name' => $r->equipment->name ?? 'N/A',
                     'date' => $r->created_at->format('Y-m-d'),
                     'status' => ucfirst($r->status),

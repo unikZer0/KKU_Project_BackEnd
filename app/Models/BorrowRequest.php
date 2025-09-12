@@ -19,8 +19,6 @@ class BorrowRequest extends Model
         'reject_reason',
         'cancel_reason',
         'uid',
-        'username',
-        'age',
         'photo_path',
         'email',
         'phonenumber',

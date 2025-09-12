@@ -20,7 +20,7 @@ class BorrowRequestController extends Controller
             ->map(function ($r) {
                 return [
                     'id' => $r->id,
-                    'user_name' => $r->user->username ?? 'N/A',
+                    'user_name' => $r->user->name ?? 'N/A',
                     'equipment_name' => $r->equipment->name ?? 'N/A',
                     'equipment_photo' => $r->equipment->photo_path ?? null,
                     'start_at' => $r->start_at ? $r->start_at->format('Y-m-d') : '-',
