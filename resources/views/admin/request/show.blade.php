@@ -1,13 +1,13 @@
 <x-admin-layout>
-    <div class="max-w-9xl mx-auto bg-white p-6 rounded shadow">
-        <div class="flex items-start gap-6">
+    <div class="max-w-7xl mx-auto bg-white p-4 sm:p-6 rounded shadow">
+        <div class="flex flex-col lg:flex-row items-start gap-6">
             @if ($requests->equipment?->photo_path)
                 <img src="{{ $requests->equipment->photo_path }}" alt="{{ $requests->equipment->name }}"
-                    class="w-40 h-40 object-cover rounded border" />
+                    class="w-full sm:w-40 h-40 object-cover rounded border" />
             @endif
-            <div class="flex-1">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold">คำขอยืม #{{ $requests->req_id }}</h2>
+            <div class="flex-1 w-full">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <h2 class="text-xl sm:text-2xl font-bold">คำขอยืม #{{ $requests->req_id }}</h2>
                     <span
                         class="inline-flex items-center px-3 py-1 rounded-full text-sm {{ $requests->status === 'approved' ? 'bg-green-100 text-green-700' : ($requests->status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
                         {{ ucfirst($requests->status) }}
@@ -111,17 +111,17 @@
                             @endif
 
                         </div>
-                        <div class="flex justify-end gap-3">
+                        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-4">
                             @if ($requests->status == 'pending')
                                 <button type="button"
-                                    class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
+                                    class="bg-red-600 text-white px-4 sm:px-6 py-2 rounded-md hover:bg-red-700 text-sm sm:text-base"
                                     onclick="showRejectModal()">
                                     ปฏิเสธ
                                 </button>
                                 <button type="submit"
                                     formaction="{{ route('admin.requests.approve', $requests->req_id) }}"
                                     formmethod="post"
-                                    class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+                                    class="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-md hover:bg-blue-700 text-sm sm:text-base"
                                     onclick="event.preventDefault(); const f=this.closest('form'); const m=document.createElement('input'); m.type='hidden'; m.name='_method'; m.value='PATCH'; f.appendChild(m); f.action='{{ route('admin.requests.approve', $requests->req_id) }}'; f.submit();">
                                     อนุมัติ
                                 </button>
@@ -129,7 +129,7 @@
                                 <button type="submit"
                                     formaction="{{ route('admin.requests.update', $requests->req_id) }}"
                                     formmethod="post"
-                                    class="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700"
+                                    class="bg-emerald-600 text-white px-4 sm:px-6 py-2 rounded-md hover:bg-emerald-700 text-sm sm:text-base"
                                     onclick="event.preventDefault(); 
                                         const f=this.closest('form'); 
                                         const m=document.createElement('input'); 
@@ -171,7 +171,7 @@
         </div>
     </div>
 
-    <div class="mt-6 bg-white p-6 rounded shadow">
+    <div class="mt-6 bg-white p-4 sm:p-6 rounded shadow">
         <h3 class="text-lg font-semibold mb-4">คำขอล่าสุด</h3>
         <div id="admin-table" data-requests='@json($tableRequests)'></div>
     </div>

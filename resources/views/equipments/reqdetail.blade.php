@@ -38,19 +38,19 @@
                             </span>
                         </div>
                         <!-- Equipment -->
-                        <div class=" mb-4 ">
+                        <div class="mb-4 flex flex-col sm:flex-row gap-4">
                             <img src="{{ $req->equipment->photo_path }}" alt="equipment photo"
-                                class="w-28 h-28 object-cover rounded-lg shadow">
-                            <div class="space-y-3">
-                                <h3 class="font-semibold text-gray-800">{{ $req->equipment->name }}</h3>
-                                <p class="text-sm text-gray-500">รหัส: {{ $req->equipment->code }}</p>
-                                <p class="text-sm text-gray-500">หมวดหมู่: {{ $req->equipment->category->name }}</p>
-                                <div class="text-gray-500 text-sm">
+                                class="w-full sm:w-28 h-28 object-cover rounded-lg shadow">
+                            <div class="space-y-3 flex-1">
+                                <h3 class="font-semibold text-gray-800 break-words">{{ $req->equipment->name }}</h3>
+                                <p class="text-sm text-gray-500 break-words">รหัส: {{ $req->equipment->code }}</p>
+                                <p class="text-sm text-gray-500 break-words">หมวดหมู่: {{ $req->equipment->category->name }}</p>
+                                <div class="text-gray-500 text-sm break-words">
                                     <div x-data="{ expanded: false }" class="block md:hidden">
                                         <span x-show="!expanded">
                                             {{ \Illuminate\Support\Str::limit($req->equipment->description, 80, '...') }}
                                         </span>
-                                        <span x-show="expanded">
+                                        <span x-show="expanded" class="break-words">
                                             {{ $req->equipment->description }}
                                         </span>
                                         <button @click="expanded = !expanded"
@@ -60,7 +60,7 @@
                                         </button>
                                     </div>
 
-                                    <div class="hidden md:block">
+                                    <div class="hidden md:block break-words">
                                         {{ $req->equipment->description }}
                                     </div>
                                 </div>
@@ -79,22 +79,19 @@
                             </h1>
                             <p class="text-sm text-red-600">{{ $req->reject_reason }}</p>
                         @endif
-                        <div class="container w-185">
-                            
-                                <div class="flex flex mt-6 justify-between ">
-                                    <button
-                                        class="bg-blue-600 text-white px-8 py-1 rounded-lg hover:bg-blue-700 transition">
-                                        <a href="{{route('borrower.equipments.myreq')}}">
-                                            กลับ
-                                        </a>
-                                    </button>
-                                    @if ($req->status === 'pending')
-                                    <button @click="openModal = true"
-                                        class="bg-red-600 text-white px-8 py-1 rounded-lg hover:bg-red-700 transition">
-                                        ยกเลิกคำขอ
-                                    </button>
-                                    @endif
-                                </div>
+                        <div class="mt-6">
+                            <div class="flex flex-col sm:flex-row gap-3 justify-between">
+                                <a href="{{route('borrower.equipments.myreq')}}"
+                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition text-center">
+                                    กลับ
+                                </a>
+                                @if ($req->status === 'pending')
+                                <button @click="openModal = true"
+                                    class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                                    ยกเลิกคำขอ
+                                </button>
+                                @endif
+                            </div>
                             
                             <!-- Modal -->
                             <div x-show="openModal"

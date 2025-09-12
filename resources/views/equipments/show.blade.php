@@ -24,21 +24,21 @@
     @endif
 
     <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row gap-6 items-center">
-            <div class="md:w-1/2">
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
+            <div class="w-full lg:w-1/2">
                 <img src="{{ $equipment->photo_path }}" alt="{{ $equipment->name }}"
-                    class="w-full h-auto max-h-[50vh] lg:max-h-[70vh] object-contain rounded-lg shadow-lg">
+                    class="w-full h-auto max-h-[40vh] sm:max-h-[50vh] lg:max-h-[70vh] object-contain rounded-lg shadow-lg">
             </div>
 
-            <div class="md:w-1/2 flex flex-col justify-start gap-4 p-5 border border-gray-300 rounded-lg lg:p-10">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ $equipment->name }}</h1>
-                <p class="text-gray-500 text-lg">{{ $equipment->category->name }}</p>
-                <div class="text-gray-500 text-lg">
+            <div class="w-full lg:w-1/2 flex flex-col justify-start gap-4 p-4 sm:p-5 border border-gray-300 rounded-lg lg:p-10">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 break-words">{{ $equipment->name }}</h1>
+                <p class="text-gray-500 text-lg break-words">{{ $equipment->category->name }}</p>
+                <div class="text-gray-500 text-lg break-words">
                     <div x-data="{ expanded: false }" class="block md:hidden">
                         <span x-show="!expanded">
                             {{ \Illuminate\Support\Str::limit($equipment->description, 80, '...') }}
                         </span>
-                        <span x-show="expanded">
+                        <span x-show="expanded" class="break-words">
                             {{ $equipment->description }}
                         </span>
                         <button @click="expanded = !expanded" class="ml-2 text-gray-600 underline focus:outline-none">
@@ -46,13 +46,13 @@
                             <span x-show="expanded">แสดงน้อยลง</span>
                         </button>
                     </div>
-                    <div class="hidden md:block">
+                    <div class="hidden md:block break-words">
                         {{ $equipment->description }}
                     </div>
                 </div>
 
                 <p class="mt-4 font-semibold text-lg">เลือกวันที่รับ-ส่ง :</p>
-                <div class="p-6 bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="p-4 sm:p-6 bg-gray-50 border border-gray-200 rounded-lg">
                     <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
                         @csrf
                         <input type="hidden" name="equipments_id" value="{{ $equipment->id }}">

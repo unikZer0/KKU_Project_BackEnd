@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">คำขอยืมอุปกรณ์</h1>
-        <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 lg:gap-5 my-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 my-5">
             @php
                 $activeRequests = $reQuests->where('status', '!=', 'cancelled');
             @endphp
@@ -39,19 +39,19 @@
                             </span>
                         </div>
                         <!-- Equipment -->
-                        <div class=" mb-4 ">
+                        <div class="mb-4 flex flex-col sm:flex-row gap-4">
                             <img src="{{ $req->equipment->photo_path }}" alt="equipment photo"
-                                class="w-28 h-28 object-cover rounded-lg shadow">
-                            <div class="space-y-3">
-                                <h3 class="font-semibold text-gray-800">{{ $req->equipment->name }}</h3>
-                                <p class="text-sm text-gray-500">รหัส: {{ $req->equipment->code }}</p>
-                                <p class="text-sm text-gray-500">หมวดหมู่: {{ $req->equipment->category->name }}</p>
-                                <div class="text-gray-500 text-sm">
+                                class="w-full sm:w-28 h-28 object-cover rounded-lg shadow">
+                            <div class="space-y-3 flex-1">
+                                <h3 class="font-semibold text-gray-800 break-words">{{ $req->equipment->name }}</h3>
+                                <p class="text-sm text-gray-500 break-words">รหัส: {{ $req->equipment->code }}</p>
+                                <p class="text-sm text-gray-500 break-words">หมวดหมู่: {{ $req->equipment->category->name }}</p>
+                                <div class="text-gray-500 text-sm break-words">
                                     <div x-data="{ expanded: false }" class="block md:hidden">
                                         <span x-show="!expanded">
                                             {{ \Illuminate\Support\Str::limit($req->equipment->description, 80, '...') }}
                                         </span>
-                                        <span x-show="expanded">
+                                        <span x-show="expanded" class="break-words">
                                             {{ $req->equipment->description }}
                                         </span>
                                         <button @click="expanded = !expanded"
@@ -61,7 +61,7 @@
                                         </button>
                                     </div>
 
-                                    <div class="hidden md:block">
+                                    <div class="hidden md:block break-words">
                                         {{ $req->equipment->description }}
                                     </div>
                                 </div>
@@ -80,22 +80,19 @@
                             </h1>
                             <p class="text-sm text-red-600">{{ $req->reject_reason }}</p>
                         @endif
-                        <div class="container w-185">
-                            
-                                <div class="flex flex mt-6 justify-between ">
-                                    <button
-                                        class="bg-blue-600 text-white px-8 py-1 rounded-lg hover:bg-blue-700 transition">
-                                        <a href="{{route('borrower.equipments.reqdetail',$req->req_id)}}">
-                                            ดูรายละเอียด
-                                        </a>
-                                    </button>
-                                    @if ($req->status === 'pending')
-                                    <button @click="openModal = true"
-                                        class="bg-red-600 text-white px-8 py-1 rounded-lg hover:bg-red-700 transition">
-                                        ยกเลิกคำขอ
-                                    </button>
-                                    @endif
-                                </div>
+                        <div class="mt-6">
+                            <div class="flex flex-col sm:flex-row gap-3 justify-between">
+                                <a href="{{route('borrower.equipments.reqdetail',$req->req_id)}}"
+                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition text-center">
+                                    ดูรายละเอียด
+                                </a>
+                                @if ($req->status === 'pending')
+                                <button @click="openModal = true"
+                                    class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                                    ยกเลิกคำขอ
+                                </button>
+                                @endif
+                            </div>
                             
                             <div x-show="openModal"
                                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
