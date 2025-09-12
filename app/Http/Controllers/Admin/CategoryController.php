@@ -20,26 +20,37 @@ class CategoryController extends Controller
     //!STORE A NEW CATEGORY
     public function store(Request $request)
     {
-        $category = new Category();
-        $category->name = $request->input('name');
-        $category->save();
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
 
-        return redirect()->route('admin.category.index')->with('success', 'Category added successfully.');
-    }
-
-    //!UPDATE CATEGORY INFO
-    public function update(Request $request, string $id)
-    {
-        $category = Category::findOrFail($id);
-        $category->name = $request->name;
-        $category->update();
+        $category = Category::create($validated);
 
         return response()->json([
             'status' => true,
-            'message' => 'Category updated successfully',
-            'data' => $category
+            'category' => $category,
+            'message' => 'Category created successfully'
         ]);
     }
+
+
+    //!UPDATE CATEGORY INFO
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $category = Category::findOrFail($id);
+        $category->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'category' => $category,
+            'message' => 'Category updated successfully'
+        ]);
+    }
+
 
     //!DELETE CATEGORY
     public function destroy(string $id)

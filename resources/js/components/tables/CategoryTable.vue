@@ -13,7 +13,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">หมวดหมู่ทั้งหมด</h2>
-      <button @click="openModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button @click="createModalOpen = true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         เพิ่มหมวดหมู่ใหม่
       </button>
     </div>
@@ -27,7 +27,7 @@
     <table class="min-w-full text-sm">
       <thead class="bg-gray-50 border-b">
         <tr>
-          <th class="px-4 py-2 text-left">ID</th>
+          <th class="px-4 py-2 text-left">รหัสหมวดหมู่</th>
           <th class="px-4 py-2 text-left">ชื่อหมวดหมู่</th>
           <th class="px-4 py-2 text-left">แอคชั่น</th>
         </tr>
@@ -94,12 +94,10 @@ export default {
       window.location.href = "/admin/category/create";
     },
     openModal(category) {
-      // clone object to avoid directly mutating table until save
       this.selectedCategory = { ...category };
       this.isOpen = true;
     },
     updateCategoryFromModal(updatedCategory) {
-      // Use your existing update logic, but with the passed category
       fetch(`/admin/category/update/${updatedCategory.id}`, {
         method: "PUT",
         headers: {
@@ -131,7 +129,6 @@ export default {
       }
     },
     handleCreateCategory(newCategory) {
-      // Logic to handle the creation of a new category
       fetch('/admin/category/store', {
         method: 'POST',
         headers: {
@@ -140,16 +137,27 @@ export default {
         },
         body: JSON.stringify(newCategory)
       })
-        .then(res => res.json())
+        .then(async res => {
+          if (!res.ok) {
+            // server returned error status (422, 500, etc.)
+            const err = await res.text();
+            throw new Error(err || 'Server error');
+          }
+          return res.json();
+        })
         .then(data => {
           if (data.status) {
             this.categories.push(data.category);
             this.createModalOpen = false;
+            alert('Category created successfully ✅');
           } else {
-            alert('Failed to create category');
+            alert(data.message || 'Failed to create category');
           }
         })
-        .catch(() => alert('Error creating category'));
+        .catch(err => {
+          console.error(err);
+          alert('Error creating category');
+        });
     }
   },
   mounted() {
@@ -157,7 +165,7 @@ export default {
     if (el) {
       this.categories = JSON.parse(el.dataset.categories || "[]");
     }
-    // Optionally: this.fetchCategories()
+    this.fetchCategories();
   }
 };
 </script>

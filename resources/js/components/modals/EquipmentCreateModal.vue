@@ -3,6 +3,12 @@
         <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
             <h3 class="text-lg font-semibold mb-4">เพิ่มอุปกรณ์ใหม่</h3>
             <form @submit.prevent="onCreate">
+                <!--หมายเลขครุภัณฑ์-->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-1">หมายเลขครุภัณฑ์</label>
+                    <input required type="text" v-model="form.code"
+                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
                 <!-- Name -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
@@ -66,6 +72,7 @@ export default {
     data() {
         return {
             form: {
+                code: "",
                 name: "",
                 description: "",
                 categories_id: "",
@@ -79,6 +86,7 @@ export default {
             if (newVal) {
                 // Reset form when modal opens
                 this.form = {
+                    code: "",
                     name: "",
                     description: "",
                     categories_id: "",
@@ -99,6 +107,7 @@ export default {
             this.$emit('image-change', this.imageFile);
         },
         onCreate() {
+            S
             this.$emit('create', {
                 ...this.form,
                 imageFile: this.imageFile

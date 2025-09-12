@@ -26,14 +26,15 @@ class RegisteredUserController extends Controller
     {
         $request->validate(
             [
-                'username' => ['required', 'string', 'max:255'],
-                'age' => ['required', 'integer', 'min:0'],
+                'uid' => ['required', 'string', 'max:255'],
+                'name' => ['required', 'string', 'max:255'],
                 'phonenumber' => ['required', 'string', 'size:10', 'regex:/^[0-9]+$/', Rule::unique('users', 'phonenumber')],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')],
                 'password' => ['required', 'confirmed', Password::defaults(), 'regex:/^(?=.*[A-Z]).+$/'],
+                'password_confirmation' => ['required'],
                 'role' => ['nullable', 'in:admin,staff,borrower'],
             ],
-            [   
+            [
                 'password.required' => 'กรุณากรอกรหัสผ่าน',
                 'password.confirmed' => 'รหัสผ่านไม่ตรงกัน',
                 'password.regex' => 'รหัสผ่านต้องมีตัวอักษรใหญ่ (A-Z) อย่างน้อยหนึ่งตัว',
@@ -41,8 +42,8 @@ class RegisteredUserController extends Controller
         );
 
         $user = User::create([
-            'username' => $request->username,
-            'age' => $request->age,
+            'uid' => $request->uid,
+            'name' => $request->name,
             'phonenumber' => $request->phonenumber,
             'email' => $request->email,
             'password' => Hash::make($request->password),
