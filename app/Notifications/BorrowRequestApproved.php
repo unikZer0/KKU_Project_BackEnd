@@ -2,12 +2,15 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class BorrowRequestApproved extends Notification
+class BorrowRequestApproved extends Notification implements ShouldQueue
 {
-
+    use Queueable;
     protected $borrowRequest;
 
     public function __construct($borrowRequest)

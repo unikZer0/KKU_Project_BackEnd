@@ -4,9 +4,13 @@ namespace App\Notifications;
 
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class BorrowRequestCreated extends Notification
+class BorrowRequestCreated extends Notification implements ShouldQueue
+    
 {
+        use Queueable;
 
     protected $borrowRequest;
 

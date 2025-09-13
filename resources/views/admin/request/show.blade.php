@@ -90,23 +90,23 @@
                                     <label class="text-gray-500 text-sm block mb-1">เช็คเอาท์จริง</label>
                                     <input type="datetime-local" name="checked_out_at"
                                         class="w-full border rounded px-2 py-1"
-                                        value="{{ optional($requests->transaction?->checked_out_at)->format('Y-m-d\TH:i') }}" />
+                                        value="{{ optional($requests->transaction?->checked_out_at)->format('Y-m-d\TH:i') }}" @if ($requests->status === 'check_out') readonly @endif/>
                                 </div>
                                 <div class="bg-gray-50 rounded p-4">
                                     <label class="text-gray-500 text-sm block mb-1">เช็คอินจริง</label>
                                     <input type="datetime-local" name="checked_in_at"
                                         class="w-full border rounded px-2 py-1"
-                                        value="{{ optional($requests->transaction?->checked_in_at)->format('Y-m-d\TH:i') }}" />
+                                        value="{{ optional($requests->transaction?->checked_in_at)->format('Y-m-d\TH:i') }}"  @if ($requests->status === 'approved') readonly @endif/>
                                 </div>
                                 <div class="bg-gray-50 rounded p-4">
                                     <label class="text-gray-500 text-sm block mb-1">ค่าปรับ</label>
                                     <input type="number" step="0.01" min="0" name="penalty_amount"
                                         class="w-full border rounded px-2 py-1"
-                                        value="{{ $requests->transaction->penalty_amount ?? 0 }}" />
+                                        value="{{ $requests->transaction->penalty_amount ?? 0 }}"  @if ($requests->status !== 'check_out') readonly @endif/>
                                 </div>
                                 <div class="bg-gray-50 rounded p-4 md:col-span-2">
                                     <label class="text-gray-500 text-sm block mb-1">หมายเหตุ</label>
-                                    <textarea name="notes" class="w-full border rounded px-2 py-1" rows="2">{{ $requests->transaction->notes ?? '' }}</textarea>
+                                    <textarea name="notes" class="w-full border rounded px-2 py-1" rows="2"  @if ($requests->status !== 'check_out') readonly @endif>{{ $requests->transaction->notes ?? '' }}</textarea>
                                 </div>
                             @endif
 
