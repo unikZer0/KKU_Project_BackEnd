@@ -333,6 +333,7 @@ deleteEquipment(equipment) {
         createEquipment(payload) {
             // Use payload from modal
             const formData = new FormData();
+            formData.append("code", payload.code ||"");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
             formData.append("categories_id", payload.categories_id || "");
@@ -340,6 +341,7 @@ deleteEquipment(equipment) {
             if (payload.imageFile) {
                 formData.append("image", payload.imageFile);
             }
+            
             fetch(`/admin/equipment/store`, {
                 method: "POST",
                 headers: {
@@ -382,7 +384,9 @@ deleteEquipment(equipment) {
                     });
                 })
 .catch(async (err) => {
-    if (err.response) {  // if using axios
+    console.log(" err : ",err);
+    
+    if (err.response) {
         this.createModal.errors = err.response.data.errors || {};
     } else {
         try {
