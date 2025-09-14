@@ -4,6 +4,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\BorrowTransactionController;
 use App\Http\Controllers\NotificationController;
 
 //Support 
@@ -11,8 +12,8 @@ use Illuminate\Support\Facades\Route;
 
 //Borrower
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PublicEquipmentController;
-use App\Http\Controllers\Borrowers\BorrowController;
+// use App\Http\Controllers\PublicEquipmentController;
+// use App\Http\Controllers\Borrowers\BorrowController;
 use App\Http\Controllers\Borrowers\BorrowerCtrl;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -39,9 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('admin/equipment')->name('admin.')->group(function () {
             // Equipments
             Route::get('/', [EquipmentController::class, 'index'])->name('equipment.index');
-            Route::get('/create', [EquipmentController::class, 'create'])->name('equipment.create');
             Route::post('/store', [EquipmentController::class, 'store'])->name('equipment.store');
-            Route::get('/edit/{id}', [EquipmentController::class, 'edit'])->name('equipment.edit');
             Route::put('/update/{id}', [EquipmentController::class, 'update'])->name('equipment.update');
             Route::delete('/destroy/{id}', [EquipmentController::class, 'destroy'])->name('equipment.destroy');
         });
@@ -50,34 +49,34 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin/category')->name('admin.')->group(function () {
         // Categories
         Route::get('/', [CategoryController::class, 'index'])->name('category.index');
-        Route::get('/create', [CategoryController::class, 'create'])->name('category.create');
         Route::post('/store', [CategoryController::class, 'store'])->name('category.store');
-        Route::get('/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
         Route::put('/update/{id}', [CategoryController::class, 'update'])->name('category.update');
         Route::delete('/destroy/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
     });
+
+    Route::prefix('admin/transaction')->name('admin.')->group(function () {
+        // Transactions
+        Route::get('/', [BorrowTransactionController::class, 'index'])->name('transaction.index');
+        Route::post('/checkin/{id}', [BorrowTransactionController::class, 'checkin'])->name('transaction.checkin');
+        Route::post('/checkout/{id}', [BorrowTransactionController::class, 'checkout'])->name('transaction.checkout');
+        Route::post('/store', [BorrowTransactionController::class, 'store'])->name('transaction.store');
+    });
+
     //Requests
-    Route::get('/admin/requests', [AdminController::class, 'requestIndex'])->name('admin.requests.index');
-    Route::post('/admin/requests/{id}/approve', [AdminController::class, 'approveRequest'])->name('admin.requests.approve');
-    Route::post('/admin/requests/{id}/reject', [AdminController::class, 'rejectRequest'])->name('admin.requests.reject');
+    Route::prefix('admin/requests')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'requestIndex'])->name('requests.index');
+        Route::post('/{id}/approve', [AdminController::class, 'approveRequest'])->name('requests.approve');
+        Route::post('/{id}/reject', [AdminController::class, 'rejectRequest'])->name('requests.reject');
+    });
 
     // Reports
-    Route::get('/admin/report/index', [AdminController::class, 'requestReport'])->name('admin.report.index');
-    Route::get('/admin/report/users', [AdminController::class, 'userReport'])->name('admin.report.users');
-    Route::get('/admin/report/equipments', [AdminController::class, 'equipmentReport'])->name('admin.report.equipments');
-    Route::get('/admin/report/categories', [AdminController::class, 'categoryReport'])->name('admin.report.categories');
+    Route::prefix('admin/report')->name('admin.')->group(function () {
+        Route::get('/index', [AdminController::class, 'requestReport'])->name('report.index');
+        Route::get('/users', [AdminController::class, 'userReport'])->name('report.users');
+        Route::get('/equipments', [AdminController::class, 'equipmentReport'])->name('report.equipments');
+        Route::get('/categories', [AdminController::class, 'categoryReport'])->name('report.categories');
+    });
 });
-
-
-// Route::prefix('/admin/borrow-request')->group(function () {
-//     Route::get('/', [BorrowRequestController::class, 'index'])->name('admin.borrow_request');
-//     Route::get('/add', [BorrowRequestController::class, 'add_request'])->name('admin.borrow_request.add');
-//     Route::patch('/{id}/approve', [BorrowRequestController::class, 'approve_request'])->name('admin.borrow_request.approve');
-//     Route::patch('/{id}/reject', [BorrowRequestController::class, 'reject_request'])->name('admin.borrow_request.reject');
-//     Route::post('/borrow-requests/{id}/checkout', [BorrowRequestController::class, 'checkout'])->name('admin.borrow_request.checkout');
-//     Route::post('/borrow-requests/{id}/checkin', [BorrowRequestController::class, 'checkin'])->name('admin.borrow_request.checkin');
-// });
-
 
 Route::middleware('can:staff')->group(function () {
     Route::get('/staff', function () {

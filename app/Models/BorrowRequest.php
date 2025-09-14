@@ -8,8 +8,8 @@ use Illuminate\Support\Str;
 class BorrowRequest extends Model
 {
     protected $table = 'borrow_requests';
+
     protected $fillable = [
-        'id',
         'users_id',
         'req_id',
         'equipments_id',
@@ -24,27 +24,39 @@ class BorrowRequest extends Model
         'photo_path',
         'email',
         'phonenumber',
-        "code",
-        "name",
-        "description",
-        "categories_id",
+        'code',
+        'name',
+        'description',
+        'categories_id',
     ];
-protected $casts = [
-    'start_at' => 'datetime',
-    'end_at' => 'datetime',
-];
+
+    protected $casts = [
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
+    ];
+
+    // Relationships
     public function user()
     {
-        return $this->belongsTo(User::class, 'users_id', 'id');
+        return $this->belongsTo(User::class, 'users_id');
     }
+
     public function equipment()
     {
-        return $this->belongsTo(Equipment::class, 'equipments_id', 'id');
+        return $this->belongsTo(Equipment::class, 'equipments_id');
     }
+
     public function category()
     {
-        return $this->belongsTo(Category::class, 'categories_id', 'id');
+        return $this->belongsTo(Category::class, 'categories_id');
     }
+
+    public function transaction()
+    {
+        return $this->hasOne(BorrowTransaction::class, 'borrow_requests_id');
+    }
+
+    // Generate unique req_id
     protected static function generatereq_id()
     {
         do {
@@ -53,12 +65,25 @@ protected $casts = [
 
         return $req_id;
     }
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
             $model->req_id = self::generatereq_id();
+        });
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($request) {
+            $request->transaction()->create([
+                'penalty_amount' => 0,
+                'checked_out_at' => null,
+                'checked_in_at'   => null,
+                'notes'         => null,
+            ]);
         });
     }
 }

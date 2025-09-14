@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('borrow_transaction', function (Blueprint $table) {
             $table->id();
             $table->foreignId('borrow_requests_id')->constrained('borrow_requests')->onDelete('cascade');
-            $table->dateTime('checked_out_at');
-            $table->dateTime('checked_in_at');
+            $table->dateTime('checked_out_at')->nullable();
+            $table->dateTime('checked_in_at')->nullable();
             $table->integer('penalty_amount')->default(0);
             $table->boolean('notes')->default(false);
             $table->timestamps();

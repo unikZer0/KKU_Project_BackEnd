@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
 
 use App\Models\Category;
@@ -16,13 +17,6 @@ class CategoryController extends Controller
         return view('admin.category.index', compact('categories'));
     }
 
-    //!DISPLAY CREATE FORM
-    public function create()
-    {
-        $categories = Category::all();
-        return view('admin.category.create', compact('categories'));
-    }
-
     //!STORE A NEW CATEGORY
     public function store(Request $request)
     {
@@ -31,13 +25,6 @@ class CategoryController extends Controller
         $category->save();
 
         return redirect()->route('admin.category.index')->with('success', 'Category added successfully.');
-    }
-
-    //!DISPLAY EDIT FORM
-    public function edit(string $id)
-    {
-        $category = Category::findOrFail($id);
-        return view('admin.category.edit', compact('category'));
     }
 
     //!UPDATE CATEGORY INFO
