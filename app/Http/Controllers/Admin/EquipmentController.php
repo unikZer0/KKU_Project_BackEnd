@@ -24,7 +24,7 @@ class EquipmentController extends Controller
             $data = $request->validate([
                 "code" => "nullable|string|unique:equipments,code|max:10",
                 "name" => "required|string|max:20",
-                "description" => "nullable|string|max:255",
+                "description" => "nullable|string",
                 "categories_id" => "required|integer|exists:categories,id",
                 "status" => "required|in:available,retired,maintenance",
             ]);
