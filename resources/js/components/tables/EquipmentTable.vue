@@ -21,7 +21,7 @@
             </button>
         </div>
 
-        <!-- Table -->
+        <!-- Table a -->
         <table class="min-w-full text-sm">
             <thead class="bg-gray-50 border-b">
                 <tr>
