@@ -23,7 +23,7 @@ class EquipmentController extends Controller
         try {
             $data = $request->validate([
                 "code" => "nullable|string|unique:equipments,code|max:10",
-                "name" => "required|string|max:20",
+                "name" => "required|string",
                 "description" => "nullable|string",
                 "categories_id" => "required|integer|exists:categories,id",
                 "status" => "required|in:available,retired,maintenance",
@@ -67,8 +67,8 @@ class EquipmentController extends Controller
 
         $data = $request->validate([
             "code" => "required|string|unique:equipments,code,{$id}|max:10",
-            "name" => "required|string|max:20",
-            "description" => "nullable|string|max:255",
+            "name" => "required|string",
+            "description" => "nullable|string",
             "categories_id" => "required|integer|exists:categories,id",
             "status" => "required|in:available,retired,maintenance",
         ]);
