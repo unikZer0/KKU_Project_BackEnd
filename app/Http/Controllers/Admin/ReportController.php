@@ -5,6 +5,8 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\UsersExport;
 use App\Models\Equipment;
 use App\Models\Category;
 use App\Models\User;
@@ -31,11 +33,17 @@ class ReportController extends Controller
         return view('admin.report.users', compact('users'));
     }
 
+    public function exportUsers()
+    {
+        return Excel::download(new UsersExport, 'users.xlsx');
+    }
+
     public function equipmentReport()
     {
         $equipments = Equipment::with('category')->get()->map(function ($eq) {
             return [
                 'id' => $eq->id,
+                'code' => $eq->code,
                 'name' => $eq->name,
                 'category_name' => $eq->category->name ?? 'N/A',
                 'created_at' => optional($eq->created_at)->format('d/m/Y'),
