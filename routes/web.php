@@ -4,18 +4,17 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\BorrowTransactionController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BorrowRequestController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\NotificationController;
+
 
 //Support 
 use Illuminate\Support\Facades\Route;
 
 //Borrower
 use App\Http\Controllers\HomeController;
-// use App\Http\Controllers\PublicEquipmentController;
-// use App\Http\Controllers\Borrowers\BorrowController;
 use App\Http\Controllers\Borrowers\BorrowerCtrl;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -61,17 +60,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [BorrowRequestController::class, 'index'])->name('requests.index');
         Route::get('/{req_id}', [BorrowRequestController::class, 'show'])->name('requests.show');
         Route::patch('/{req_id}', [BorrowRequestController::class, 'update'])->name('requests.update');
-        Route::match(['post','patch'],'/{req_id}/approve', [BorrowRequestController::class, 'approve'])->name('requests.approve');
+        Route::match(['post', 'patch'], '/{req_id}/approve', [BorrowRequestController::class, 'approve'])->name('requests.approve');
         Route::post('/{req_id}/reject', [BorrowRequestController::class, 'reject'])->name('requests.reject');
     });
 
     // Reports
     Route::prefix('admin/report')->name('admin.')->group(function () {
-        Route::get('/index', [AdminController::class, 'requestReport'])->name('report.index');
-        Route::get('/users', [AdminController::class, 'userReport'])->name('report.users');
-        Route::get('/equipments', [AdminController::class, 'equipmentReport'])->name('report.equipments');
-        Route::get('/categories', [AdminController::class, 'categoryReport'])->name('report.categories');
-        Route::get('/report/logs', [LogController::class, 'index'])->name('report.logs');
+        Route::get('/index', [ReportController::class, 'index'])->name('report.index');
+        Route::get('/users', [ReportController::class, 'userReport'])->name('report.users');
+        Route::get('/equipments', [ReportController::class, 'equipmentReport'])->name('report.equipments');
+        Route::get('/categories', [ReportController::class, 'categoryReport'])->name('report.categories');
+        Route::get('/requests', [ReportController::class, 'requestReport'])->name('report.requests');
+        Route::get('/report/logs', [LogController::class, 'logReport'])->name('report.logs');
     });
 });
 

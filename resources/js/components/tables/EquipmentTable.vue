@@ -1,5 +1,15 @@
 <template>
     <div class="bg-white p-6 rounded-lg shadow">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-lg font-semibold mb-4">
+                อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
+            </h1>
+            <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                เพิ่มอุปกรณ์ใหม่
+            </button>
+        </div>
+
         <!-- Search Bar -->
         <div class="relative mb-4">
             <input type="text" v-model="searchQuery" placeholder="Search"
@@ -9,16 +19,6 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
             </svg>
-        </div>
-
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold mb-4">
-                อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
-            </h2>
-            <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                เพิ่มอุปกรณ์ใหม่
-            </button>
         </div>
 
         <!-- Table a -->
@@ -257,59 +257,59 @@ export default {
                     this.notifyError(err.message || "ไม่สามารถอัปเดตได้");
                 });
         },
-deleteEquipment(equipment) {
-  this.ensureSwal().then(() => {
-    window.Swal.fire({
-      title: "ลบรายการ?",
-      text: `คุณกำลังจะลบ: ${equipment.name} (ID: ${equipment.code})`,
-      icon: "warning",
-      imageUrl: equipment.photo_path || null,   // cloud URL from DB
-      imageWidth: 120,                          // adjust size if needed
-      imageHeight: 120,
-      imageAlt: equipment.name,
-      showCancelButton: true,
-      confirmButtonText: "ลบ",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#ef4444",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        fetch(`/admin/equipment/destroy/${equipment.id}`, {
-          method: "DELETE",
-          headers: {
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-            "Accept": "application/json",
-          },
-        })
-          .then(async (res) => {
-            if (!res.ok) {
-              let msg = "Delete failed";
-              try {
-                const j = await res.json();
-                msg = j.message || JSON.stringify(j);
-              } catch (e) {}
-              throw new Error(msg);
-            }
-            return res.json();
-          })
-          .then(() => {
-            this.equipments = this.equipments.filter(
-              (e) => e.id !== equipment.id
-            );
-            window.Swal.fire({
-              title: "ลบแล้ว",
-              text: `${equipment.name} ถูกลบเรียบร้อย`,
-              icon: "success",
-              timer: 1200,
-              showConfirmButton: false,
+        deleteEquipment(equipment) {
+            this.ensureSwal().then(() => {
+                window.Swal.fire({
+                    title: "ลบรายการ?",
+                    text: `คุณกำลังจะลบ: ${equipment.name} (ID: ${equipment.code})`,
+                    icon: "warning",
+                    imageUrl: equipment.photo_path || null,   // cloud URL from DB
+                    imageWidth: 120,                          // adjust size if needed
+                    imageHeight: 120,
+                    imageAlt: equipment.name,
+                    showCancelButton: true,
+                    confirmButtonText: "ลบ",
+                    cancelButtonText: "ยกเลิก",
+                    confirmButtonColor: "#ef4444",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/equipment/destroy/${equipment.id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                                "Accept": "application/json",
+                            },
+                        })
+                            .then(async (res) => {
+                                if (!res.ok) {
+                                    let msg = "Delete failed";
+                                    try {
+                                        const j = await res.json();
+                                        msg = j.message || JSON.stringify(j);
+                                    } catch (e) { }
+                                    throw new Error(msg);
+                                }
+                                return res.json();
+                            })
+                            .then(() => {
+                                this.equipments = this.equipments.filter(
+                                    (e) => e.id !== equipment.id
+                                );
+                                window.Swal.fire({
+                                    title: "ลบแล้ว",
+                                    text: `${equipment.name} ถูกลบเรียบร้อย`,
+                                    icon: "success",
+                                    timer: 1200,
+                                    showConfirmButton: false,
+                                });
+                            })
+                            .catch((err) => {
+                                this.notifyError(err.message || "ลบไม่สำเร็จ");
+                            });
+                    }
+                });
             });
-          })
-          .catch((err) => {
-            this.notifyError(err.message || "ลบไม่สำเร็จ");
-          });
-      }
-    });
-  });
-},
+        },
         ensureSwal() {
             return new Promise((resolve) => {
                 if (window.Swal) return resolve();
@@ -333,7 +333,7 @@ deleteEquipment(equipment) {
         createEquipment(payload) {
             // Use payload from modal
             const formData = new FormData();
-            formData.append("code", payload.code ||"");
+            formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
             formData.append("categories_id", payload.categories_id || "");
@@ -341,7 +341,7 @@ deleteEquipment(equipment) {
             if (payload.imageFile) {
                 formData.append("image", payload.imageFile);
             }
-            
+
             fetch(`/admin/equipment/store`, {
                 method: "POST",
                 headers: {
@@ -383,21 +383,21 @@ deleteEquipment(equipment) {
                         });
                     });
                 })
-.catch(async (err) => {
-    console.log(" err : ",err);
-    
-    if (err.response) {
-        this.createModal.errors = err.response.data.errors || {};
-    } else {
-        try {
-            const resJson = await err.response.json();
-            this.createModal.errors = resJson.errors || {};
-        } catch (e) {
-            console.error(e);
-        }
-    }
-    this.notifyError(err.message || "ไม่สามารถเพิ่มข้อมูลได้");
-});
+                .catch(async (err) => {
+                    console.log(" err : ", err);
+
+                    if (err.response) {
+                        this.createModal.errors = err.response.data.errors || {};
+                    } else {
+                        try {
+                            const resJson = await err.response.json();
+                            this.createModal.errors = resJson.errors || {};
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+                    this.notifyError(err.message || "ไม่สามารถเพิ่มข้อมูลได้");
+                });
         },
 
         openPhotoModal(url) {

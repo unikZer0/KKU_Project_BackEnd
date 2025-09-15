@@ -1,5 +1,16 @@
 <template>
   <div class="bg-white p-6 rounded-lg shadow">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-lg font-semibold mb-4">
+        หมวดหมู่ทั้งหมด: {{ filteredCategories.length }}
+      </h1>
+      <button @click="createModalOpen = true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        เพิ่มหมวดหมู่ใหม่
+      </button>
+    </div>
+
     <!-- Search Bar -->
     <div class="relative mb-4">
       <input type="text" v-model="searchQuery" placeholder="Search"
@@ -9,19 +20,6 @@
           d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
       </svg>
     </div>
-
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold">หมวดหมู่ทั้งหมด</h2>
-      <button @click="createModalOpen = true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        เพิ่มหมวดหมู่ใหม่
-      </button>
-    </div>
-
-    <!-- Count -->
-    <h2 class="text-lg font-semibold mb-4">
-      Total Categories: {{ filteredCategories.length }}
-    </h2>
 
     <!-- Table -->
     <table class="min-w-full text-sm">
