@@ -420,6 +420,7 @@ export default {
         createEquipment(payload) {
             const formData = new FormData();
             formData.append("code", payload.code || "");
+            formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
             formData.append("categories_id", payload.categories_id || "");
@@ -435,6 +436,7 @@ export default {
             if (payload.selectedProfileImage !== null && payload.selectedProfileImage !== undefined) {
                 formData.append("selectedProfileImage", payload.selectedProfileImage);
             }
+
 
             fetch(`/admin/equipment/store`, {
                 method: "POST",

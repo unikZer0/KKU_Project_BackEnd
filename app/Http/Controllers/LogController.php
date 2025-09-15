@@ -7,7 +7,7 @@ use App\Models\Log;
 
 class LogController extends Controller
 {
-    public function index(Request $request) // <- Inject Request here
+    public function logReport(Request $request) // <- Inject Request here
     {
         $logs = Log::with('admin')
             ->when($request->admin, fn($q) => $q->whereHas('admin', fn($a) => $a->where('name', 'like', "%{$request->admin}%")))
