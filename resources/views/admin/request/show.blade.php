@@ -86,18 +86,27 @@
                                 <p id="total-days" class="font-semibold">0 วัน</p>
                             </div>
                             @if ($requests->status != 'pending')
-                                <div class="bg-gray-50 rounded p-4">
-                                    <label class="text-gray-500 text-sm block mb-1">วันที่มาเเอาของ</label>
-                                    <input type="datetime-local" name="checked_out_at"
-                                        class="w-full border rounded px-2 py-1"
-                                        value="{{ optional($requests->transaction?->checked_out_at)->format('Y-m-d\TH:i') }}" @if ($requests->status === 'check_out') readonly @endif/>
-                                </div>
+                            <div class="bg-gray-50 rounded p-4">
+                                <label class="text-gray-500 text-sm block mb-1">วันที่มาเเอาของ</label>
+                                <input type="datetime-local" name="checked_out_at" id="checked_out_at"
+                                    class="w-full border rounded px-2 py-1 @error('checked_out_at') border-red-500 @enderror"
+                                    value="{{ old('checked_out_at', optional($requests->transaction?->checked_out_at)->format('Y-m-d\TH:i')) }}" 
+                                    @if ($requests->status === 'check_out') readonly @endif required/>
+                                <p class="text-xs text-gray-500 mt-1" id="checkout-date-hint">ต้องอยู่ในช่วงวันที่เริ่มถึงวันที่สิ้นสุดที่อนุญาต</p>
+                                @error('checked_out_at')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                                 @if ($requests->status === 'check_out')
                                     <div class="bg-gray-50 rounded p-4">
                                     <label class="text-gray-500 text-sm block mb-1">วันที่มาส่ง</label>
-                                    <input type="datetime-local" name="checked_in_at"
-                                        class="w-full border rounded px-2 py-1"
-                                        value="{{ optional($requests->transaction?->checked_in_at)->format('Y-m-d\TH:i') }}" />
+                                    <input type="datetime-local" name="checked_in_at" id="checked_in_at"
+                                        class="w-full border rounded px-2 py-1 @error('checked_in_at') border-red-500 @enderror"
+                                        value="{{ old('checked_in_at', optional($requests->transaction?->checked_in_at)->format('Y-m-d\TH:i')) }}" required/>
+                                    <p class="text-xs text-gray-500 mt-1" id="checkin-date-hint">ต้องเป็นวันถัดไปจากวันที่มาเเอาของ</p>
+                                    @error('checked_in_at')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div class="bg-gray-50 rounded p-4">
                                     <label class="text-gray-500 text-sm block mb-1">ค่าปรับ</label>
@@ -181,34 +190,6 @@
 </x-admin-layout>
 
 <script>
-    function calculateDays() {
-        const startInput = document.getElementById('start_at').value;
-        const endInput = document.getElementById('end_at').value;
-        const output = document.getElementById('total-days');
-
-        if (startInput && endInput) {
-            const startDate = new Date(startInput);
-            const endDate = new Date(endInput);
-            const diffTime = endDate - startDate;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-            if (diffDays > 0) {
-                output.textContent = diffDays + ' วัน';
-                output.classList.remove('text-red-700');
-            } else {
-                output.textContent = '0 วัน';
-                output.classList.add('text-red-700');
-            }
-        } else {
-            output.textContent = '0 วัน';
-            output.classList.remove('text-red-700');
-        }
-    }
-
-    document.getElementById('start_at').addEventListener('change', calculateDays);
-    document.getElementById('end_at').addEventListener('change', calculateDays);
-    calculateDays();
-
     window.showRejectModal = function() {
         Swal.fire({
             title: 'ปฏิเสธคำขอ',
@@ -250,4 +231,282 @@
             }
         });
     }
+    function calculateDays() {
+        const startInput = document.getElementById('start_at').value;
+        const endInput = document.getElementById('end_at').value;
+        const output = document.getElementById('total-days');
+
+        if (startInput && endInput) {
+            const startDate = new Date(startInput);
+            const endDate = new Date(endInput);
+            const diffTime = endDate - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            if (diffDays > 0) {
+                output.textContent = diffDays + ' วัน';
+                output.classList.remove('text-red-700');
+            } else {
+                output.textContent = '0 วัน';
+                output.classList.add('text-red-700');
+                
+                // Show alert for invalid date range
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ช่วงวันที่ไม่ถูกต้อง!',
+                    text: 'วันที่สิ้นสุดต้องอยู่หลังวันที่เริ่มต้น',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        } else {
+            output.textContent = '0 วัน';
+            output.classList.remove('text-red-700');
+        }
+    }
+
+    // Add validation for past dates
+    function validateDateInput(inputId, label) {
+        const input = document.getElementById(inputId);
+        const value = input.value;
+        
+        if (value) {
+            const selectedDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to start of day
+            
+            if (selectedDate < today) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'วันที่ไม่ถูกต้อง!',
+                    text: `${label}ไม่สามารถเป็นวันที่ในอดีตได้`,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                input.value = '';
+                return false;
+            }
+        }
+        return true;
+    }
+
+    document.getElementById('start_at').addEventListener('change', function() {
+        validateDateInput('start_at', 'วันที่เริ่ม');
+        calculateDays();
+    });
+    document.getElementById('end_at').addEventListener('change', function() {
+        validateDateInput('end_at', 'วันที่สิ้นสุด');
+        calculateDays();
+    });
+    calculateDays();
+
+    // Add validation for check-out date
+    function validateCheckoutDate() {
+        const startDate = document.getElementById('start_at').value;
+        const endDate = document.getElementById('end_at').value;
+        const checkoutDate = document.getElementById('checked_out_at').value;
+        const hint = document.getElementById('checkout-date-hint');
+        
+        if (!startDate || !endDate) {
+            return;
+        }
+        
+        if (checkoutDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const checkout = new Date(checkoutDate);
+            
+            // Set min and max attributes for the input
+            document.getElementById('checked_out_at').min = startDate + 'T00:00';
+            document.getElementById('checked_out_at').max = endDate + 'T23:59';
+            
+            if (checkout < start || checkout > end) {
+                hint.textContent = 'วันที่มาเเอาของต้องอยู่ในช่วงวันที่เริ่มถึงวันที่สิ้นสุดที่อนุญาต';
+                hint.classList.remove('text-gray-500');
+                hint.classList.add('text-red-500');
+                document.getElementById('checked_out_at').classList.add('border-red-500');
+                
+                // Show alert for invalid date selection
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'วันที่ไม่ถูกต้อง!',
+                    text: `วันที่มาเเอาของต้องอยู่ในช่วง ${startDate} ถึง ${endDate}`,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                
+                // Clear the invalid date
+                document.getElementById('checked_out_at').value = '';
+            } else {
+                hint.textContent = 'วันที่มาเเอาของอยู่ในช่วงที่อนุญาต';
+                hint.classList.remove('text-red-500');
+                hint.classList.add('text-green-500');
+                document.getElementById('checked_out_at').classList.remove('border-red-500');
+            }
+        } else {
+            hint.textContent = 'ต้องอยู่ในช่วงวันที่เริ่มถึงวันที่สิ้นสุดที่อนุญาต';
+            hint.classList.remove('text-red-500', 'text-green-500');
+            hint.classList.add('text-gray-500');
+            document.getElementById('checked_out_at').classList.remove('border-red-500');
+        }
+    }
+
+    // Set initial constraints and add event listeners
+    function setCheckoutConstraints() {
+        const startDate = document.getElementById('start_at').value;
+        const endDate = document.getElementById('end_at').value;
+        
+        if (startDate && endDate) {
+            document.getElementById('checked_out_at').min = startDate + 'T00:00';
+            document.getElementById('checked_out_at').max = endDate + 'T23:59';
+        }
+    }
+
+    document.getElementById('start_at').addEventListener('change', setCheckoutConstraints);
+    document.getElementById('end_at').addEventListener('change', setCheckoutConstraints);
+    document.getElementById('checked_out_at').addEventListener('change', function() {
+        validateCheckoutDate();
+        setCheckinConstraints();
+    });
+    
+    // Add validation for check-in date
+    function validateCheckinDate() {
+        const checkoutDate = document.getElementById('checked_out_at').value;
+        const checkinDate = document.getElementById('checked_in_at').value;
+        const hint = document.getElementById('checkin-date-hint');
+        
+        if (!checkoutDate || !checkinDate) {
+            return;
+        }
+        
+        const checkout = new Date(checkoutDate);
+        const checkin = new Date(checkinDate);
+        
+        if (checkin <= checkout) {
+            hint.textContent = 'วันที่มาส่งต้องอยู่หลังวันที่มาเเอาของ';
+            hint.classList.remove('text-gray-500');
+            hint.classList.add('text-red-500');
+            document.getElementById('checked_in_at').classList.add('border-red-500');
+            
+            // Show alert for invalid date selection
+            Swal.fire({
+                icon: 'warning',
+                title: 'วันที่ไม่ถูกต้อง!',
+                text: 'วันที่มาส่งต้องอยู่หลังวันที่มาเเอาของ',
+                timer: 3000,
+                showConfirmButton: false
+            });
+            
+            // Clear the invalid date
+            document.getElementById('checked_in_at').value = '';
+        } else {
+            hint.textContent = 'วันที่มาส่งถูกต้อง';
+            hint.classList.remove('text-red-500');
+            hint.classList.add('text-green-500');
+            document.getElementById('checked_in_at').classList.remove('border-red-500');
+        }
+    }
+
+    // Set minimum date for check-in based on check-out date
+    function setCheckinConstraints() {
+        const checkoutDate = document.getElementById('checked_out_at').value;
+        const checkinInput = document.getElementById('checked_in_at');
+        
+        if (checkoutDate && checkinInput) {
+            // Set minimum date to the day after checkout date
+            const checkout = new Date(checkoutDate);
+            const nextDay = new Date(checkout);
+            nextDay.setDate(checkout.getDate() + 1);
+            
+            // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+            const minDate = nextDay.toISOString().slice(0, 16);
+            checkinInput.min = minDate;
+            
+            // Clear current value if it's before the minimum date
+            if (checkinInput.value && new Date(checkinInput.value) <= checkout) {
+                checkinInput.value = '';
+                validateCheckinDate();
+            }
+        }
+    }
+
+    // Add event listener for check-in date
+    const checkinInput = document.getElementById('checked_in_at');
+    if (checkinInput) {
+        checkinInput.addEventListener('change', validateCheckinDate);
+    }
+    // Initialize constraints
+    setCheckoutConstraints();
+    validateCheckoutDate();
+    setCheckinConstraints();
+
+    // Add form submission validation
+    function validateFormSubmission() {
+        const startDate = document.getElementById('start_at').value;
+        const endDate = document.getElementById('end_at').value;
+        const checkoutDate = document.getElementById('checked_out_at').value;
+        const checkinDate = document.getElementById('checked_in_at')?.value;
+        
+        if (!startDate || !endDate) {
+            Swal.fire({
+                icon: 'error',
+                title: 'ข้อมูลไม่ครบถ้วน!',
+                text: 'กรุณาระบุวันที่เริ่มและวันที่สิ้นสุดที่อนุญาต',
+                confirmButtonText: 'ตกลง'
+            });
+            return false;
+        }
+        
+        if (checkoutDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const checkout = new Date(checkoutDate);
+            
+            if (checkout < start || checkout > end) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'วันที่ไม่ถูกต้อง!',
+                    text: `วันที่มาเเอาของต้องอยู่ในช่วง ${startDate} ถึง ${endDate}`,
+                    confirmButtonText: 'ตกลง'
+                });
+                return false;
+            }
+        }
+        
+        if (checkinDate && checkoutDate) {
+            const checkout = new Date(checkoutDate);
+            const checkin = new Date(checkinDate);
+            
+            // Check if check-in is at least one day after check-out
+            const nextDay = new Date(checkout);
+            nextDay.setDate(checkout.getDate() + 1);
+            nextDay.setHours(0, 0, 0, 0);
+            
+            if (checkin < nextDay) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'วันที่ไม่ถูกต้อง!',
+                    text: 'วันที่มาส่งต้องเป็นวันถัดไปจากวันที่มาเเอาของ',
+                    confirmButtonText: 'ตกลง'
+                });
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    // Add event listener to form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!validateFormSubmission()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    });
+
+
 </script>

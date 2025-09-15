@@ -83,7 +83,7 @@ class BorrowerCtrl extends Controller
         }
 
         $request->validate([
-            'start_at' => 'required|date',
+            'start_at' => 'required|date|after_or_equal:today',
             'end_at' => 'required|date|after:start_at',
             'equipments_id' => 'required|exists:equipments,id',
         ]);

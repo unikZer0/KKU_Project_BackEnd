@@ -193,9 +193,12 @@
             for (let i=startWeek-1;i>=0;i--) html += `<div class="p-2 text-center text-gray-300 border">${prevDays-i}</div>`;
 
             const today = new Date();
+            const todayStr = today.toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
              for (let d=1; d<=daysInMonth; d++) {
                  const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                 const isToday = today.toDateString() === new Date(y,m,d).toDateString();
+                 const checkDate = new Date(y,m,d);
+                 const isToday = today.toDateString() === checkDate.toDateString();
+                 const isPast = dateStr < todayStr; // Check if date is in the past
                  const isBorrowed = this.borrowedDates.some(b=>{
                      const s=new Date(b.start_at), e=new Date(b.end_at), chk=new Date(dateStr);
                      return chk>=s && chk<=e;
@@ -203,6 +206,8 @@
                  let cls="p-2 text-center border flex items-center justify-center text-sm ";
                  if (isBorrowed) {
                      cls+="bg-red-100 text-red-600 font-bold cursor-not-allowed opacity-60 ";
+                 } else if (isPast) {
+                     cls+="bg-gray-100 text-gray-400 cursor-not-allowed opacity-50 ";
                  } else if (isToday) {
                      cls+="bg-blue-100 text-blue-600 font-bold cursor-pointer hover:bg-blue-200 ";
                      html+=`<div class="${cls}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${d}</div>`;
@@ -213,6 +218,8 @@
                  
                  if (isBorrowed) {
                      html+=`<div class="${cls}" title="วันที่นี้ถูกจองแล้ว">${d}</div>`;
+                 } else if (isPast) {
+                     html+=`<div class="${cls}" title="ไม่สามารถเลือกวันที่ในอดีตได้">${d}</div>`;
                  } else {
                      html+=`<div class="${cls}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${d}</div>`;
                  }
@@ -244,6 +251,15 @@
     function closeCalendar(){document.getElementById('calendarModal').classList.add('hidden');}
     function selectDate(dateStr){
         if(currentInput){
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            // Prevent selection of past dates
+            if(dateStr < todayStr) {
+                alert('ไม่สามารถเลือกวันที่ในอดีตได้');
+                return;
+            }
+            
             const d=new Date(dateStr);
             document.getElementById(currentInput+'_at').value=`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
             closeCalendar();

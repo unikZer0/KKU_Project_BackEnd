@@ -29,7 +29,7 @@ class BorrowRequestCreated extends Notification implements ShouldQueue
             ->subject('มีคำขอยืมอุปกรณ์ใหม่')
             ->line("ผู้ใช้ {$this->borrowRequest->user->name} ได้สร้างคำขอยืมอุปกรณ์")
             ->line("อุปกรณ์: {$this->borrowRequest->equipment->name}")
-            ->action('ดูรายละเอียด', url('/borrower/myrequest'))
+            ->action('ดูรายละเอียด', url('admin.requests.show', $this->borrowRequest->req_id))
             ->line('กรุณาตรวจสอบคำขอนี้ด้วยครับ');
     }
     public function toDatabase($notifiable)

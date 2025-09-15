@@ -9,7 +9,7 @@
             @foreach ($equipments as $equipment)
                 <a href="{{ route('equipments.show', $equipment->code) }}" class="block">
                     <div
-                        class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group">
+                        class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group border border-gray-150">
                         <div class="relative">
                             <img src="{{ $equipment->photo_path }}" alt="{{ $equipment->name }}"
                                 class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
