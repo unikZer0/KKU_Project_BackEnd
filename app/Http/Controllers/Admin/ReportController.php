@@ -74,7 +74,7 @@ class ReportController extends Controller
             ->get()
             ->map(function ($req) {
                 return [
-                    'id' => $req->req_id,
+                    'req_id' => $req->req_id,
                     'user_name' => $req->user->name ?? 'N/A',
                     'equipment_name' => $req->equipment->name ?? 'N/A',
                     'date' => $req->created_at->format('Y-m-d'),
