@@ -41,7 +41,11 @@
                         <!-- Equipment -->
                         <div class="mb-4 grid grid-cols-1 sm:grid-cols-4 gap-4">
     <!-- Equipment Image -->
-    <img src="{{ $req->equipment->photo_path }}" alt="equipment photo"
+    @php
+        $photos = json_decode($req->equipment->photo_path ?? '[]', true);
+        $firstPhoto = is_array($photos) && count($photos) > 0 ? $photos[0] : $req->equipment->photo_path;
+    @endphp
+    <img src="{{ $firstPhoto }}" alt="equipment photo"
         class="w-full h-28 object-cover rounded-lg shadow col-span-1 sm:col-span-1">
 
     <!-- Equipment Details -->

@@ -11,7 +11,11 @@
                     <div
                         class="bg-white rounded-lg sm:rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden group border border-gray-150">
                         <div class="relative">
-                            <img src="{{ $equipment->photo_path }}" alt="{{ $equipment->name }}"
+                            @php
+                                $photos = json_decode($equipment->photo_path ?? '[]', true);
+                                $firstPhoto = is_array($photos) && count($photos) > 0 ? $photos[0] : $equipment->photo_path;
+                            @endphp
+                            <img src="{{ $firstPhoto }}" alt="{{ $equipment->name }}"
                                 class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
                             @if ($equipment->status === 'maintenance')
                                 <span

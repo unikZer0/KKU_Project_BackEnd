@@ -46,22 +46,74 @@
                         </option>
                     </select>
                 </div>
+
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">รูปภาพ</label>
-                    <input required type="file" accept="image/*" @change="onImageChange" />
+                    <label class="block text-gray-700 font-semibold mb-1">รูปภาพ (เลือกได้หลายรูป)</label>
+                    <input 
+                        required 
+                        type="file" 
+                        accept="image/*" 
+                        multiple 
+                        @change="onImageChange" 
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        :disabled="processingImages"
+                    />
+                    <p v-if="processingImages" class="text-sm text-blue-600 mt-1">
+                        Processing images...
+                    </p>
                     <p v-if="imageError" class="text-sm text-red-600 mt-1">{{ imageError }}</p>
-                    <div v-if="imagePreviewUrl" class="mt-3">
-                        <img :src="imagePreviewUrl" alt="preview" class="w-24 h-24 object-cover rounded" />
+                    
+                    <div v-if="imagePreviewUrls.length > 0" class="mt-3 flex flex-wrap gap-2">
+                        <div v-for="(url, index) in imagePreviewUrls" :key="index" class="relative group">
+                            <img 
+                                :src="url" 
+                                alt="preview" 
+                                class="w-24 h-24 object-cover rounded border-2 transition-all duration-200"
+                                :class="{
+                                    'border-blue-500 shadow-lg': selectedProfileImage === index,
+                                    'border-gray-200 hover:border-gray-400': selectedProfileImage !== index
+                                }"
+                            />
+                            
+                            <!-- Profile image indicator -->
+                            <div
+                                v-if="selectedProfileImage === index"
+                                class="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 py-0.5 rounded"
+                            >
+                                หลัก
+                            </div>
+                            
+                            <!-- Action buttons -->
+                            <div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    type="button"
+                                    @click="setAsProfile(index)"
+                                    class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                                    title="Set as profile image"
+                                >
+                                    ★
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="removeImage(index)"
+                                    class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                                    title="Remove image"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
                 <div class="flex justify-end space-x-2">
                     <button type="button" @click="$emit('cancel')"
                         class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 disabled:opacity-60"
-                        :disabled="submitting">
+                        :disabled="submitting || processingImages">
                         Cancel
                     </button>
                     <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-                        :disabled="submitting || !isValid">
+                        :disabled="submitting || processingImages || !isValid">
                         <span v-if="submitting">Saving...</span>
                         <span v-else>Create</span>
                     </button>
@@ -70,6 +122,7 @@
         </div>
     </div>
 </template>
+
 <script>
 export default {
     name: "EquipmentCreateModal",
@@ -93,32 +146,31 @@ export default {
                 categories_id: "",
                 status: "available"
             },
-            imageFile: null,
-            imagePreviewUrl: null,
+            imageFiles: [],
+            imagePreviewUrls: [],
             imageError: "",
-            submitting: false
+            submitting: false,
+            processingImages: false,
+            selectedProfileImage: null, // Index of selected image as profile
         };
     },
     watch: {
         isOpen(newVal) {
             if (newVal) {
-                this.form = {
-                    code: "",
-                    name: "",
-                    description: "",
-                    categories_id: "",
-                    status: "available"
-                };
-                this.imageFile = null;
-                this.imagePreviewUrl = null;
+                // Resetting the form when the modal opens
+                this.form = { code: "", name: "", description: "", categories_id: "", status: "available" };
+                this.imageFiles = [];
+                this.imagePreviewUrls = [];
                 this.imageError = "";
                 this.submitting = false;
+                this.processingImages = false;
+                this.selectedProfileImage = null;
             }
         }
     },
     computed: {
         isValid() {
-            return !!(this.form.code && this.form.name && this.form.categories_id && this.form.status && this.imageFile && !this.imageError);
+            return !!(this.form.code && this.form.name && this.form.categories_id && this.form.status && this.imageFiles.length > 0 && !this.imageError);
         }
     },
     methods: {
@@ -126,44 +178,62 @@ export default {
             if (!str) return "";
             return str.charAt(0).toUpperCase() + str.slice(1);
         },
-        onImageChange(event) {
-            const files = event.target.files;
-            const file = files && files[0] ? files[0] : null;
-            this.imageFile = file;
-            this.imageError = "";
-            this.imagePreviewUrl = null;
-
-            if (!file) {
-                this.$emit('image-change', null);
-                return;
+        removeImage(index) {
+            this.imageFiles.splice(index, 1);
+            this.imagePreviewUrls.splice(index, 1);
+            
+            // Reset profile selection if the selected image was removed
+            if (this.selectedProfileImage === index) {
+                this.selectedProfileImage = null;
+            } else if (this.selectedProfileImage > index) {
+                this.selectedProfileImage--;
             }
+        },
+        setAsProfile(index) {
+            this.selectedProfileImage = index;
+        },
+        async onImageChange(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            this.imageError = "";
+            this.processingImages = true;
 
             const maxMb = 5;
-            const okTypes = ['image/jpeg','image/png','image/webp','image/gif'];
-            if (!okTypes.includes(file.type)) {
-                this.imageError = "รองรับเฉพาะไฟล์ภาพ (jpg, png, webp, gif)";
-                this.imageFile = null;
-                this.$emit('image-change', null);
-                return;
-            }
-            if (file.size > maxMb * 1024 * 1024) {
-                this.imageError = `ไฟล์ใหญ่เกินไป (จำกัด ${maxMb}MB)`;
-                this.imageFile = null;
-                this.$emit('image-change', null);
-                return;
+            const okTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            const resizePromises = [];
+            
+            for (const file of files) {
+                if (!okTypes.includes(file.type)) {
+                    this.imageError = `File '${file.name}' is not a supported image type.`;
+                    this.processingImages = false;
+                    event.target.value = null; 
+                    return;
+                }
+                if (file.size > maxMb * 1024 * 1024) {
+                    this.imageError = `File '${file.name}' is too large (max ${maxMb}MB).`;
+                    this.processingImages = false;
+                    event.target.value = null;
+                    return;
+                }
+                resizePromises.push(this.resizeImage(file, { maxWidth: 1280, maxHeight: 960, quality: 0.85 }));
             }
 
-            this.resizeImage(file, { maxWidth: 1280, maxHeight: 960, quality: 0.85 })
-                .then(({ blob, dataUrl }) => {
-                    const newFile = new File([blob], this.deriveFileName(file.name), { type: blob.type });
-                    this.imageFile = newFile;
-                    this.imagePreviewUrl = dataUrl;
-                    this.$emit('image-change', this.imageFile);
-                })
-                .catch(() => {
-                    this.imagePreviewUrl = URL.createObjectURL(file);
-                    this.$emit('image-change', this.imageFile);
+            try {
+                const resizedImages = await Promise.all(resizePromises);
+                
+                resizedImages.forEach(({ blob, dataUrl, originalName }) => {
+                    const newFile = new File([blob], this.deriveFileName(originalName), { type: blob.type });
+                    this.imageFiles.push(newFile);
+                    this.imagePreviewUrls.push(dataUrl);
                 });
+            } catch (error) {
+                console.error("Image processing failed:", error);
+                this.imageError = "An error occurred while processing images.";
+            } finally {
+                this.processingImages = false;
+                event.target.value = null;
+            }
         },
         deriveFileName(name) {
             const dot = name.lastIndexOf('.');
@@ -176,7 +246,7 @@ export default {
                 reader.onload = e => {
                     const img = new Image();
                     img.onload = () => {
-                        let { width, height } = img;
+                        const { width, height } = img;
                         const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
                         const targetW = Math.round(width * ratio);
                         const targetH = Math.round(height * ratio);
@@ -186,12 +256,13 @@ export default {
                         const ctx = canvas.getContext('2d');
                         ctx.imageSmoothingQuality = 'high';
                         ctx.drawImage(img, 0, 0, targetW, targetH);
-                        const wantsPng = file.type === 'image/png';
-                        const mime = wantsPng ? 'image/png' : 'image/jpeg';
+                        
+                        const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+
                         canvas.toBlob(blob => {
                             if (!blob) return reject(new Error('Resize failed'));
                             const dataUrl = canvas.toDataURL(mime, quality);
-                            resolve({ blob: new Blob([blob], { type: mime }), dataUrl });
+                            resolve({ blob, dataUrl, originalName: file.name });
                         }, mime, quality);
                     };
                     img.onerror = reject;
@@ -202,12 +273,12 @@ export default {
             });
         },
         onCreate() {
-            if (this.submitting) return;
-            if (!this.isValid) return;
+            if (this.submitting || !this.isValid) return;
             this.submitting = true;
             this.$emit('create', {
                 ...this.form,
-                imageFile: this.imageFile
+                imageFiles: this.imageFiles,
+                selectedProfileImage: this.selectedProfileImage
             });
         },
     }

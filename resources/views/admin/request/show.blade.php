@@ -2,7 +2,11 @@
     <div class="max-w-7xl mx-auto bg-white p-4 sm:p-6 rounded shadow">
         <div class="flex flex-col lg:flex-row items-start gap-6">
             @if ($requests->equipment?->photo_path)
-                <img src="{{ $requests->equipment->photo_path }}" alt="{{ $requests->equipment->name }}"
+                @php
+                    $photos = json_decode($requests->equipment->photo_path ?? '[]', true);
+                    $firstPhoto = is_array($photos) && count($photos) > 0 ? $photos[0] : $requests->equipment->photo_path;
+                @endphp
+                <img src="{{ $firstPhoto }}" alt="{{ $requests->equipment->name }}"
                     class="w-full sm:w-40 h-40 object-cover rounded border" />
             @endif
             <div class="flex-1 w-full">
