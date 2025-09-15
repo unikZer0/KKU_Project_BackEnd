@@ -41,19 +41,18 @@ if (recentActivitiesEl) {
 // Chart Dashboard
 const chartEl = document.getElementById('dashboard-chart');
 if (chartEl) {
-  const available = JSON.parse(chartEl.dataset.available || "[]");
-  const maintenance = JSON.parse(chartEl.dataset.maintenance || "[]");
-  const retired = JSON.parse(chartEl.dataset.retired || "[]");
-  const months = JSON.parse(chartEl.dataset.months || "[]");
+  const totalRequests = JSON.parse(chartEl.dataset.totalRequests || '[]');
+  const approved = JSON.parse(chartEl.dataset.approved || '[]');
+  const rejected = JSON.parse(chartEl.dataset.rejected || '[]');
+  const months = JSON.parse(chartEl.dataset.months || '[]');
 
   createApp(ChartDashboard, {
-    availableData: available,
-    maintenanceData: maintenance,
-    retiredData: retired,
+    totalRequestsData: totalRequests,
+    approvedData: approved,
+    rejectedData: rejected,
     months: months,
   }).mount(chartEl);
 }
-
 
 // Equipment Table
 const equipmentTableEl = document.getElementById('equipment-table');

@@ -14,61 +14,79 @@ use App\Notifications\BorrowRequestRejected;
 
 class AdminController extends Controller
 {
-    public function index()
-    {
-        $recentRequests = BorrowRequest::with('user', 'equipment')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($r) {
-                return [
-                    'id' => $r->req_id,
-                    'user_name' => $r->user->name ?? 'N/A',
-                    'equipment_name' => $r->equipment->name ?? 'N/A',
-                    'start' => $r->start_at->format('Y-m-d'),
-                    'end' => $r->end_at->format('Y-m-d'),
-                    'status' => ucfirst($r->status),
-                ];
-            });
-        $statuses = ['available', 'borrowed', 'retired', 'maintenance'];
+public function index(Request $request)
+{
+    $year = $request->input('year', now()->year); // default to current year
 
-        $equipmentStatus = [];
-        foreach ($statuses as $status) {
-            $equipmentStatus[$status] = Equipment::where('status', $status)->count();
-        }
+    $recentRequests = BorrowRequest::with('user', 'equipment')
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(function ($r) {
+            return [
+                'id' => $r->req_id,
+                'user_name' => $r->user->name ?? 'N/A',
+                'equipment_name' => $r->equipment->name ?? 'N/A',
+                'start' => $r->start_at->format('Y-m-d'),
+                'end' => $r->end_at->format('Y-m-d'),
+                'status' => ucfirst($r->status),
+            ];
+        });
 
-        // Monthly chart data
-        $equipmentStatusMonthly = [
-            'months' => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-        ];
+    // Status totals (all time)
+    $borrowStatus = [
+        'TotalRequests' => BorrowRequest::count(),
+        'Approved' => BorrowRequest::where('status', 'approved')->count(),
+        'Rejected' => BorrowRequest::where('status', 'rejected')->count(),
+        'Pending' => BorrowRequest::where('status', 'pending')->count(),
+    ];
 
-        foreach ($statuses as $status) {
-            $monthlyCounts = [];
-            for ($month = 1; $month <= 12; $month++) {
-                $monthlyCounts[] = Equipment::where('status', $status)
-                    ->whereMonth('created_at', $month)
-                    ->count();
-            }
-            $equipmentStatusMonthly[$status] = $monthlyCounts;
-        }
+    // Monthly counts (for selected year)
+    $months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    $borrowStatusMonthly = [
+        'months' => $months,
+        'TotalRequests' => [],
+        'Approved' => [],
+        'Rejected' => [],
+    ];
 
-        return view('admin.index', [
-            'totalRequests'   => BorrowRequest::count(),
-            'bestRatedItems'  => Equipment::latest()->take(5)->get(),
-            'pendingRequests' => BorrowRequest::where('status', 'pending')->count(),
-            'penaltyNotices'  => BorrowRequest::where('status', 'overdue')->count(),
-            'equipmentStatus' => $equipmentStatus,
-            'categoryCounts'  => Category::withCount('equipments')->get(),
-            'recentRequests'  => $recentRequests,
-            'equipmentStatusMonthly' => $equipmentStatusMonthly,
-        ]);
+    for ($month = 1; $month <= 12; $month++) {
+        $borrowStatusMonthly['TotalRequests'][] = BorrowRequest::whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)->count();
+
+        $borrowStatusMonthly['Approved'][] = BorrowRequest::where('status', 'approved')
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)->count();
+
+        $borrowStatusMonthly['Rejected'][] = BorrowRequest::where('status', 'rejected')
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)->count();
     }
 
-    public function userReport()
-    {
-        $users = User::all()->map(function ($user) {
-            return [
-                'id' => $user->id,
+    // Available years for dropdown
+    $availableYears = BorrowRequest::selectRaw('YEAR(created_at) as year')
+        ->distinct()
+        ->orderBy('year', 'desc')
+        ->pluck('year');
+
+    return view('admin.index', [
+        'totalRequests' => $borrowStatus['TotalRequests'],
+        'pendingRequests' => $borrowStatus['Pending'],
+        'penaltyNotices' => BorrowRequest::where('status', 'overdue')->count(),
+        'borrowStatus' => $borrowStatus,
+        'borrowStatusMonthly' => $borrowStatusMonthly,
+        'recentRequests' => $recentRequests,
+        'categoryCounts' => Category::withCount('equipments')->get(),
+        'selectedYear' => $year,
+        'availableYears' => $availableYears,
+    ]);
+}
+// User Report
+public function userReport()
+{
+    $users = User::all()->map(function ($user) {
+        return [
+            'id' => $user->id,
                 'username' => $user->name,
                 'phonenumber' => $user->phonenumber ?? '-',
                 'created_at' => optional($user->created_at)->format('d/m/Y'),

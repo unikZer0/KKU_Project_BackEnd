@@ -7,10 +7,10 @@
                 <div class="text-2xl font-semibold mt-1">{{ $totalRequests }}</div>
                 <div class="text-xs text-gray-500">Total Requests</div>
             </div>
-            <div class="bg-white rounded-lg border p-4">
+            <!--<div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">NaN</div>
                 <div class="text-xs text-gray-500">Best Rated Items</div>
-            </div>
+            </div>-->
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $pendingRequests }}</div>
                 <div class="text-xs text-gray-500">Pending Requests</div>
@@ -19,21 +19,30 @@
                 <div class="text-2xl font-semibold mt-1">{{ $penaltyNotices }}</div>
                 <div class="text-xs text-gray-500">Penalty Notices</div>
             </div>
+            <div class="bg-white rounded-lg border p-4">
+<form method="GET" action="{{ route('admin.index') }}" class="mb-4">
+    <label for="year" class="mr-2 font-semibold">Select Year:</label>
+    <select name="year" id="year" onchange="this.form.submit()" class="border rounded px-2 py-1">
+        @foreach($availableYears as $y)
+            <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
+                {{ $y }}
+            </option>
+        @endforeach
+    </select>
+</form>
+            </div>
         </div>
-
+         <!--dropdown year-->
 <div id="dashboard-chart" class="lg:col-span-7 bg-white rounded-lg border p-4"
-     @foreach ($equipmentStatus as $status => $count)
-         data-{{ $status }}="{{ $count }}"
-         data-{{ $status }}-monthly='@json($equipmentStatusMonthly[$status] ?? [])'
-     @endforeach
-     data-months='@json($equipmentStatusMonthly['months'])'>
-     
-    @foreach ($equipmentStatus as $status => $count)
-        <div>{{ ucfirst($status) }}: {{ $count }}</div>
-    @endforeach
-
+     data-total-requests='@json($borrowStatusMonthly["TotalRequests"] ?? [])'
+     data-approved='@json($borrowStatusMonthly["Approved"] ?? [])'
+     data-rejected='@json($borrowStatusMonthly["Rejected"] ?? [])'
+     data-months='@json($borrowStatusMonthly["months"] ?? [])'
+     data-selected-year='@json($selectedYear)'
+     data-available-years='@json($availableYears)'>
     <canvas></canvas>
 </div>
+
 <div class="lg:col-span-5 bg-white rounded-lg border p-4">
     <div class="text-sm font-medium">Category Distribution</div>
     <canvas id="categoryBar" class="mt-4"></canvas>
@@ -44,7 +53,6 @@
      class="lg:col-span-12 bg-white rounded-lg border">
 </div>
 </div>
-                
             </div>
         </div>
 
@@ -53,37 +61,6 @@
     <script src="{{ mix('js/app.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const chartDiv = document.getElementById('dashboard-chart');
-    if (chartDiv) {
-        const months = JSON.parse(chartDiv.dataset.months || '[]');
-
-        const statuses = ['available', 'retired', 'maintenance'];
-        const datasets = statuses.map(status => {
-            const monthlyData = JSON.parse(chartDiv.dataset[`${status}Monthly`] || '[]');
-            return {
-                label: status.charAt(0).toUpperCase() + status.slice(1),
-                data: monthlyData,
-                backgroundColor: status === 'available' ? '#10B981' 
-                               : status === 'retired' ? '#EF4444' 
-                               : '#F59E0B',
-            };
-        });
-
-        const canvas = chartDiv.querySelector('canvas');
-        new Chart(canvas, {
-            type: 'bar',
-            data: { labels: months, datasets: datasets },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Monthly Equipment Status' }
-                },
-                scales: { y: { beginAtZero: true } }
-            }
-        });
-    }
-
     // ---------- Category Bar Chart ----------
     const barEl = document.getElementById('categoryBar');
     if (barEl) {
