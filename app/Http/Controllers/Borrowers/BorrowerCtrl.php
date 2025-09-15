@@ -77,17 +77,24 @@ class BorrowerCtrl extends Controller
     }
 
     public function myRequests(Request $request)
+    
     {
+    
         if (!Auth::check()) {
             return redirect()->back()->with('showLoginConfirm', true);
         }
+            $start = $request->start_at ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_at)->format('Y-m-d') : null;
+                $end = $request->end_at ? \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_at)->format('Y-m-d') : null;
 
+    $request->merge([
+        'start_at' => $start,
+        'end_at' => $end,
+    ]);
         $request->validate([
-            'start_at' => 'required|date',
+            'start_at' => 'required|date|after_or_equal:today',
             'end_at' => 'required|date|after:start_at',
             'equipments_id' => 'required|exists:equipments,id',
         ]);
-
         $equipment = Equipment::findOrFail($request->equipments_id);
         if (in_array($equipment->status, ['maintenance'])) {
             return redirect()->back()

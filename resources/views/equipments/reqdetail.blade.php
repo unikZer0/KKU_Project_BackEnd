@@ -39,7 +39,11 @@
                         </div>
                         <!-- Equipment -->
                         <div class="mb-4 flex flex-col sm:flex-row gap-4">
-                            <img src="{{ $req->equipment->photo_path }}" alt="equipment photo"
+                            @php
+                                $photos = json_decode($req->equipment->photo_path ?? '[]', true);
+                                $firstPhoto = is_array($photos) && count($photos) > 0 ? $photos[0] : $req->equipment->photo_path;
+                            @endphp
+                            <img src="{{ $firstPhoto }}" alt="equipment photo"
                                 class="w-full sm:w-28 h-28 object-cover rounded-lg shadow">
                             <div class="space-y-3 flex-1">
                                 <h3 class="font-semibold text-gray-800 break-words">{{ $req->equipment->name }}</h3>

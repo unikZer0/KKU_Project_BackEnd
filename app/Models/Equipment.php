@@ -9,13 +9,14 @@ class Equipment extends Model
 {
     protected $table = 'equipments';
     protected $fillable = [
-        "code",
-        "name",
-        "description",
-        "categories_id",
-        "status",
-        "photo_path"
+        'code',
+        'name',
+        'description',
+        'categories_id',
+        'status',
+        'photo_path'
     ];
+
 
     public function category()
     {

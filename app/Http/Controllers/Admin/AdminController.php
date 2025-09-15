@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\CloudinaryService;
+
 use App\Models\Equipment;
 use App\Models\Category;
-use App\Models\User;
 use App\Models\BorrowRequest;
-use Illuminate\Http\Request;
-use App\Notifications\BorrowRequestApproved;
-use App\Notifications\BorrowRequestRejected;
 
 class AdminController extends Controller
 {

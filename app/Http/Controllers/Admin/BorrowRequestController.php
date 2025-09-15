@@ -122,6 +122,19 @@ class BorrowRequestController extends Controller
             'notes' => ['nullable','string','max:1000'],
         ]);
 
+        // Validate check-out date is within allowed borrowing period
+        if ($validated['checked_out_at'] && $borrowRequest->start_at && $borrowRequest->end_at) {
+            $checkedOutAt = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $validated['checked_out_at']);
+            $startAt = \Carbon\Carbon::parse($borrowRequest->start_at);
+            $endAt = \Carbon\Carbon::parse($borrowRequest->end_at);
+            
+            if ($checkedOutAt->lt($startAt) || $checkedOutAt->gt($endAt)) {
+                return back()->withErrors([
+                    'checked_out_at' => 'วันที่มาเเอาของต้องอยู่ในช่วงวันที่เริ่ม (' . $startAt->format('Y-m-d') . ') ถึงวันที่สิ้นสุดที่อนุญาต (' . $endAt->format('Y-m-d') . ')'
+                ])->withInput();
+            }
+        }
+
         if (!in_array($borrowRequest->status, ['approved', 'check_out'])) {
             return back()->withErrors(['status' => 'ต้องอนุมัติหรือเช็คเอาท์แล้วจึงจะสามารถบันทึกเวลาเช็คอินได้'])->withInput();
         }
