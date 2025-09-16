@@ -44,6 +44,10 @@
                     class="{{ request()->routeIs('admin.report.requests') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Requests report
                 </a>
+                <a href="{{ route('admin.report.logs') }}"
+                    class="{{ request()->routeIs('admin.report.logs') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
+                    Logs report
+                </a>
             </div>
         </div>
         <a href="{{ route('admin.equipment.index') }}"

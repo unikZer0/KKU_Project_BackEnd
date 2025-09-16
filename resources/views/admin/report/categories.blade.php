@@ -34,5 +34,6 @@
                 @endforeach
             </tbody>
         </table>
+        <a href="{{ route('admin.report.export.categories') }}" class="btn btn-primary">Export Categories</a>
     </div>
 </x-admin-layout>

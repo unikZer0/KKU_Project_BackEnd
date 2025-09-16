@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\UsersExport;
+use App\Exports\CategoriesExport;
+use App\Exports\EquipmentsExport;
+use App\Exports\RequestExport;
+
 use App\Models\Equipment;
 use App\Models\Category;
 use App\Models\User;
@@ -53,6 +57,11 @@ class ReportController extends Controller
         return view('admin.report.equipments', compact('equipments'));
     }
 
+    public function exportEquipments()
+    {
+        return Excel::download(new EquipmentsExport, 'รายงานอุปกรณ์.xlsx');
+    }
+
     public function categoryReport()
     {
         $categories = Category::all()->map(function ($cat) {
@@ -63,6 +72,11 @@ class ReportController extends Controller
         });
 
         return view('admin.report.categories', compact('categories'));
+    }
+
+    public function exportCategories()
+    {
+        return Excel::download(new CategoriesExport, 'รายงานหมวดหมู่.xlsx');
     }
 
     // Request Report
@@ -84,5 +98,10 @@ class ReportController extends Controller
             });
 
         return view('admin.report.requests', compact('requests'));
+    }
+
+    public function exportRequests()
+    {
+        return Excel::download(new RequestExport, 'รายงานคำขอการยืม.xlsx');
     }
 }

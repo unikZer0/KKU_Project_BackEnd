@@ -41,5 +41,6 @@
                 @endforeach
             </tbody>
         </table>
+        <a href="{{ route('admin.report.export.equipments') }}" class="btn btn-primary">Export Equipment</a>
     </div>
 </x-admin-layout>
