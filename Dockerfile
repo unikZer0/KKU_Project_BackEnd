@@ -1,5 +1,4 @@
 # ------------------------- Base PHP Image -------------------------
-# This stage installs all PHP and system dependencies
 FROM php:8.3-fpm AS base
 
 WORKDIR /var/www/html
@@ -15,45 +14,63 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 
-# Copy only composer files to leverage Docker caching
+# Copy composer files
 COPY composer.json composer.lock ./
 
-# Install Composer dependencies for production
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --prefer-dist
 
-# Copy the rest of the Laravel application
+# Copy the Laravel app
 COPY . .
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html \
+# Storage link and permissions
+RUN php artisan storage:link \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # ------------------------- Node Build Stage -------------------------
-# This stage builds the frontend assets and is then discarded
 FROM base AS node-build
 
-# Install Node.js
-RUN apt-get update && apt-get install -y curl gnupg \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+# Install Node.js dependencies
+RUN apt-get update && apt-get install -y curl gnupg lsb-release ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
+# Setup Node.js 20.x repo and install
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get update && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package.json & package-lock.json
 COPY package*.json ./
 
-# Install npm dependencies & build the assets for production
-RUN npm install \
+# Install npm dependencies & build assets
+RUN npm install --verbose \
     && npm run build
 
-# ------------------------- Final Production Stage -------------------------
-# This is the final, clean image that will run in production
-# It starts from 'base' to reuse all the PHP and Composer layers
-FROM base AS final
+# ------------------------- Final Stage -------------------------
+FROM php:8.3-fpm AS final
 
-# Copy only the compiled assets from the 'node-build' stage
-# The 'public/build' directory contains the final CSS and JS files
-COPY --from=node-build /var/www/html/public/build /var/www/html/public/build
+WORKDIR /var/www/html
 
-# Expose port and start php-fpm
+# Install MySQL PDO extension (important!)
+RUN apt-get update && apt-get install -y default-mysql-client \
+    && docker-php-ext-install pdo_mysql \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Laravel app from base stage
+COPY --from=base /var/www/html /var/www/html
+
+# Copy built assets from node-build stage
+COPY --from=node-build /var/www/html/public /var/www/html/public
+COPY --from=node-build /var/www/html/resources /var/www/html/resources
+
+# Copy Nginx config
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Set permissions again
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 EXPOSE 9000
+
 CMD ["php-fpm"]
