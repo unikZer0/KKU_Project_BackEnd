@@ -223,7 +223,6 @@ export default {
                 const photos = JSON.parse(equipment.photo_path);
                 return Array.isArray(photos) && photos.length > 0 ? photos[0] : null;
             } catch (e) {
-                // Fallback: treat as single image if JSON parsing fails
                 return equipment.photo_path;
             }
         },

@@ -28,3 +28,5 @@ Thumbs.db
 borrow_mysqldb.sql
 nginx.conf
 borrow_mysql.sql
+dockerforprod.txt
+composeforprod.txt

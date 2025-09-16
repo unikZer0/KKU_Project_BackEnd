@@ -1,55 +1,80 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: borrow_app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - ./vendor:/var/www/html/vendor
+      - ./node_modules:/var/www/html/node_modules
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - borrow_network
+
+  nginx:
+    image: nginx:latest
+    container_name: borrow_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - borrow_network
+
   mysql:
     image: mysql:8.0
     container_name: borrow_mysqldb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: borrow_mysqldb
+      MYSQL_DATABASE: borrow_mysql
     ports:
-    - "3307:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - mysql_database_network
+      - borrow_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: borrow_pma
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    depends_on:
+      - mysql
+    networks:
+      - borrow_network
 
   redis:
     image: redis:latest
-    container_name: borrow_myredis
+    container_name: borrow_redis
     ports:
       - "6379:6379"
     restart: unless-stopped
     volumes:
       - redis_data:/data
     networks:
-      - mysql_database_network
-  mailhog:
-    image: mailhog/mailhog
-    container_name: mailhog
-    ports:
-      - "1025:1025"  # SMTP
-      - "8025:8025"
+      - borrow_network
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: mysql_data_myadmin_borrow_mysqldb
-    restart: always
-    ports:
-      - "8081:80"
-    environment:
-      - PMA_ARBITRARY=1
-      - PMA_HOST=borrow_mysqldb
-      - MYSQL_ROOT_PASSWORD=secret
-    depends_on:
-      - mysql
-    networks:
-      - mysql_database_network 
-networks:
-  mysql_database_network: 
-    driver: bridge
 volumes:
   mysql_data:
-    name: mysql_data
   redis_data:
+
+networks:
+  borrow_network:
+    driver: bridge

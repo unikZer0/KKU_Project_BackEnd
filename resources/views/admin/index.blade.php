@@ -58,7 +58,8 @@
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ mix('js/app.js') }}"></script>
+    @vite('resources/js/app.js')
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // ---------- Category Bar Chart ----------

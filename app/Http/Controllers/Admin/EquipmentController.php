@@ -94,7 +94,8 @@ class EquipmentController extends Controller
                 "selected_main_identifier" => "nullable|string", 
             ]);
 
-            $currentPhotos = json_decode($equipment->photo_path ?? '[]', true);
+            // FIX: Always get an array, never null
+            $currentPhotos = json_decode($equipment->photo_path, true) ?? [];
 
             if ($request->filled('images_to_delete')) {
                 $imagesToDelete = $request->input('images_to_delete');
@@ -115,7 +116,11 @@ class EquipmentController extends Controller
                 }
             }
             $newPhotoPaths = array_column($newlyUploadedPhotos, 'path');
-            $finalPhotoList = array_merge($currentPhotos, $newPhotoPaths);
+            // FIX: Always merge arrays
+            $finalPhotoList = array_merge(
+                is_array($currentPhotos) ? $currentPhotos : [],
+                is_array($newPhotoPaths) ? $newPhotoPaths : []
+            );
             
             $mainPhotoIdentifier = $request->input('selected_main_identifier');
             $mainPhotoUrl = null;
