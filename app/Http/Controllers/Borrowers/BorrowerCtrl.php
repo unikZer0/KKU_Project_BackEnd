@@ -41,22 +41,25 @@ class BorrowerCtrl extends Controller
     }
 
     public function myreq()
-    {
-        if (!Auth::check()) {
-            return redirect()->back()->with('showLoginConfirm', true);
-        }
+{
+    if (!Auth::check()) {
+        return redirect()->back()->with('showLoginConfirm', true);
+    }
 
-        $userId = Auth::id();
-        $reQuests = BorrowRequest::with(
+    $userId = Auth::id();
+
+    $reQuests = Cache::remember("myreq:{$userId}", 600, function () use ($userId) {
+        return BorrowRequest::with(
             'equipment:id,code,name,description,categories_id,photo_path',
             'user:id,uid,name,email,phonenumber',
             'equipment.category:id,name'
         )
             ->where('users_id', $userId)
             ->get();
+    });
 
-        return view('equipments.myreq', compact('reQuests'));
-    }
+    return view('equipments.myreq', compact('reQuests'));
+}
 
     public function cancel(Request $request, $id)
     {
@@ -72,6 +75,7 @@ class BorrowerCtrl extends Controller
         $req->save();
 
         Cache::forget("myreq:{$req->users_id}");
+        Cache::forget("reqdetail:{$req->req_id}");
 
         return redirect()->back()->with('success', 'คำขอถูกยกเลิกแล้ว');
     }
@@ -145,7 +149,6 @@ class BorrowerCtrl extends Controller
                     $query->where(function($subQuery) use ($q) {
                         $subQuery->where('name', 'like', "%$q%")
                             ->orWhere('code', 'like', "%$q%")
-                            ->orWhere('description', 'like', "%$q%")
                             ->orWhere('status', 'like', "%$q%")
                             ->orWhereHas('category', function($catQuery) use ($q) {
                                 $catQuery->where('name', 'like', "%$q%");
@@ -163,32 +166,37 @@ class BorrowerCtrl extends Controller
     }
 
     public function getAllEquipment()
-    {
-        try {
-            $equipments = Equipment::with('category')
+{
+    try {
+        $equipments = Cache::remember('all_equipment_list', 1800, function () { 
+            return Equipment::with('category')
                 ->orderBy('name')
                 ->limit(50)
                 ->get();
+        });
 
-            return response()->json(['data' => $equipments]);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
+        return response()->json(['data' => $equipments]);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
     }
-    public function reqdetail($req_id){
-
-        if (!Auth::check()) {
-            return redirect()->back()->with('showLoginConfirm', true);
-        }
-        $reQuests = BorrowRequest::with(
+}
+    public function reqdetail($req_id)
+{
+    if (!Auth::check()) {
+        return redirect()->back()->with('showLoginConfirm', true);
+    }
+    $reQuests = Cache::remember("reqdetail:{$req_id}", 600, function () use ($req_id) { 
+        return BorrowRequest::with(
             'equipment:id,code,name,description,categories_id,photo_path',
             'user:id,uid,name,email,phonenumber',
             'equipment.category:id,name'
         )
             ->where('req_id', $req_id)
             ->get();
-        return view('equipments.reqdetail',compact('reQuests'));
-    }
+    });
+
+    return view('equipments.reqdetail', compact('reQuests'));
+}
 }
 
 

@@ -229,7 +229,6 @@ export default {
       try {
         const resizedImages = await Promise.all(resizePromises);
         resizedImages.forEach(({ blob, dataUrl, originalName }) => {
-          // Create a new file with a predictable name (or use originalName)
           const newFile = new File([blob], originalName, { type: blob.type });
           this.newImageFiles.push(newFile);
           this.newImagePreviewUrls.push(dataUrl);
@@ -238,7 +237,7 @@ export default {
         this.imageError = "เกิดข้อผิดพลาดขณะประมวลผลรูปภาพ";
       } finally {
         this.processingImages = false;
-        event.target.value = null; // Reset file input
+        event.target.value = null;
       }
     },
     resizeImage(file, { maxWidth = 1280, quality = 0.85 } = {}) {

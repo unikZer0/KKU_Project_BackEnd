@@ -9,14 +9,16 @@ use Illuminate\Http\Request;
 use App\Notifications\BorrowRequestApproved;
 use App\Notifications\BorrowRequestRejected;
 use Illuminate\Support\Carbon;
+use App\Traits\ClearsDashboardCache;
 
 class BorrowRequestController extends Controller
 {
-    // List pending requests
+    use ClearsDashboardCache;
+
     public function index()
     {
         $requests = BorrowRequest::with('user', 'equipment')
-        ->whereNotIn('status', ['check_in', 'rejected'])
+            ->whereNotIn('status', ['check_in', 'rejected'])
             ->latest()
             ->get()
             ->map(function ($r) {
@@ -43,6 +45,7 @@ class BorrowRequestController extends Controller
         $requests = BorrowRequest::with(['user', 'equipment', 'transaction'])
             ->where('req_id', $req_id)
             ->firstOrFail();
+
         $tableRequests = BorrowRequest::with('user', 'equipment')
             ->latest()
             ->take(25)
@@ -68,11 +71,13 @@ class BorrowRequestController extends Controller
             'tableRequests' => $tableRequests,
         ]);
     }
+
     public function approve(Request $req, $req_id)
     {
         $borrowRequest = BorrowRequest::with('transaction', 'user', 'equipment')
             ->where('req_id', $req_id)
             ->firstOrFail();
+
         $validated = $req->validate([
             'start_at' => ['nullable','date'],
             'end_at' => ['nullable','date','after_or_equal:start_at'],
@@ -84,16 +89,17 @@ class BorrowRequestController extends Controller
         if (array_key_exists('end_at', $validated)) {
             $borrowRequest->end_at = $validated['end_at'];
         }
+
         $borrowRequest->status = 'approved';
         $borrowRequest->save();
-
         $user = $borrowRequest->user;
         if ($user) {
             $user->notify(new BorrowRequestApproved($borrowRequest));
         }
 
-        return redirect()->back()
-            ->with('success', 'Request approved. Allowed dates saved.');
+        $this->clearDashboardCache();
+
+        return redirect()->back()->with('success', 'Request approved. Allowed dates saved.');
     }
 
     public function reject(Request $req, $req_id)
@@ -108,12 +114,16 @@ class BorrowRequestController extends Controller
             $user->notify(new BorrowRequestRejected($request));
         }
 
-        return redirect()->route('admin.requests.index')
-            ->with('success', 'Request rejected successfully.');
+        $this->clearDashboardCache();
+
+        return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
     }
+
     public function update(Request $req, $req_id)
     {
-        $borrowRequest = BorrowRequest::with('transaction')->where('req_id', $req_id)->firstOrFail();
+        $borrowRequest = BorrowRequest::with('transaction')
+            ->where('req_id', $req_id)
+            ->firstOrFail();
 
         $validated = $req->validate([
             'checked_out_at' => ['nullable','date_format:Y-m-d\TH:i'],
@@ -121,12 +131,10 @@ class BorrowRequestController extends Controller
             'penalty_amount' => ['nullable','numeric','min:0'],
             'notes' => ['nullable','string','max:1000'],
         ]);
-
-        // Validate check-out date is within allowed borrowing period
         if ($validated['checked_out_at'] && $borrowRequest->start_at && $borrowRequest->end_at) {
-            $checkedOutAt = \Carbon\Carbon::createFromFormat('Y-m-d\TH:i', $validated['checked_out_at']);
-            $startAt = \Carbon\Carbon::parse($borrowRequest->start_at);
-            $endAt = \Carbon\Carbon::parse($borrowRequest->end_at);
+            $checkedOutAt = Carbon::createFromFormat('Y-m-d\TH:i', $validated['checked_out_at']);
+            $startAt = Carbon::parse($borrowRequest->start_at);
+            $endAt = Carbon::parse($borrowRequest->end_at);
             
             if ($checkedOutAt->lt($startAt) || $checkedOutAt->gt($endAt)) {
                 return back()->withErrors([
@@ -139,23 +147,22 @@ class BorrowRequestController extends Controller
             return back()->withErrors(['status' => 'ต้องอนุมัติหรือเช็คเอาท์แล้วจึงจะสามารถบันทึกเวลาเช็คอินได้'])->withInput();
         }
 
-        $transaction = $borrowRequest->transaction;
-        if (!$transaction) {
-            $transaction = new BorrowTransaction();
-            $transaction->borrow_requests_id = $borrowRequest->id;
-        }
+        $transaction = $borrowRequest->transaction ?? new BorrowTransaction();
+        $transaction->borrow_requests_id = $borrowRequest->id;
 
         $checkedOut = $validated['checked_out_at'] ?? null;
         $checkedIn = $validated['checked_in_at'] ?? null;
 
         $transaction->checked_out_at = $checkedOut ? Carbon::createFromFormat('Y-m-d\TH:i', $checkedOut) : $transaction->checked_out_at;
         $transaction->checked_in_at = $checkedIn ? Carbon::createFromFormat('Y-m-d\TH:i', $checkedIn) : $transaction->checked_in_at;
+
         if (array_key_exists('penalty_amount', $validated)) {
             $transaction->penalty_amount = $validated['penalty_amount'];
         }
         if (array_key_exists('notes', $validated)) {
             $transaction->notes = $validated['notes'];
         }
+
         $transaction->save();
 
         $hasCheckedIn = !is_null($transaction->checked_in_at);
@@ -168,6 +175,7 @@ class BorrowRequestController extends Controller
             $borrowRequest->status = 'check_out';
             $borrowRequest->save();
         }
+        $this->clearDashboardCache();
 
         return redirect()->route('admin.requests.index')->with('success', 'บันทึกเวลาเช็คเอาท์/เช็คอินเรียบร้อย');
     }

@@ -23,6 +23,7 @@
       </svg>
     </div>
 
+    <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">
         คำขอทั้งหมด: {{ filteredRequests.length }}
@@ -43,20 +44,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="request in filteredRequests" :key="request.id">
+          <tr
+            v-for="request in paginatedRequests"
+            :key="request.id"
+            class="border-b"
+          >
             <td class="px-4 py-2">{{ request.req_id }}</td>
             <td class="px-4 py-2">{{ request.user_name }}</td>
             <td class="px-4 py-2">{{ request.equipment_name }}</td>
             <td class="px-4 py-2">{{ request.date }}</td>
-            <td class="px-4 py-2">{{ request.status }}</td>
+            <td class="px-4 py-2">{{ capitalize(request.status) }}</td>
             <td class="px-4 py-2">
-              <!-- <button
-                v-if="request.status.toLowerCase() === 'pending'"
-                @click="rejectRequest(request.req_id)"
-                class="bg-red-500 text-white mx-2 px-2 py-1 rounded"
-              >
-                ปฏิเสธ
-              </button> -->
               <button
                 @click="openDetails(request)"
                 class="bg-blue-500 text-white px-2 py-1 rounded"
@@ -68,9 +66,40 @@
         </tbody>
       </table>
     </div>
+  
+    <div class="mt-4 flex justify-between items-center">
+      <div class="text-sm text-gray-600">
+        แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด
+        {{ filteredRequests.length }} รายการ
+      </div>
+      <div class="flex items-center space-x-1">
+        <button
+          class="px-3 py-1 border rounded disabled:opacity-50"
+          :disabled="currentPage === 1"
+          @click="prevPage"
+        >
+          ก่อนหน้า
+        </button>
+        <button
+          v-for="p in visiblePageNumbers"
+          :key="p"
+          class="px-3 py-1 border rounded"
+          :class="{ 'bg-blue-600 text-white': currentPage === p }"
+          @click="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+        <button
+          class="px-3 py-1 border rounded disabled:opacity-50"
+          :disabled="currentPage === pageCount || pageCount === 0"
+          @click="nextPage"
+        >
+          ถัดไป
+        </button>
+      </div>
+    </div>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 
@@ -79,76 +108,74 @@ export default {
   props: { requests: Array },
   data() {
     return {
-      selectedRequest: null,
       searchQuery: "",
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   computed: {
     filteredRequests() {
-      // filter out rejected and check_in
       const filtered = this.requests.filter(
         (r) =>
           r.status.toLowerCase() !== "rejected" &&
           r.status.toLowerCase() !== "check_in"
       );
-
       if (!this.searchQuery) return filtered;
-
       const q = this.searchQuery.toLowerCase();
       return filtered.filter(
         (r) =>
           r.user_name.toLowerCase().includes(q) ||
           r.equipment_name.toLowerCase().includes(q) ||
-          r.status.toLowerCase().includes(q)
+          r.status.toLowerCase().includes(q) ||
+          String(r.req_id).includes(q)
       );
+    },
+    pageCount() {
+      return Math.ceil(this.filteredRequests.length / this.pageSize) || 0;
+    },
+    pageStart() {
+      return (this.currentPage - 1) * this.pageSize;
+    },
+    pageEnd() {
+      return Math.min(this.pageStart + this.pageSize, this.filteredRequests.length);
+    },
+    paginatedRequests() {
+      return this.filteredRequests.slice(this.pageStart, this.pageEnd);
+    },
+    visiblePageNumbers() {
+      const pages = [];
+      const total = this.pageCount;
+      const maxVisible = 7;
+      let start = Math.max(1, this.currentPage - 3);
+      let end = Math.min(total, start + maxVisible - 1);
+      start = Math.max(1, end - maxVisible + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      return pages;
     },
   },
   methods: {
-    openDetails(request) {
-      this.selectedRequest = request;
+    capitalize(str) {
+      return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
     },
-    rejectRequest(req_id) {
-      Swal.fire({
-        title: "ปฏิเสธคำขอ",
-        html: `
-          <div class="text-left space-y-2">
-            <label class="flex items-center gap-2">
-              <input type="radio" name="reason" value="ไม่ตรงตามเงื่อนไขการยืม"> ไม่ตรงตามเงื่อนไขการยืม
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" name="reason" value="อุปกรณ์ไม่พร้อมใช้งาน"> อุปกรณ์ไม่พร้อมใช้งาน
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" name="reason" value="เอกสารไม่ครบถ้วน"> เอกสารไม่ครบถ้วน
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" name="reason" value="อื่นๆ"> อื่นๆ
-            </label>
-            <input id="reason-text" type="text" placeholder="ระบุเหตุผลเพิ่มเติม (ถ้าเลือก อื่นๆ)" class="w-full border rounded px-2 py-1" />
-          </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: "ปฏิเสธ",
-        cancelButtonText: "ยกเลิก",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const reasonInput = document.querySelector(
-            'input[name="reason"]:checked'
-          )?.value;
-          const extra = document.getElementById("reason-text").value;
-          const reason = reasonInput === "อื่นๆ" ? extra : reasonInput;
-
-          axios
-            .post(`/admin/requests/${req_id}/reject`, { reason })
-            .then(() => {
-              Swal.fire({
-                icon: "success",
-                title: "คำขอถูกปฏิเสธ",
-                text: "คำขอถูกปฏิเสธเรียบร้อยแล้ว",
-              }).then(() => window.location.reload());
-            });
-        }
-      });
+    goToPage(p) {
+      this.currentPage = p;
+    },
+    nextPage() {
+      if (this.currentPage < this.pageCount) this.currentPage++;
+    },
+    prevPage() {
+      if (this.currentPage > 1) this.currentPage--;
+    },
+    openDetails(request) {
+      window.location.href = `/admin/requests/${request.req_id}`;
+    },
+  },
+  watch: {
+    searchQuery() {
+      this.currentPage = 1;
+    },
+    filteredRequests() {
+      if (this.currentPage > this.pageCount) this.currentPage = 1;
     },
   },
 };
