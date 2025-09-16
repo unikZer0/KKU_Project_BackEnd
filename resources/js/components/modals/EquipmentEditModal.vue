@@ -144,7 +144,7 @@ export default {
       imageError: "",
       processingImages: false,
       submitting: false,
-      selectedMainIdentifier: null, // CHANGED from selectedMainUrl
+      selectedMainIdentifier: null,
     };
   },
   watch: {

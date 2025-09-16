@@ -1,12 +1,30 @@
 <template>
   <div class="bg-white p-6 rounded-lg shadow">
-    <!-- Search -->
+    <div class="flex justify-between items-center flex-wrap gap-y-4 mb-6">
+      <div class="flex items-center flex-wrap gap-2">
+        <button
+          v-for="status in statusSummary"
+          :key="status.key"
+          @click="setStatusFilter(status.key)"
+          :class="[status.class, activeStatusFilter === status.key ? 'ring-2 ring-offset-1 ring-blue-500' : 'hover:opacity-80']"
+          class="px-4 py-1.5 rounded text-sm font-medium transition-all duration-150"
+        >
+          <span>{{ status.label }}: {{ status.count }}</span>
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button @click="toggleSort" class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
+          Date: {{ sortDirection.toUpperCase() }}
+        </button>
+      </div>
+    </div>
     <div class="relative mb-4">
       <input
         type="text"
         v-model="searchQuery"
         placeholder="Search"
-        class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
       />
       <svg
         class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"
@@ -23,22 +41,22 @@
       </svg>
     </div>
 
-    <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">
-        คำขอทั้งหมด: {{ filteredRequests.length }}
+        Displaying Requests: {{ filteredRequests.length }}
       </h2>
     </div>
 
-    <!-- Table -->
-    <div>
+    <div class="overflow-x-auto">
       <table class="min-w-full text-sm border">
         <thead class="bg-gray-50 border-b">
           <tr>
             <th class="text-left px-4 py-2">Request ID</th>
+            <th class="text-left px-4 py-2">รหัสนสส</th>
             <th class="text-left px-4 py-2">ผู้ขอ</th>
             <th class="text-left px-4 py-2">อุปกรณ์</th>
-            <th class="text-left px-4 py-2">วันที่ส่งคำขอ</th>
+            <th class="text-left px-4 py-2">วันที่ขอ</th>
+            <th class="text-left px-4 py-2">วันที่ส่ง</th>
             <th class="text-left px-4 py-2">สถานะ</th>
             <th class="text-left px-4 py-2">การดำเนินการ</th>
           </tr>
@@ -50,16 +68,18 @@
             class="border-b"
           >
             <td class="px-4 py-2">{{ request.req_id }}</td>
+            <td class="px-4 py-2">{{ request.uid }}</td>
             <td class="px-4 py-2">{{ request.user_name }}</td>
             <td class="px-4 py-2">{{ request.equipment_name }}</td>
-            <td class="px-4 py-2">{{ request.date }}</td>
+            <td class="px-4 py-2">{{ request.start_at }}</td>
+            <td class="px-4 py-2">{{ request.end_at }}</td>
             <td class="px-4 py-2">{{ capitalize(request.status) }}</td>
             <td class="px-4 py-2">
               <button
                 @click="openDetails(request)"
-                class="bg-blue-500 text-white px-2 py-1 rounded"
+                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
               >
-                <a :href="'/admin/requests/' + request.req_id">ดูรายละเอียด</a>
+                ดูรายละเอียด
               </button>
             </td>
           </tr>
@@ -67,10 +87,10 @@
       </table>
     </div>
   
-    <div class="mt-4 flex justify-between items-center">
+    <div class="mt-4 flex flex-wrap justify-between items-center gap-4">
       <div class="text-sm text-gray-600">
-        แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด
-        {{ filteredRequests.length }} รายการ
+        Showing {{ pageStart + 1 }} - {{ pageEnd }} of
+        {{ filteredRequests.length }} items
       </div>
       <div class="flex items-center space-x-1">
         <button
@@ -78,7 +98,7 @@
           :disabled="currentPage === 1"
           @click="prevPage"
         >
-          ก่อนหน้า
+          Prev
         </button>
         <button
           v-for="p in visiblePageNumbers"
@@ -94,41 +114,98 @@
           :disabled="currentPage === pageCount || pageCount === 0"
           @click="nextPage"
         >
-          ถัดไป
+          Next
         </button>
       </div>
     </div>
   </div>
 </template>
-<script>
-import axios from "axios";
 
+<script>
 export default {
   name: "AdminApproveTable",
-  props: { requests: Array },
+  props: { 
+    // Expects an array of request objects
+    // Example: [{ id: 1, req_id: 'R001', user_name: 'John', ..., status: 'pending', date: '2025-09-17' }]
+    requests: Array 
+  },
   data() {
     return {
       searchQuery: "",
       currentPage: 1,
       pageSize: 10,
+      activeStatusFilter: 'all', // NEW: To track which status filter is active
+      sortDirection: 'desc',     // NEW: To track sort order (asc/desc)
     };
   },
   computed: {
-    filteredRequests() {
-      const filtered = this.requests.filter(
+    // NEW: Base list of requests to show (filters out rejected/check_in)
+    displayableRequests() {
+      if (!this.requests) return [];
+      return this.requests.filter(
         (r) =>
           r.status.toLowerCase() !== "rejected" &&
           r.status.toLowerCase() !== "check_in"
       );
-      if (!this.searchQuery) return filtered;
-      const q = this.searchQuery.toLowerCase();
-      return filtered.filter(
-        (r) =>
-          r.user_name.toLowerCase().includes(q) ||
-          r.equipment_name.toLowerCase().includes(q) ||
-          r.status.toLowerCase().includes(q) ||
-          String(r.req_id).includes(q)
-      );
+    },
+    // NEW: Generates the summary for the status badges
+    statusSummary() {
+        const counts = {
+            all: this.displayableRequests.length
+        };
+        this.displayableRequests.forEach(req => {
+            const status = req.status.toLowerCase();
+            counts[status] = (counts[status] || 0) + 1;
+        });
+
+        const summary = [{
+            key: 'all',
+            label: 'All',
+            count: counts.all,
+            class: 'bg-gray-200 text-gray-800'
+        }];
+        
+        // Create badges for each status found in the data
+        Object.keys(counts).filter(key => key !== 'all').forEach(status => {
+            summary.push({
+                key: status,
+                label: this.capitalize(status),
+                count: counts[status],
+                class: this.getStatusClass(status)
+            });
+        });
+        
+        return summary;
+    },
+    // MODIFIED: This computed property now handles filtering AND sorting
+    filteredRequests() {
+      let filtered = [...this.displayableRequests];
+
+      // 1. Apply status filter
+      if (this.activeStatusFilter !== 'all') {
+        filtered = filtered.filter(r => r.status.toLowerCase() === this.activeStatusFilter);
+      }
+
+      // 2. Apply search query
+      if (this.searchQuery) {
+        const q = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (r) =>
+            r.user_name.toLowerCase().includes(q) ||
+            r.equipment_name.toLowerCase().includes(q) ||
+            r.status.toLowerCase().includes(q) ||
+            String(r.req_id).includes(q)
+        );
+      }
+      
+      // 3. Apply sorting
+      filtered.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+      });
+
+      return filtered;
     },
     pageCount() {
       return Math.ceil(this.filteredRequests.length / this.pageSize) || 0;
@@ -145,8 +222,12 @@ export default {
     visiblePageNumbers() {
       const pages = [];
       const total = this.pageCount;
-      const maxVisible = 7;
-      let start = Math.max(1, this.currentPage - 3);
+      const maxVisible = 5;
+      if (total <= maxVisible) {
+        for (let i = 1; i <= total; i++) pages.push(i);
+        return pages;
+      }
+      let start = Math.max(1, this.currentPage - 2);
       let end = Math.min(total, start + maxVisible - 1);
       start = Math.max(1, end - maxVisible + 1);
       for (let i = start; i <= end; i++) pages.push(i);
@@ -154,8 +235,26 @@ export default {
     },
   },
   methods: {
+    // NEW: Sets the active status for filtering
+    setStatusFilter(statusKey) {
+        this.activeStatusFilter = statusKey;
+    },
+    // NEW: Toggles the sort direction
+    toggleSort() {
+        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    },
+    // NEW: Assigns colors to status badges
+    getStatusClass(status) {
+        switch (status.toLowerCase()) {
+            case 'pending': return 'bg-yellow-100 text-yellow-800';
+            case 'approved': return 'bg-green-100 text-green-800';
+            case 'in use': return 'bg-blue-100 text-blue-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    },
     capitalize(str) {
-      return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+      if (!str) return '';
+      return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
     },
     goToPage(p) {
       this.currentPage = p;
@@ -174,8 +273,15 @@ export default {
     searchQuery() {
       this.currentPage = 1;
     },
+    activeStatusFilter() {
+        this.currentPage = 1; 
+    },
     filteredRequests() {
-      if (this.currentPage > this.pageCount) this.currentPage = 1;
+      if (this.currentPage > this.pageCount && this.pageCount > 0) {
+        this.currentPage = this.pageCount;
+      } else if (this.pageCount === 0) {
+        this.currentPage = 1;
+      }
     },
   },
 };
