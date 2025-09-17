@@ -65,7 +65,7 @@
           {{ sortDir === 'asc' ? 'ASC' : 'DESC' }}
         </button>
 
-        <button @click="openCreateModal" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button v-if="userRole === 'admin'" @click="openCreateModal" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           เพิ่มอุปกรณ์ใหม่
         </button>
 
@@ -105,7 +105,7 @@
           <th class="px-4 py-2 text-left">รายละเอียด</th>
           <th class="px-4 py-2 text-left">หมวดหมู่</th>
           <th class="px-4 py-2 text-left">สถานะ</th>
-          <th class="px-4 py-2 text-left">แอคชั่น</th>
+          <th v-if="userRole === 'admin'" class="px-4 py-2 text-left">แอคชั่น</th>
         </tr>
       </thead>
       <tbody>
@@ -126,12 +126,14 @@
           <td class="px-4 py-2">{{ capitalize(equipment.status) }}</td>
           <td class="px-4 py-2 space-x-2">
             <button
+            v-if="userRole === 'admin'"
               @click="openModal(equipment)"
               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
             >
               แก้ไขข้อมูล
             </button>
             <button
+              v-if="userRole === 'admin'"
               @click="deleteEquipment(equipment)"
               class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
             >
@@ -206,6 +208,12 @@ import PhotoModal from "../modals/PhotoModal.vue";
 export default {
   name: "EquipmentTable",
   components: { EquipmentEditModal, EquipmentCreateModal, PhotoModal },
+  props: {
+    userRole: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     const el = document.getElementById("equipment-table");
     return {

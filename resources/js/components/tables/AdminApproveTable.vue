@@ -185,7 +185,6 @@ export default {
       if (this.activeStatusFilter !== 'all') {
         filtered = filtered.filter(r => r.status.toLowerCase() === this.activeStatusFilter);
       }
-
       // 2. Apply search query
       if (this.searchQuery) {
         const q = this.searchQuery.toLowerCase();
@@ -200,8 +199,8 @@ export default {
       
       // 3. Apply sorting
       filtered.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
+        const dateA = new Date(a.start_at); 
+        const dateB = new Date(b.start_at);
         return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
       });
 

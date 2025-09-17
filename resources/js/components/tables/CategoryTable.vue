@@ -6,7 +6,11 @@
       <h2 class="text-lg font-semibold">
         หมวดหมู่ทั้งหมด: {{ filteredCategories.length }}
       </h2>
-      <button @click="createModalOpen = true" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <!-- Add button (only admin) -->
+      <button
+        v-if="userRole === 'admin'"
+        @click="createModalOpen = true"
+        class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         เพิ่มหมวดหมู่ใหม่
       </button>
     </div>
@@ -40,8 +44,7 @@
         <tr>
           <th class="px-4 py-2 text-left">รหัสหมวดหมู่</th>
           <th class="px-4 py-2 text-left">ชื่อหมวดหมู่</th>
-          <th class="px-4 py-2 text-left">ประเภท</th>
-          <th class="px-4 py-2 text-left">แอคชั่น</th>
+          <th v-if="userRole === 'admin'" class="px-4 py-2 text-left">แอคชั่น</th>
         </tr>
       </thead>
       <tbody>
@@ -50,12 +53,14 @@
           <td class="px-4 py-2">{{ category.name }}</td>
           <td class="px-4 py-2 space-x-2">
             <button
+              v-if="userRole === 'admin'"
               @click="openModal(category)"
               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
             >
               แก้ไขข้อมูล
             </button>
             <button
+              v-if="userRole === 'admin'"
               @click="deleteCategory(category.id)"
               class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
             >
@@ -96,7 +101,8 @@ export default {
       isOpen: false,
       createModalOpen: false,
       selectedCategory: null,
-      categoryTypes: [], // Unique types for badges
+      categoryTypes: [],
+      userRole: '', // <-- add this
     };
   },
   computed: {
@@ -205,7 +211,10 @@ export default {
 },
   mounted() {
     const el = document.getElementById("category-table");
-    if (el) this.categories = JSON.parse(el.dataset.categories || "[]");
+    if (el) {
+      this.categories = JSON.parse(el.dataset.categories || "[]");
+      this.userRole = el.dataset.role || '';
+    }
     this.fetchCategories();
   }
 };
