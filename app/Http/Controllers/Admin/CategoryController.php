@@ -10,12 +10,14 @@ use App\Models\Category;
 
 class CategoryController extends Controller
 {
+    //index
     public function index()
     {
         $categories = Category::withCount('equipments')->get();
         return view('admin.category.index', compact('categories'));
     }
 
+    //store logic
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,7 +33,7 @@ class CategoryController extends Controller
         ]);
     }
 
-
+    //Update logic
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -48,7 +50,7 @@ class CategoryController extends Controller
         ]);
     }
 
-
+    //delete logic
     public function destroy(string $id)
     {
         $category = Category::findOrFail($id);

@@ -16,6 +16,7 @@
         <!-- Sales (inactive or intermediate) -->
         <span class="font-semibold text-gray-900">Equipments report</span>
     </nav>
+
     <div class="p-4 bg-white rounded-lg border">
 
         <h2 class="text-xl font-bold mb-4">รีพอร์ต อุปกรณ์</h2>

@@ -26,11 +26,11 @@ class UsersExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'UID',
-            'Name',
-            'Email',
-            'Phone Number',
-            'Created At',
+            'รหัสผู้ใช้',
+            'ชื่อ',
+            'อีเมล',
+            'เบอร์โทรศัพท์',
+            'สร้างขึ้นในวันที่',
         ];
     }
 }

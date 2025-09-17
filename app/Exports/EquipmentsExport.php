@@ -5,8 +5,9 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
 use App\Models\Equipment;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class EquipmentsExport implements FromCollection
+class EquipmentsExport implements FromCollection, WithHeadings
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -29,14 +30,14 @@ class EquipmentsExport implements FromCollection
     public function headings(): array
     {
         return [
-            'id',
-            'code',
-            'name',
-            'description',
-            'category_name',
-            'status',
-            'photo_path',
-            'created_at'
+            'ไอดี',
+            'หมายเลขครุภัณฑ์',
+            'ชื่อ',
+            'รายละเอียด',
+            'หมวดหมู่',
+            'สถานะ',
+            'รูปภาพ',
+            'สร้างในวันที่',
         ];
     }
 }

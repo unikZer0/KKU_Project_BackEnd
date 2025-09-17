@@ -60,6 +60,8 @@
                 </tbody>
             </table>
 
+            <a href="{{ route('admin.report.export.logs') }}" class="btn btn-primary">Export admin logs</a>
+
             <!-- Pagination -->
             <div class="mt-4">
                 {{ $logs->withQueryString()->links() }}

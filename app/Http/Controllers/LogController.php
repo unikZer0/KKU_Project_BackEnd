@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LogsExport;
 use Illuminate\Http\Request;
 use App\Models\Log;
+
+use Maatwebsite\Excel\Facades\Excel;
 
 class LogController extends Controller
 {
@@ -17,5 +20,9 @@ class LogController extends Controller
             ->paginate(15);
 
         return view('admin.report.log', compact('logs'));
+    }
+    public function exportLogs()
+    {
+        return Excel::download(new LogsExport, 'รายงานบันทึกแอดมิน.xlsx');
     }
 }

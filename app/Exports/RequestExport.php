@@ -25,23 +25,23 @@ class RequestExport implements FromCollection, WithHeadings
                 $request->status,
                 $request->reject_reason,
                 $request->cancel_reason,
-                $request->create_at,
+                optional($request->create_at)->format('d/m/Y'),
             ];
         });
     }
     public function headings(): array
     {
         return [
-            'ID',
-            'Request ID',
-            'User name',
-            'Equipment Name',
-            'Start at',
-            'End at',
-            'status',
-            'Reject reason',
-            "Cancel reason",
-            "Created at"
+            'ไอดี',
+            'ไอดีคำขอ',
+            'ชื่อผู้ใช้',
+            'ชื่ออุปกรณ์',
+            'เริ่มวันที่',
+            'สิ้นสุดวันที่',
+            'สถานะ',
+            'เหตุผลการปฏิเสธ',
+            "เหตุผลการยกเลิก",
+            "สร้างในวันที่"
         ];
     }
 }

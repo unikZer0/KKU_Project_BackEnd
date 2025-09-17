@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/export/categories', [ReportController::class, 'exportCategories'])->name('report.export.categories');
         Route::get('/export/equipments', [ReportController::class, 'exportEquipments'])->name('report.export.equipments');
         Route::get('/export/requests', [ReportController::class, 'exportRequests'])->name("report.export.requests");
+        Route::get('/export/logs', [LogController::class, 'exportLogs'])->name("report.export.logs");
     });
 });
 

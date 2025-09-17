@@ -5,8 +5,9 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
 use App\Models\Category;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class CategoriesExport implements FromCollection
+class CategoriesExport implements FromCollection, WithHeadings
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -25,9 +26,9 @@ class CategoriesExport implements FromCollection
     public function headings(): array
     {
         return [
-            'id',
-            'cate_id',
-            'name',
+            'ไอดี',
+            'รหัสหมวดหมู่',
+            'ชื่อ',
         ];
     }
 }
