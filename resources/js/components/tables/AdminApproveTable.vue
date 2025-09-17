@@ -43,7 +43,7 @@
 
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">
-        Displaying Requests: {{ filteredRequests.length }}
+        คำขอทั้งหมด: {{ filteredRequests.length }}
       </h2>
     </div>
 

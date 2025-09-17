@@ -97,7 +97,7 @@ class BorrowRequestController extends Controller
             $user->notify(new BorrowRequestApproved($borrowRequest));
         }
 
-        $this->clearDashboardCache();
+        $this->clearDashboardCache($borrowRequest);
 
         return redirect()->back()->with('success', 'Request approved. Allowed dates saved.');
     }
@@ -114,7 +114,7 @@ class BorrowRequestController extends Controller
             $user->notify(new BorrowRequestRejected($request));
         }
 
-        $this->clearDashboardCache();
+        $this->clearDashboardCache($request);
 
         return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
     }
@@ -175,7 +175,7 @@ class BorrowRequestController extends Controller
             $borrowRequest->status = 'check_out';
             $borrowRequest->save();
         }
-        $this->clearDashboardCache();
+        $this->clearDashboardCache($borrowRequest);
 
         return redirect()->route('admin.requests.index')->with('success', 'บันทึกเวลาเช็คเอาท์/เช็คอินเรียบร้อย');
     }
