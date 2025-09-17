@@ -82,9 +82,9 @@
             <div class="text-sm font-semibold mb-1">หมวดหมู่</div>
             <select v-model="filterCategoryId" class="w-full px-2 py-1 border rounded">
               <option value="">ทุกหมวดหมู่ ({{ categoryCounts.all }})</option>
-              <option v-for="c in categories" :key="c.id" :value="String(c.id)">
-                {{ c.name }} ({{ categoryCounts[String(c.id)] || 0 }})
-              </option>
+              <option v-for="c in validCategories" :key="c.id" :value="String(c.id)">
+                  {{ c.name }} ({{ categoryCounts[String(c.id)] || 0 }})
+                </option>
             </select>
           </div>
           <div class="flex justify-between">
@@ -122,11 +122,11 @@
           <td class="px-4 py-2">{{ equipment.code }}</td>
           <td class="px-4 py-2">{{ equipment.name }}</td>
           <td class="px-4 py-2 max-w-[200px] truncate">{{ equipment.description }}</td>
-          <td class="px-4 py-2">{{ equipment.category?.name || 'N/A' }}</td>
-          <td class="px-4 py-2">{{ capitalize(equipment.status) }}</td>
+          <td class="px-4 py-2">{{ getCategoryName(equipment) }}</td>
+          <td class="px-4 py-2">{{ statusLabel(equipment.status) }}</td>
           <td class="px-4 py-2 space-x-2">
             <button
-            v-if="userRole === 'admin'"
+              v-if="userRole === 'admin'"
               @click="openModal(equipment)"
               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
             >
@@ -208,18 +208,14 @@ import PhotoModal from "../modals/PhotoModal.vue";
 export default {
   name: "EquipmentTable",
   components: { EquipmentEditModal, EquipmentCreateModal, PhotoModal },
-  props: {
-    userRole: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     const el = document.getElementById("equipment-table");
     return {
+      
       equipments: JSON.parse(el?.dataset?.equipments || "[]"),
       categories: JSON.parse(el?.dataset?.categories || "[]"),
       statuses: ["available", "retired", "maintenance"],
+      userRole: el?.dataset?.role || "",
       searchQuery: "",
       currentPage: 1,
       pageSize: 15,
@@ -237,32 +233,36 @@ export default {
   },
   computed: {
     statusCounts() {
-      const counts = { all: this.equipments.length };
-      for (const e of this.equipments) {
-        const k = e.status || "unknown";
-        counts[k] = (counts[k] || 0) + 1;
-      }
-      return counts;
-    },
-    categoryCounts() {
-      const counts = { all: this.equipments.length };
-      for (const e of this.equipments) {
-        const id = String(e.categories_id || e.category?.id || "");
-        if (!id) continue;
-        counts[id] = (counts[id] || 0) + 1;
-      }
-      return counts;
-    },
+  const counts = { all: this.equipments.length };
+  for (const e of this.equipments) {
+    if (!e) continue;               // <-- add this line
+    const k = (typeof e.status === 'string' && e.status.length > 0) ? e.status : (e.status === true ? 'available' : (e.status === false ? 'unavailable' : 'unknown'));
+counts[k] = (counts[k] || 0) + 1;
+  }
+  return counts;
+},
+
+categoryCounts() {
+  const counts = { all: this.equipments.length };
+  for (const e of this.equipments) {
+    if (!e) continue;               // <-- guard here too
+    const id = String(e.category?.id ?? e.categories_id ?? "");
+    if (!id) continue;
+    counts[id] = (counts[id] || 0) + 1;
+  }
+  return counts;
+},
+
     filteredEquipments() {
       const q = (this.searchQuery || "").toLowerCase();
       const catId = this.filterCategoryId ? String(this.filterCategoryId) : "";
       const status = this.filterStatus;
-      let list = this.equipments.filter((e) => {
+        let list = this.equipments.filter((e) => {
         const matchesSearch =
           !q ||
-          e.name.toLowerCase().includes(q) ||
-          (e.category?.name || "").toLowerCase().includes(q) ||
-          e.status.toLowerCase().includes(q) ||
+          (e.name && e.name.toLowerCase().includes(q)) ||
+          ((e.category?.name || this.categories.find(c => c.id == e.categories_id)?.name || "").toLowerCase().includes(q)) ||
+          (typeof e.status === 'string' ? e.status.toLowerCase().includes(q) : false) ||
           String(e.code).includes(q);
         const matchesStatus = !status || e.status === status;
         const matchesCategory = !catId || String(e.categories_id || e.category?.id) === catId;
@@ -296,9 +296,15 @@ export default {
       for (let i = start; i <= end; i++) pages.push(i);
       return pages;
     },
+    validCategories() {
+    return (this.categories || []).filter(c => c && c.id != null);
+  },
   },
   methods: {
-    capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ""; },
+    capitalize(str) {
+  if (typeof str !== 'string') return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+},
     statusClass(status) {
       switch (status) {
         case "available": return "bg-green-100 text-green-800";
@@ -314,6 +320,16 @@ export default {
         return Array.isArray(photos) && photos.length ? photos[0] : null;
       } catch (e) { return equipment.photo_path; }
     },
+    getCategoryName(equipment) {
+      if (!equipment) return 'N/A';
+      if (equipment.category && equipment.category.name) return equipment.category.name;
+      const id = equipment.category?.id ?? equipment.categories_id ?? equipment.categories_id;
+      if (id != null && id !== '') {
+        const found = (this.categories || []).find(c => String(c.id) === String(id));
+        if (found) return found.name;
+      }
+      return 'N/A';
+    },
     goToPage(p) { this.currentPage = p; },
     nextPage() { if(this.currentPage < this.pageCount) this.currentPage++; },
     prevPage() { if(this.currentPage > 1) this.currentPage--; },
@@ -326,23 +342,31 @@ export default {
     closePhotoModal() { this.photoModal.url = ""; this.photoModal.isOpen = false; },
 
     async createEquipment(payload) {
-      try {
-        const res = await axios.post("/api/equipments", payload);
-        this.equipments.push(res.data);
-        this.closeCreateModal();
-        Swal.fire("Success", "อุปกรณ์ถูกสร้างเรียบร้อย", "success");
-      } catch (err) { this.notifyError(err.response?.data?.message || err.message); }
-    },
+  try {
+    // Wait for the response from the server
+    const res = await axios.post('/admin/equipment/store', payload); 
+    // Now res.data contains the new equipment object
+    this.equipments.push(res.data);
+    this.closeCreateModal();
+    Swal.fire("Success", "อุปกรณ์ถูกสร้างเรียบร้อย", "success");
+  } catch (err) { 
+    this.notifyError(err.response?.data?.message || err.message); 
+  }
+},
 
     async updateEquipment(payload) {
-      try {
-        const res = await axios.put(`/api/equipments/${payload.id}`, payload);
-        const idx = this.equipments.findIndex((e) => e.id === payload.id);
-        if (idx !== -1) this.equipments.splice(idx, 1, res.data);
-        this.isOpen = false;
-        Swal.fire("Success", "อุปกรณ์ถูกอัปเดตเรียบร้อย", "success");
-      } catch (err) { this.notifyError(err.response?.data?.message || err.message); }
-    },
+  try {
+    // Wait for the response from the server
+    const res = await axios.put(`/admin/equipment/update/${payload.id}`, payload);
+    const idx = this.equipments.findIndex((e) => e.id === payload.id);
+    // Now res.data contains the updated equipment object
+    if (idx !== -1) this.equipments.splice(idx, 1, res.data);
+    this.isOpen = false;
+    Swal.fire("Success", "อุปกรณ์ถูกอัปเดตเรียบร้อย", "success");
+  } catch (err) { 
+    this.notifyError(err.response?.data?.message || err.message); 
+  }
+},
 
     async deleteEquipment(equipment) {
       try {
@@ -355,7 +379,7 @@ export default {
           cancelButtonText: "ยกเลิก"
         });
         if (confirmed.isConfirmed) {
-          await axios.delete(`/api/equipments/${equipment.id}`);
+          await axios.delete(`/admin/equipment/destroy/${equipment.id}`);
           this.equipments = this.equipments.filter((e) => e.id !== equipment.id);
           Swal.fire("Deleted!", "อุปกรณ์ถูกลบเรียบร้อย", "success");
         }
@@ -364,6 +388,15 @@ export default {
 
     notifyError(message) {
       Swal.fire("Error", message || "เกิดข้อผิดพลาด", "error");
+    },
+    statusLabel(status) {
+      if (typeof status === 'boolean') {
+        return status ? 'Available' : 'Unavailable';
+      }
+      if (typeof status === 'string' && status.length > 0) {
+        return this.capitalize(status);
+      }
+      return 'N/A';
     },
   },
   watch: {

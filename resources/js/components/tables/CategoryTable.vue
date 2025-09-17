@@ -95,7 +95,9 @@ export default {
   name: "CategoriesTable",
   components: { CategoryEditModal, CategoryCreateModal },
   data() {
+    const el = document.getElementById("category-table");
     return {
+      userRole: el?.dataset?.role || "",
       categories: [],
       searchQuery: "",
       isOpen: false,
