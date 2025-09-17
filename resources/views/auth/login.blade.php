@@ -1,11 +1,23 @@
-<x-guest-layout>
-    <div class="max-w-md mx-auto py-6 px-4">
-        <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition overflow-hidden">
-            <div class="p-6 sm:p-8">
-                <h2 class="text-2xl font-bold text-black mb-6 text-center">
+<x-guest-layout> 
+        <h2 class="text-2xl font-bold text-black mb-6 text-center">
                     {{ __('เข้าสู่ระบบ') }}
                 </h2>
-
+            
+            <div class="p-6 sm:p-8">
+                <div class="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
+                    <!-- Logo -->
+                    <div class="flex flex-col items-center mb-6">
+                        <a href="{{ route('home') }}" class="flex items-center space-x-2">
+                    <!-- Logo Box -->
+                    <div class="w-8 h-8 rounded flex items-center justify-center bg-blue-600 text-white shadow-md">
+                        KKU
+                    </div>
+                    <!-- Logo Text -->
+                    <span class="align-middle text-xl font-semibold text-black">
+                        Borrow
+                    </span>
+                </a>
+            </div>
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -20,8 +32,7 @@
                                       type="email" 
                                       name="email" 
                                       :value="old('email')" 
-                                      placeholder="อีเมล..."
-                                      required autofocus autocomplete="username" />
+                                      placeholder="อีเมล..." />
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>
 
@@ -32,8 +43,7 @@
                                       class="block mt-1 w-full bg-white text-black border-gray-300"
                                       type="password"
                                       name="password"
-                                      placeholder="รหัสผ่าน..."
-                                      required autocomplete="current-password" />
+                                      placeholder="รหัสผ่าน..."/>
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                     </div>
 
@@ -68,5 +78,6 @@
                 </form>
             </div>
         </div>
+    </div>
     </div>
 </x-guest-layout>

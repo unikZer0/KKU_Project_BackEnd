@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,6 +26,21 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        $request->validate([
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'exists:users,email'],
+            'password' => ['required', Password::defaults()],
+        ], 
+        [
+            'email.required' => 'กรุณากรอกอีเมล',
+            'email.string'   => 'อีเมลต้องเป็นตัวอักษร',
+            'email.email'    => 'รูปแบบอีเมลไม่ถูกต้อง',
+            'email.exists' => 'ไม่พบอีเมลนี้ในระบบ',
+            'password.required' => 'กรุณากรอกรหัสผ่าน',
+            'password.min' => 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร',
+            'password.confirmed' => 'รหัสผ่านไม่ถูกต้อง',
+            'password.regex' => 'รหัสผ่านต้องมีตัวอักษรใหญ่ (A-Z) อย่างน้อยหนึ่งตัว',
+        ]);
+
         $request->authenticate();
 
         $request->session()->regenerate();

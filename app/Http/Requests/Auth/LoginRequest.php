@@ -51,6 +51,17 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
     }
+    public function messages(): array
+{
+    return [
+        'email.required' => 'กรุณากรอกอีเมล',
+        'email.string'   => 'อีเมลต้องเป็นตัวอักษร',
+        'email.email'    => 'รูปแบบอีเมลไม่ถูกต้อง',
+
+        'password.required' => 'กรุณากรอกรหัสผ่าน',
+        'password.string'   => 'รหัสผ่านต้องเป็นตัวอักษร',
+    ];
+}
 
     /**
      * Ensure the login request is not rate limited.

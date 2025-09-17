@@ -16,20 +16,6 @@
     </head>
     <body class="bg-gray-100 text-black font-sans antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            
-            <!-- Logo -->
-            <div class="flex items-center">
-                <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <!-- Logo Box -->
-                    <div class="w-8 h-8 rounded flex items-center justify-center bg-blue-600 text-white shadow-md">
-                        KKU
-                    </div>
-                    <!-- Logo Text -->
-                    <span class="text-xl font-semibold text-gray-800">
-                        Borrow
-                    </span>
-                </a>
-            </div>
 
             <!-- Auth Card (light with shadow) -->
             <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-white text-black shadow-lg rounded-xl">
