@@ -1,8 +1,8 @@
 <template>
   <div class="bg-white p-6 rounded-lg shadow">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold">Recent Activities</h2>
-      <a href="/admin/requests" class="text-xs text-blue-600">View all</a>
+      <h2 class="text-lg font-semibold">คำขอล่าสุด</h2>
+      <a href="/admin/requests" class="text-xs text-blue-600">ดูทั้งหมด</a>
     </div>
     <table class="min-w-full text-sm">
       <thead class="bg-gray-50 border-t border-b">

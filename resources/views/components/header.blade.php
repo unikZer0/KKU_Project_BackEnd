@@ -168,13 +168,12 @@
                     </div>
                 </div>
                 <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">ติดต่อ</a>
-                @can('admin')
-                    <a href="#" class="block text-gray-700 hover:text-gray-900 font-medium py-2">แอดมิน</a>
-                @endcan
-                @can('borrower')
+                @if (Auth::user()->role == 'admin' ||'staff')
+                            <a href="{{ route('admin.index') }}" class="block text-gray-700 hover:text-gray-900 font-medium py-2">แอดมิน</a>
+                @endif
+
                     <a href="{{ route('borrower.equipments.myreq') }}"
                         class="block text-gray-700 hover:text-gray-900 font-medium py-2">คำขอของฉัน</a>
-                @endcan
             </div>
 
             <!-- Mobile User Authentication -->
@@ -248,19 +247,16 @@
                 </div>
             </div>
 
-            @can('admin')
+            @if (Auth::user()->role == 'admin' ||'staff')
                 <a href="{{ route('admin.index') }}"
                     class="{{ request()->routeIs('admin.*') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-gray-900' }}">
                     แอดมิน
                 </a>
-            @endcan
-
-            @can('borrower')
+            @endif
                 <a href="{{ route('borrower.equipments.myreq') }}"
                     class="{{ request()->routeIs('borrower.equipments.myreq') ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-700' }}">
                     คำขอของฉัน
                 </a>
-            @endcan
         </div>
 
         {{-- Breadcrumb --}}

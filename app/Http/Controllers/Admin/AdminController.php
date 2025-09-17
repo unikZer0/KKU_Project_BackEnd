@@ -33,6 +33,7 @@ class AdminController extends Controller
 
             $borrowStatus = [
                 'TotalRequests' => BorrowRequest::count(),
+                'checkinReq' => BorrowRequest::where('status','check_in')->count(),
                 'Approved' => BorrowRequest::where('status', 'approved')->count(),
                 'Rejected' => BorrowRequest::where('status', 'rejected')->count(),
                 'Pending' => BorrowRequest::where('status', 'pending')->count(),
@@ -71,6 +72,7 @@ class AdminController extends Controller
 
             return [
                 'totalRequests' => $borrowStatus['TotalRequests'],
+                'checkinReq' => $borrowStatus['checkinReq'],
                 'pendingRequests' => $borrowStatus['Pending'],
                 'penaltyNotices' => BorrowRequest::where('status', 'overdue')->count(),
                 'borrowStatus' => $borrowStatus,

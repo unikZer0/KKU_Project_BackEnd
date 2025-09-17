@@ -5,19 +5,19 @@
         <div class="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $totalRequests }}</div>
-                <div class="text-xs text-gray-500">Total Requests</div>
+                <div class="text-xs text-gray-500">คำขอทั้งหมด</div>
             </div>
-            <!--<div class="bg-white rounded-lg border p-4">
-                <div class="text-2xl font-semibold mt-1">NaN</div>
-                <div class="text-xs text-gray-500">Best Rated Items</div>
-            </div>-->
+            <div class="bg-white rounded-lg border p-4">
+                <div class="text-2xl font-semibold mt-1">{{$checkinReq}}</div>
+                <div class="text-xs text-gray-500">การยืมที่สำเร็จ</div>
+            </div>
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $pendingRequests }}</div>
-                <div class="text-xs text-gray-500">Pending Requests</div>
+                <div class="text-xs text-gray-500">คำขอที่รอดำเนินการ</div>
             </div>
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $penaltyNotices }}</div>
-                <div class="text-xs text-gray-500">Penalty Notices</div>
+                <div class="text-xs text-gray-500">การแจ้งค่าปรับ</div>
             </div>
             {{-- <div class="bg-white rounded-lg border p-4">
                 <form method="GET" action="{{ route('admin.index') }}" class="mb-4">
@@ -42,7 +42,7 @@
         </div>
 
         <div class="lg:col-span-5 bg-white rounded-lg border p-4">
-            <div class="text-sm font-medium">Category Distribution</div>
+            <div class="text-sm font-medium">การกระจายตามหมวดหมู่</div>
             <canvas id="categoryBar" class="mt-4"></canvas>
         </div>
 

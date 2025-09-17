@@ -1,6 +1,5 @@
 <template>
   <div class="bg-white p-6 rounded-lg shadow">
-    <!-- Search -->
     <div class="relative mb-4">
       <input
         type="text"
@@ -23,49 +22,39 @@
       </svg>
     </div>
 
-    <!-- Header + Status & Category Counts + Filters -->
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
       <h2 class="text-lg font-semibold">
-        อุปกรณ์รวมทั้งหมด: {{ filteredEquipments.length }} ชิ้น
+                อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
       </h2>
-
-      <!-- Status & Category badges -->
+            <!-- Badges row -->
       <div class="flex gap-2 flex-wrap items-center">
         <!-- Status badges -->
-        <span
-          v-for="s in statuses"
+                <span v-for="s in statuses"
           :key="s"
           class="px-2 py-1 rounded text-sm font-medium"
-          :class="statusClass(s)"
-        >
+                      :class="statusClass(s)">
           {{ capitalize(s) }}: {{ statusCounts[s] || 0 }}
         </span>
 
         <!-- Category badges -->
-        <span
-          v-for="c in categories"
+                <span v-for="c in validCategories"
           :key="c.id"
-          class="px-2 py-1 rounded text-sm font-medium bg-gray-100 text-gray-800"
-        >
+                      class="px-2 py-1 rounded text-sm font-medium bg-gray-100 text-gray-800">
           {{ c.name }}: {{ categoryCounts[String(c.id)] || 0 }}
         </span>
       </div>
-
-      <!-- Filters & Create Button -->
       <div class="flex flex-wrap gap-2 items-center relative" ref="filtersWrap">
         <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
           ตัวกรอง
           <span class="text-xs text-gray-500 ml-1">
-            {{ filterStatus ? filterStatus : 'all' }}
-            · {{ filterCategoryId ? (categories.find(c => String(c.id)===String(filterCategoryId))?.name || 'category') : 'all categories' }}
+                        {{ filterStatus ? filterStatus : 'all' }} ·
+                        {{ filterCategoryId ? (categories.find(c => String(c.id)===String(filterCategoryId))?.name || 'category') : 'all categories' }}
           </span>
         </button>
-
-        <button class="px-3 py-1 border rounded" @click="toggleSortDir">
-          {{ sortDir === 'asc' ? 'ASC' : 'DESC' }}
-        </button>
-
-        <button v-if="userRole === 'admin'" @click="openCreateModal" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <button v-if="userRole === 'admin'"
+                    @click="openCreateModal"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
           เพิ่มอุปกรณ์ใหม่
         </button>
 
@@ -95,7 +84,6 @@
       </div>
     </div>
 
-    <!-- Table -->
     <table class="min-w-full text-sm">
       <thead class="bg-gray-50 border-b">
         <tr>
@@ -105,11 +93,15 @@
           <th class="px-4 py-2 text-left">รายละเอียด</th>
           <th class="px-4 py-2 text-left">หมวดหมู่</th>
           <th class="px-4 py-2 text-left">สถานะ</th>
-          <th v-if="userRole === 'admin'" class="px-4 py-2 text-left">แอคชั่น</th>
+                    <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">แอคชั่น</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="equipment in paginatedEquipments" :key="equipment.id" class="border-b">
+                <tr
+                    v-for="equipment in paginatedEquipments"
+                    :key="equipment.id"
+                    class="border-b"
+                >
           <td class="px-4 py-2 flex items-center space-x-2">
             <img
               v-if="getFirstPhoto(equipment)"
@@ -121,19 +113,25 @@
           </td>
           <td class="px-4 py-2">{{ equipment.code }}</td>
           <td class="px-4 py-2">{{ equipment.name }}</td>
-          <td class="px-4 py-2 max-w-[200px] truncate">{{ equipment.description }}</td>
-          <td class="px-4 py-2">{{ getCategoryName(equipment) }}</td>
-          <td class="px-4 py-2">{{ statusLabel(equipment.status) }}</td>
+                    <td class="px-4 py-2 max-w-[200px] truncate">
+                        {{ equipment.description }}
+                    </td>
+                    <td class="px-4 py-2">
+                        {{ equipment.category?.name || "N/A" }}
+                    </td>
+                    <td class="px-4 py-2">
+                        {{ capitalize(equipment.status) }}
+                    </td>
           <td class="px-4 py-2 space-x-2">
             <button
-              v-if="userRole === 'admin'"
+            v-if="userRole === 'admin'"
               @click="openModal(equipment)"
               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
             >
               แก้ไขข้อมูล
             </button>
             <button
-              v-if="userRole === 'admin'"
+            v-if="userRole === 'admin'"
               @click="deleteEquipment(equipment)"
               class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
             >
@@ -144,12 +142,12 @@
       </tbody>
     </table>
 
-    <!-- Pagination -->
     <div class="mt-4 flex items-center justify-between">
       <div class="text-sm text-gray-600">
-        แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด {{ filteredEquipments.length }} รายการ
+                แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด
+                {{ filteredEquipments.length }} รายการ
       </div>
-      <div class="flex items-center space-x-1 flex-wrap">
+            <div class="flex items-center space-x-1">
         <button
           class="px-3 py-1 border rounded disabled:opacity-50"
           :disabled="currentPage === 1"
@@ -158,7 +156,7 @@
           ก่อนหน้า
         </button>
         <button
-          v-for="p in visiblePageNumbers"
+                    v-for="p in pageCount"
           :key="p"
           class="px-3 py-1 border rounded"
           :class="{ 'bg-blue-600 text-white': currentPage === p }"
@@ -176,7 +174,6 @@
       </div>
     </div>
 
-    <!-- Modals -->
     <EquipmentEditModal
       :isOpen="isOpen"
       :equipment="selectedEquipment"
@@ -184,7 +181,9 @@
       :statuses="statuses"
       @cancel="isOpen = false"
       @save="updateEquipment"
+            @image-change="selectedImageFile = $event"
     />
+
     <EquipmentCreateModal
       :isOpen="createModal.isOpen"
       :categories="categories"
@@ -192,6 +191,7 @@
       @cancel="closeCreateModal"
       @create="createEquipment"
     />
+
     <PhotoModal
       :isOpen="photoModal.isOpen"
       :url="photoModal.url"
@@ -207,202 +207,370 @@ import PhotoModal from "../modals/PhotoModal.vue";
 
 export default {
   name: "EquipmentTable",
-  components: { EquipmentEditModal, EquipmentCreateModal, PhotoModal },
+    components: {
+        EquipmentEditModal,
+        EquipmentCreateModal,
+        PhotoModal,
+    },
   data() {
     const el = document.getElementById("equipment-table");
     return {
-      
-      equipments: JSON.parse(el?.dataset?.equipments || "[]"),
-      categories: JSON.parse(el?.dataset?.categories || "[]"),
+          userRole: el?.dataset?.role || "",
+            equipments: JSON.parse(el.dataset.equipments || "[]"),
+            categories: JSON.parse(el.dataset.categories || "[]"),
       statuses: ["available", "retired", "maintenance"],
-      userRole: el?.dataset?.role || "",
       searchQuery: "",
       currentPage: 1,
       pageSize: 15,
+            // filters
+            filtersOpen: false,
       filterStatus: "",
       filterCategoryId: "",
-      sortKey: "name",
-      sortDir: "asc",
-      filtersOpen: false,
       isOpen: false,
       selectedEquipment: {},
+            selectedCategoryId: null,
       selectedImageFile: null,
-      photoModal: { isOpen: false, url: "" },
-      createModal: { isOpen: false },
+
+            photoModal: {
+                isOpen: false,
+                url: "",
+            },
+
+            createModal: {
+                isOpen: false,
+            },
     };
   },
   computed: {
     statusCounts() {
-  const counts = { all: this.equipments.length };
-  for (const e of this.equipments) {
-    if (!e) continue;               // <-- add this line
-    const k = (typeof e.status === 'string' && e.status.length > 0) ? e.status : (e.status === true ? 'available' : (e.status === false ? 'unavailable' : 'unknown'));
-counts[k] = (counts[k] || 0) + 1;
+            const counts = { all: (this.equipments || []).length };
+            for (const e of this.equipments || []) {
+                const k = e?.status || "unknown";
+    counts[k] = (counts[k] || 0) + 1;
   }
   return counts;
 },
-
 categoryCounts() {
-  const counts = { all: this.equipments.length };
-  for (const e of this.equipments) {
-    if (!e) continue;               // <-- guard here too
-    const id = String(e.category?.id ?? e.categories_id ?? "");
+            const counts = { all: (this.equipments || []).length };
+            for (const e of this.equipments || []) {
+                const id = String(e?.categories_id || e?.category?.id || "");
     if (!id) continue;
     counts[id] = (counts[id] || 0) + 1;
   }
   return counts;
 },
-
+        validCategories() {
+            return (this.categories || []).filter(c => c && c.id != null);
+        },
     filteredEquipments() {
       const q = (this.searchQuery || "").toLowerCase();
       const catId = this.filterCategoryId ? String(this.filterCategoryId) : "";
       const status = this.filterStatus;
-        let list = this.equipments.filter((e) => {
+            let list = (this.equipments || []).filter((e) => {
         const matchesSearch =
           !q ||
-          (e.name && e.name.toLowerCase().includes(q)) ||
-          ((e.category?.name || this.categories.find(c => c.id == e.categories_id)?.name || "").toLowerCase().includes(q)) ||
-          (typeof e.status === 'string' ? e.status.toLowerCase().includes(q) : false) ||
-          String(e.code).includes(q);
-        const matchesStatus = !status || e.status === status;
-        const matchesCategory = !catId || String(e.categories_id || e.category?.id) === catId;
+                    String(e?.name || "").toLowerCase().includes(q) ||
+                    String(e?.category?.name || "").toLowerCase().includes(q) ||
+                    String(e?.status || "").toLowerCase().includes(q) ||
+                    String(e?.code || e?.id || "").includes(q);
+                const matchesStatus = !status || String(e?.status || "") === status;
+                const matchesCategory = !catId || String(e?.categories_id || e?.category?.id || "") === catId;
         return matchesSearch && matchesStatus && matchesCategory;
-      });
-      const dir = this.sortDir === "asc" ? 1 : -1;
-      const key = this.sortKey;
-      list = list.slice().sort((a, b) => {
-        const av = key === "category" ? a.category?.name || "" : a[key] ?? "";
-        const bv = key === "category" ? b.category?.name || "" : b[key] ?? "";
-        if (typeof av === "number" && typeof bv === "number") return (av - bv) * dir;
-        const as = String(av).toLowerCase();
-        const bs = String(bv).toLowerCase();
-        if (as < bs) return -1 * dir;
-        if (as > bs) return 1 * dir;
-        return 0;
       });
       return list;
     },
-    pageCount() { return Math.ceil(this.filteredEquipments.length / this.pageSize) || 0; },
-    pageStart() { return (this.currentPage - 1) * this.pageSize; },
-    pageEnd() { return Math.min(this.pageStart + this.pageSize, this.filteredEquipments.length); },
-    paginatedEquipments() { return this.filteredEquipments.slice(this.pageStart, this.pageEnd); },
-    visiblePageNumbers() {
-      const pages = [];
-      const total = this.pageCount;
-      const maxVisible = 7;
-      let start = Math.max(1, this.currentPage - 3);
-      let end = Math.min(total, start + maxVisible - 1);
-      start = Math.max(1, end - maxVisible + 1);
-      for (let i = start; i <= end; i++) pages.push(i);
-      return pages;
-    },
-    validCategories() {
-    return (this.categories || []).filter(c => c && c.id != null);
+        pageCount() {
+            return (
+                Math.ceil(this.filteredEquipments.length / this.pageSize) || 0
+            );
+        },
+        pageStart() {
+            return (this.currentPage - 1) * this.pageSize;
+        },
+        pageEnd() {
+            const end = this.pageStart + this.pageSize;
+            return Math.min(end, this.filteredEquipments.length);
+        },
+        paginatedEquipments() {
+            return this.filteredEquipments.slice(this.pageStart, this.pageEnd);
   },
   },
   methods: {
     capitalize(str) {
-  if (typeof str !== 'string') return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-},
-    statusClass(status) {
-      switch (status) {
-        case "available": return "bg-green-100 text-green-800";
-        case "retired": return "bg-red-100 text-red-800";
-        case "maintenance": return "bg-yellow-100 text-yellow-800";
-        default: return "bg-gray-100 text-gray-800";
-      }
+            if (!str) return "";
+            return str.charAt(0).toUpperCase() + str.slice(1);
     },
+        statusClass(status) {
+            switch (status) {
+                case "available":
+                    return "bg-green-100 text-green-800";
+                case "retired":
+                    return "bg-red-100 text-red-800";
+                case "maintenance":
+                    return "bg-yellow-100 text-yellow-800";
+                default:
+                    return "bg-gray-100 text-gray-800";
+            }
+        },
     getFirstPhoto(equipment) {
       if (!equipment.photo_path) return null;
       try {
         const photos = JSON.parse(equipment.photo_path);
-        return Array.isArray(photos) && photos.length ? photos[0] : null;
-      } catch (e) { return equipment.photo_path; }
-    },
-    getCategoryName(equipment) {
-      if (!equipment) return 'N/A';
-      if (equipment.category && equipment.category.name) return equipment.category.name;
-      const id = equipment.category?.id ?? equipment.categories_id ?? equipment.categories_id;
-      if (id != null && id !== '') {
-        const found = (this.categories || []).find(c => String(c.id) === String(id));
-        if (found) return found.name;
-      }
-      return 'N/A';
-    },
-    goToPage(p) { this.currentPage = p; },
-    nextPage() { if(this.currentPage < this.pageCount) this.currentPage++; },
-    prevPage() { if(this.currentPage > 1) this.currentPage--; },
-    toggleSortDir() { this.sortDir = this.sortDir === "asc" ? "desc" : "asc"; },
-    clearFilters() { this.filterStatus = ''; this.filterCategoryId = ''; },
-    openCreateModal() { this.createModal.isOpen = true; },
-    closeCreateModal() { this.createModal.isOpen = false; },
-    openModal(equipment) { this.selectedEquipment = { ...equipment }; this.isOpen = true; },
-    openPhotoModal(url) { this.photoModal.url = url; this.photoModal.isOpen = true; },
-    closePhotoModal() { this.photoModal.url = ""; this.photoModal.isOpen = false; },
+                return Array.isArray(photos) && photos.length > 0 ? photos[0] : null;
+            } catch (e) {
+                return equipment.photo_path;
+            }
+        },
+        goToPage(p) {
+            this.currentPage = p;
+        },
+        nextPage() {
+            if (this.currentPage < this.pageCount) this.currentPage += 1;
+        },
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage -= 1;
+        },
+        openCreateModal() {
+            this.createModal.isOpen = true;
+        },
+        closeCreateModal() {
+            this.createModal.isOpen = false;
+        },
+        openModal(equipment) {
+            this.selectedEquipment = { ...equipment };
+            this.selectedCategoryId = equipment.category
+                ? equipment.category.id
+                : null;
+            this.isOpen = true;
+        },
+        onEditImageChange(event) {
+            const files = event.target.files;
+            this.selectedImageFile = files && files[0] ? files[0] : null;
+        },
+        updateEquipment(payload) {
+    const formData = new FormData();
+    formData.append("code", payload.code || "");
+    formData.append("name", payload.name || "");
+    formData.append("description", payload.description || "");
+    formData.append("categories_id", String(payload.categories_id ?? ""));
+    formData.append("status", payload.status || "available");
 
-    async createEquipment(payload) {
-  try {
-    // Wait for the response from the server
-    const res = await axios.post('/admin/equipment/store', payload); 
-    // Now res.data contains the new equipment object
-    this.equipments.push(res.data);
-    this.closeCreateModal();
-    Swal.fire("Success", "อุปกรณ์ถูกสร้างเรียบร้อย", "success");
-  } catch (err) { 
-    this.notifyError(err.response?.data?.message || err.message); 
-  }
-},
-
-    async updateEquipment(payload) {
-  try {
-    // Wait for the response from the server
-    const res = await axios.put(`/admin/equipment/update/${payload.id}`, payload);
-    const idx = this.equipments.findIndex((e) => e.id === payload.id);
-    // Now res.data contains the updated equipment object
-    if (idx !== -1) this.equipments.splice(idx, 1, res.data);
-    this.isOpen = false;
-    Swal.fire("Success", "อุปกรณ์ถูกอัปเดตเรียบร้อย", "success");
-  } catch (err) { 
-    this.notifyError(err.response?.data?.message || err.message); 
-  }
-},
-
-    async deleteEquipment(equipment) {
-      try {
-        const confirmed = await Swal.fire({
-          title: "ยืนยันการลบ?",
-          text: `คุณต้องการลบ ${equipment.name} หรือไม่?`,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "ตกลง",
-          cancelButtonText: "ยกเลิก"
+    if (payload.imagesToDelete && payload.imagesToDelete.length > 0) {
+        payload.imagesToDelete.forEach(url => {
+            formData.append('images_to_delete[]', url);
         });
-        if (confirmed.isConfirmed) {
-          await axios.delete(`/admin/equipment/destroy/${equipment.id}`);
-          this.equipments = this.equipments.filter((e) => e.id !== equipment.id);
-          Swal.fire("Deleted!", "อุปกรณ์ถูกลบเรียบร้อย", "success");
-        }
-      } catch (err) { this.notifyError(err.response?.data?.message || err.message); }
-    },
+    }
+    if (payload.newImageFiles && payload.newImageFiles.length > 0) {
+        payload.newImageFiles.forEach(file => {
+            formData.append('images[]', file);
+        });
+    }
+    if (payload.selectedMainIdentifier) {
+        formData.append('selected_main_identifier', payload.selectedMainIdentifier);
+    }
 
-    notifyError(message) {
-      Swal.fire("Error", message || "เกิดข้อผิดพลาด", "error");
+    formData.append("_method", "PUT");
+    fetch(`/admin/equipment/update/${payload.id}`, {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+            "Accept": "application/json",
+        },
+        body: formData,
+    })
+    .then(async (res) => {
+        if (!res.ok) {
+            let msg = "Update failed";
+            try {
+                const errorData = await res.json();
+                msg = errorData.message || JSON.stringify(errorData.errors || errorData);
+            } catch (e) {
+                msg = `HTTP ${res.status}: ${res.statusText}`;
+            }
+            throw new Error(msg);
+        }
+        return res.json();
+    })
+    .then((data) => {
+        const updated = data.data;
+        const idx = this.equipments.findIndex((e) => e.id === updated.id);
+        if (idx !== -1) {
+            this.equipments.splice(idx, 1, updated);
+        }
+    this.isOpen = false;
+        this.ensureSwal().then(() => {
+            window.Swal.fire({
+                title: "อัปเดตสำเร็จ",
+                text: `ทำการอัพเดทเรียบร้อย${equipment.name} (ID: ${equipment.code})`,
+                icon: "success",
+                timer: 1200,
+                showConfirmButton: false,
+            });
+        });
+    })
+    .catch((err) => {
+        this.notifyError(err.message || "ไม่สามารถอัปเดตได้");
+    });
+},
+        deleteEquipment(equipment) {
+            this.ensureSwal().then(() => {
+                window.Swal.fire({
+                    title: "ลบรายการ?",
+                    text: `คุณกำลังจะลบ: ${equipment.name} (ID: ${equipment.code})`,
+          icon: "warning",
+                    imageUrl: this.getFirstPhoto(equipment),
+                    imageWidth: 120,
+                    imageHeight: 120,
+                    imageAlt: equipment.name,
+          showCancelButton: true,
+                    confirmButtonText: "ลบ",
+                    cancelButtonText: "ยกเลิก",
+                    confirmButtonColor: "#ef4444",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/equipment/destroy/${equipment.id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector(
+                                    'meta[name="csrf-token"]'
+                                ).content,
+                                Accept: "application/json",
+                            },
+                        })
+                            .then(async (res) => {
+                                if (!res.ok) {
+                                    let msg = "Delete failed";
+                                    try {
+                                        const j = await res.json();
+                                        msg = j.message || JSON.stringify(j);
+                                    } catch (e) {}
+                                    throw new Error(msg);
+                                }
+                                return res.json();
+                            })
+                            .then(() => {
+                                this.equipments = this.equipments.filter(
+                                    (e) => e.id !== equipment.id
+                                );
+                                window.Swal.fire({
+                                    title: "ลบแล้ว",
+                                    text: `${equipment.name} ถูกลบเรียบร้อย`,
+                                    icon: "success",
+                                    timer: 1200,
+                                    showConfirmButton: false,
+                                });
+                            })
+                            .catch((err) => {
+                                this.notifyError(err.message || "ลบไม่สำเร็จ");
+                            });
+                    }
+                });
+            });
+        },
+        ensureSwal() {
+            return new Promise((resolve) => {
+                if (window.Swal) return resolve();
+                const script = document.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+                script.onload = () => resolve();
+                document.head.appendChild(script);
+            });
+        },
+        notifyError(message) {
+            let errorMessage = message;
+            if (typeof message === 'object') {
+                if (message.message) {
+                    errorMessage = message.message;
+                } else {
+                    errorMessage = JSON.stringify(message);
+                }
+            }
+            
+            if (window.Swal) {
+                window.Swal.fire({
+                    title: "เกิดข้อผิดพลาด",
+                    text: errorMessage,
+                    icon: "error",
+                });
+            } else {
+                alert(errorMessage);
+            }
+        },
+        createEquipment(payload) {
+            const formData = new FormData();
+            formData.append("code", payload.code || "");
+            formData.append("code", payload.code || "");
+            formData.append("name", payload.name || "");
+            formData.append("description", payload.description || "");
+            formData.append("categories_id", payload.categories_id || "");
+            formData.append("status", payload.status || "available");
+
+            if (payload.imageFiles && payload.imageFiles.length > 0) {
+                for (const file of payload.imageFiles) {
+                    formData.append("images[]", file);
+                }
+            }
+            if (payload.selectedProfileImage !== null && payload.selectedProfileImage !== undefined) {
+                formData.append("selectedProfileImage", payload.selectedProfileImage);
+            }
+
+
+            fetch(`/admin/equipment/store`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                    Accept: "application/json",
+                },
+                body: formData,
+            })
+                .then(async (res) => {
+                    if (!res.ok) {
+                        let msg = "Create failed";
+                        try {
+                            const j = await res.json();
+                            msg = j.message || JSON.stringify(j);
+                        } catch (e) {}
+                        throw new Error(msg);
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    let created = data.data;
+                    if (!created.category && created.categories_id) {
+                        const found = this.categories.find(
+                            (c) => c.id === created.categories_id
+                        );
+                        if (found) {
+                            created = { ...created, category: found };
+                        }
+                    }
+                    this.equipments.unshift(created);
+                    this.closeCreateModal();
+                    this.ensureSwal().then(() => {
+                        window.Swal.fire({
+                            title: "เพิ่มข้อมูลสำเร็จ",
+                            text: `ทำการเพี่มข้อมูลเรียบร้อย ${equipment.name} (ID: ${equipment.code})`,
+                            icon: "success",
+                            timer: 1200,
+                            showConfirmButton: false,
+                        });
+                    });
+                })
+                .catch((err) => {
+                    this.notifyError(err.message || "ไม่สามารถเพิ่มข้อมูลได้");
+                });
+        },
+        openPhotoModal(url) {
+            this.photoModal.url = url;
+            this.photoModal.isOpen = true;
+        },
+        closePhotoModal() {
+            this.photoModal.url = "";
+            this.photoModal.isOpen = false;
+        },
     },
-    statusLabel(status) {
-      if (typeof status === 'boolean') {
-        return status ? 'Available' : 'Unavailable';
-      }
-      if (typeof status === 'string' && status.length > 0) {
-        return this.capitalize(status);
-      }
-      return 'N/A';
-    },
-  },
-  watch: {
-    searchQuery() { this.currentPage = 1; },
-    filteredEquipments() { if(this.currentPage > this.pageCount) this.currentPage = 1; }
-  },
   mounted() {
     this._onClickOutside = (e) => {
       const wrap = this.$refs.filtersWrap;
@@ -411,6 +579,8 @@ categoryCounts() {
     };
     document.addEventListener("click", this._onClickOutside);
   },
-  beforeUnmount() { document.removeEventListener("click", this._onClickOutside); }
+    beforeUnmount() {
+        document.removeEventListener("click", this._onClickOutside);
+    },
 };
 </script>
