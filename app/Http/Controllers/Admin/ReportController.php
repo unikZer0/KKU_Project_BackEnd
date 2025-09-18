@@ -10,6 +10,7 @@ use App\Exports\UsersExport;
 use App\Exports\CategoriesExport;
 use App\Exports\EquipmentsExport;
 use App\Exports\RequestExport;
+use App\Exports\MultiFilteredExport;
 
 use App\Models\Equipment;
 use App\Models\Category;
@@ -18,6 +19,11 @@ use App\Models\BorrowRequest;
 
 class ReportController extends Controller
 {
+    public function vueReport($type)
+    {
+        return view('admin.report.vue-wrapper', ['type' => $type]);
+    }
+
     public function index()
     {
         return view('admin.report.index');
@@ -37,10 +43,10 @@ class ReportController extends Controller
         return view('admin.report.users', compact('users'));
     }
 
-    public function exportUsers()
-    {
-        return Excel::download(new UsersExport, 'users.xlsx');
-    }
+    // public function exportUsers()
+    // {
+    //     return Excel::download(new UsersExport, 'users.xlsx');
+    // }
 
     public function equipmentReport()
     {
@@ -57,10 +63,10 @@ class ReportController extends Controller
         return view('admin.report.equipments', compact('equipments'));
     }
 
-    public function exportEquipments()
-    {
-        return Excel::download(new EquipmentsExport, 'รายงานอุปกรณ์.xlsx');
-    }
+    // public function exportEquipments(Request $request)
+    // {
+    //     return Excel::download(new FilteredEquipmentExport($request), 'equipments.xlsx');
+    // }
 
     public function categoryReport()
     {
@@ -74,10 +80,10 @@ class ReportController extends Controller
         return view('admin.report.categories', compact('categories'));
     }
 
-    public function exportCategories()
-    {
-        return Excel::download(new CategoriesExport, 'รายงานหมวดหมู่.xlsx');
-    }
+    // public function exportCategories()
+    // {
+    //     return Excel::download(new CategoriesExport, 'รายงานหมวดหมู่.xlsx');
+    // }
 
     // Request Report
     public function requestReport()
@@ -100,8 +106,16 @@ class ReportController extends Controller
         return view('admin.report.requests', compact('requests'));
     }
 
-    public function exportRequests()
+    public function export(Request $request)
     {
-        return Excel::download(new RequestExport, 'รายงานคำขอการยืม.xlsx');
+        $type = $request->input('type');
+        $filename = $type . '-report.xlsx';
+
+        return Excel::download(new MultiFilteredExport($request, $type), $filename);
     }
+
+    // public function exportRequests()
+    // {
+    //     return Excel::download(new RequestExport, 'รายงานคำขอการยืม.xlsx');
+    // }
 }

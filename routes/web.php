@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BorrowRequestController;
+use App\Http\Controllers\Admin\ReportExportController;
+
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HomeController;
@@ -63,15 +65,9 @@ Route::middleware('auth')->group(function () {
 
         // Full reports
         Route::prefix('admin/report')->group(function () {
-            Route::get('/index', [ReportController::class, 'index'])->name('admin.report.index');
-            Route::get('/users', [ReportController::class, 'userReport'])->name('admin.report.users');
-            Route::get('/equipments', [ReportController::class, 'equipmentReport'])->name('admin.report.equipments');
-            Route::get('/categories', [ReportController::class, 'categoryReport'])->name('admin.report.categories');
-            Route::get('/requests', [ReportController::class, 'requestReport'])->name('admin.report.requests');
-            Route::get('/export/users', [ReportController::class, 'exportUsers'])->name('admin.report.export.users');
-            Route::get('/export/categories', [ReportController::class, 'exportCategories'])->name('admin.report.export.categories');
-            Route::get('/export/equipments', [ReportController::class, 'exportEquipments'])->name('admin.report.export.equipments');
-            Route::get('/export/requests', [ReportController::class, 'exportRequests'])->name('admin.report.export.requests');
+            Route::get('/', [ReportController::class, 'index'])->name('admin.report.index');
+            Route::get('/vue/{type}', [ReportController::class, 'vueReport'])->name('admin.report.vue');
+            Route::get('/export/{type}', [ReportExportController::class, 'export'])->name('admin.report.export');
         });
 
         // Requests

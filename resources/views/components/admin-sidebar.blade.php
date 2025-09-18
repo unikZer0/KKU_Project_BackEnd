@@ -24,31 +24,31 @@
 
             <!-- Dropdown Links -->
             <div x-show="open" x-transition class="pl-6 space-y-1">
-                <a href="{{ route('admin.report.index') }}"
+                <a href="{{ route('admin.report.vue', ['type' => 'index']) }}"
                     class="{{ request()->routeIs('admin.report.index') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Overview
                 </a>
-                <a href="{{ route('admin.report.users') }}"
+                <a href="{{ route('admin.report.vue', ['type' => 'user']) }}"
                     class="{{ request()->routeIs('admin.report.users') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Users report
                 </a>
-                <a href="{{ route('admin.report.equipments') }}"
+                <a href="{{ route('admin.report.vue', ['type' => 'equipment']) }}"
                     class="{{ request()->routeIs('admin.report.equipments') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Equipments report
                 </a>
-                <a href="{{ route('admin.report.categories') }}"
+                <a href="{{ route('admin.report.vue', ['type' => 'category']) }}"
                     class="{{ request()->routeIs('admin.report.categories') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Categories report
                 </a>
-                <a href="{{ route('admin.report.requests') }}"
+                <a href="{{ route('admin.report.vue', ['type' => 'request']) }}"
                     class="{{ request()->routeIs('admin.report.requests') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Requests report
                 </a>
                 @can('admin')
-                <a href="{{ route('admin.report.logs') }}"
-                    class="{{ request()->routeIs('admin.report.logs') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
-                    Logs report
-                </a>
+                    <a href="{{ route('admin.report.vue', ['type' => 'log']) }}"
+                        class="{{ request()->routeIs('admin.report.logs') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
+                        Logs report
+                    </a>
                 @endcan
             </div>
         </div>
