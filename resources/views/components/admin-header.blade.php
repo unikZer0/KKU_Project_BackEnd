@@ -1,14 +1,16 @@
 <style>
-.read-notification {
-    opacity: 0.6 !important;
-    background-color: #f9fafb;
-}
-.read-notification .font-semibold {
-    color: #6b7280 !important;
-}
-.read-notification .text-sm {
-    color: #9ca3af !important;
-}
+    .read-notification {
+        opacity: 0.6 !important;
+        background-color: #f9fafb;
+    }
+
+    .read-notification .font-semibold {
+        color: #6b7280 !important;
+    }
+
+    .read-notification .text-sm {
+        color: #9ca3af !important;
+    }
 </style>
 
 <header class="bg-white border-b">
@@ -104,109 +106,108 @@
     </div>
 </header>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById("notiBtn");
-    const menu = document.getElementById("notiMenu");
-    const notiList = document.getElementById("notiList");
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById("notiBtn");
+        const menu = document.getElementById("notiMenu");
+        const notiList = document.getElementById("notiList");
 
-    // Toggle dropdown
-    btn.addEventListener("click", (e) => {
-        e.stopPropagation(); // prevent window click from closing immediately
-        menu.classList.toggle("hidden");
-    });
-
-    // Close dropdown when clicking outside
-    window.addEventListener("click", (e) => {
-        if (!btn.contains(e.target) && !menu.contains(e.target)) {
-            menu.classList.add("hidden");
-        }
-    });
-
-    // Event delegation for notification clicks and marking as read
-    notiList.addEventListener("click", (e) => {
-        if (e.target.classList.contains("mark-read-btn")) {
-            e.stopPropagation(); // Prevent triggering the noti-link click
-            const item = e.target.closest("[data-id]");
-            const id = item.getAttribute("data-id");
-
-            fetch(`/notifications/mark-read/${id}`, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Accept": "application/json"
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Mark notification as read visually instead of removing
-                    item.style.opacity = '0.6';
-                    item.classList.add('read-notification');
-                    const notiCount = document.getElementById("notiCount");
-                    if (notiCount) notiCount.innerText = data.unread_count;
-                }
-            });
-        } else if (e.target.closest(".noti-link")) {
-            // Handle notification click for redirection
-            e.preventDefault();
-            const item = e.target.closest("[data-id]");
-            const url = item.getAttribute("data-url");
-            const id = item.getAttribute("data-id");
-            
-            // Mark as read first
-            fetch(`/notifications/mark-read/${id}`, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Accept": "application/json"
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Update notification count
-                    const notiCount = document.getElementById("notiCount");
-                    if (notiCount) notiCount.innerText = data.unread_count;
-                    // Mark notification as read visually
-                    item.style.opacity = '0.6';
-                    item.classList.add('read-notification');
-                    // Close notification dropdown
-                    menu.classList.add("hidden");
-                    // Redirect to the URL
-                    if (url && url !== '#') {
-                        window.location.href = url;
-                    }
-                }
-            });
-        }
-    });
-
-    // Mark all as read
-    const markAllBtn = document.getElementById('markAllReadBtn');
-    if (markAllBtn) {
-        markAllBtn.addEventListener('click', () => {
-            fetch(`/notifications/mark-all-read`, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Accept": "application/json"
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Mark all notifications as read visually instead of removing them
-                    const allNotifications = document.querySelectorAll('[data-id]');
-                    allNotifications.forEach(item => {
-                        item.style.opacity = '0.6';
-                        item.classList.add('read-notification');
-                    });
-                    const notiCount = document.getElementById("notiCount");
-                    if (notiCount) notiCount.innerText = 0;
-                }
-            });
+        // Toggle dropdown
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation(); // prevent window click from closing immediately
+            menu.classList.toggle("hidden");
         });
-    }
-});
-</script>
 
+        // Close dropdown when clicking outside
+        window.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+
+        // Event delegation for notification clicks and marking as read
+        notiList.addEventListener("click", (e) => {
+            if (e.target.classList.contains("mark-read-btn")) {
+                e.stopPropagation(); // Prevent triggering the noti-link click
+                const item = e.target.closest("[data-id]");
+                const id = item.getAttribute("data-id");
+
+                fetch(`/notifications/mark-read/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json"
+                    }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mark notification as read visually instead of removing
+                            item.style.opacity = '0.6';
+                            item.classList.add('read-notification');
+                            const notiCount = document.getElementById("notiCount");
+                            if (notiCount) notiCount.innerText = data.unread_count;
+                        }
+                    });
+            } else if (e.target.closest(".noti-link")) {
+                // Handle notification click for redirection
+                e.preventDefault();
+                const item = e.target.closest("[data-id]");
+                const url = item.getAttribute("data-url");
+                const id = item.getAttribute("data-id");
+
+                // Mark as read first
+                fetch(`/notifications/mark-read/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json"
+                    }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update notification count
+                            const notiCount = document.getElementById("notiCount");
+                            if (notiCount) notiCount.innerText = data.unread_count;
+                            // Mark notification as read visually
+                            item.style.opacity = '0.6';
+                            item.classList.add('read-notification');
+                            // Close notification dropdown
+                            menu.classList.add("hidden");
+                            // Redirect to the URL
+                            if (url && url !== '#') {
+                                window.location.href = url;
+                            }
+                        }
+                    });
+            }
+        });
+
+        // Mark all as read
+        const markAllBtn = document.getElementById('markAllReadBtn');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', () => {
+                fetch(`/notifications/mark-all-read`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json"
+                    }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mark all notifications as read visually instead of removing them
+                            const allNotifications = document.querySelectorAll('[data-id]');
+                            allNotifications.forEach(item => {
+                                item.style.opacity = '0.6';
+                                item.classList.add('read-notification');
+                            });
+                            const notiCount = document.getElementById("notiCount");
+                            if (notiCount) notiCount.innerText = 0;
+                        }
+                    });
+            });
+        }
+    });
+</script>

@@ -43,11 +43,6 @@ class ReportController extends Controller
         return view('admin.report.users', compact('users'));
     }
 
-    // public function exportUsers()
-    // {
-    //     return Excel::download(new UsersExport, 'users.xlsx');
-    // }
-
     public function equipmentReport()
     {
         $equipments = Equipment::with('category')->get()->map(function ($eq) {
@@ -63,11 +58,6 @@ class ReportController extends Controller
         return view('admin.report.equipments', compact('equipments'));
     }
 
-    // public function exportEquipments(Request $request)
-    // {
-    //     return Excel::download(new FilteredEquipmentExport($request), 'equipments.xlsx');
-    // }
-
     public function categoryReport()
     {
         $categories = Category::all()->map(function ($cat) {
@@ -79,11 +69,6 @@ class ReportController extends Controller
 
         return view('admin.report.categories', compact('categories'));
     }
-
-    // public function exportCategories()
-    // {
-    //     return Excel::download(new CategoriesExport, 'รายงานหมวดหมู่.xlsx');
-    // }
 
     // Request Report
     public function requestReport()
@@ -113,9 +98,4 @@ class ReportController extends Controller
 
         return Excel::download(new MultiFilteredExport($request, $type), $filename);
     }
-
-    // public function exportRequests()
-    // {
-    //     return Excel::download(new RequestExport, 'รายงานคำขอการยืม.xlsx');
-    // }
 }

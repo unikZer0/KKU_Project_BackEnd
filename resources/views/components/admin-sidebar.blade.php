@@ -1,7 +1,7 @@
 <aside id="admin-sidebar" class="w-64 bg-white border-r min-h-screen md:sticky md:top-0">
     <nav class="p-4 space-y-1">
         <a href="{{ route('admin.index') }}"
-            class=" {{ request()->routeIs('admin.index') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Dashboard</a>
+            class=" {{ request()->routeIs('admin.index') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Dashboard</a>
         <!-- Reports Dropdown -->
         <div x-data="{ open: false }" class="space-y-1">
             <button @click="open = !open"
@@ -53,10 +53,10 @@
             </div>
         </div>
         <a href="{{ route('admin.equipment.index') }}"
-            class=" {{ request()->routeIs('admin.equipment.index') ? 'flex items-center px-3 py-2 rounded-md text-sm bg-gray-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Equipment</a>
+            class=" {{ request()->routeIs('admin.equipment.index') ? 'flex items-center px-3 py-2 rounded-md text-sm bg-blue-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Equipment</a>
         <a href="{{ route('admin.category.index') }}"
-            class="{{ request()->routeIs('admin.category.index') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Categories</a>
+            class="{{ request()->routeIs('admin.category.index') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Categories</a>
         <a href="{{ route('admin.requests.index') }}"
-            class="{{ request()->routeIs('admin.requests.*') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Requests</a>
+            class="{{ request()->routeIs('admin.requests.*') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">Requests</a>
     </nav>
 </aside>

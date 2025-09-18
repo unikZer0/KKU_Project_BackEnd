@@ -3,11 +3,11 @@
 
         <!-- Breadcrumb -->
         <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-            <a href="/admin" class="hover:text-gray-700">Dashboard</a>
+            <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
             <span>/</span>
-            <a href="/admin/report" class="hover:text-gray-700">Reports</a>
+            <a href="/admin/report" class="hover:text-gray-700">รายงาน</a>
             <span>></span>
-            <span class="font-semibold text-gray-900">User reports</span>
+            <span class="font-semibold text-gray-900">รายงานผู้ใช้</span>
         </nav>
 
         <!-- title -->

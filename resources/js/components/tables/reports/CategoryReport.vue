@@ -3,11 +3,11 @@
 
         <!-- Breadcrumb -->
         <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-            <a href="/admin" class="hover:text-gray-700">Dashboard</a>
+            <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
             <span>/</span>
-            <a href="/admin/report" class="hover:text-gray-700">Reports</a>
+            <a href="/admin/report" class="hover:text-gray-700">รายงาน</a>
             <span>></span>
-            <span class="font-semibold text-gray-900">Equipments report</span>
+            <span class="font-semibold text-gray-900">รายงานหมวดหมู่</span>
         </nav>
 
         <!-- title -->
@@ -32,8 +32,8 @@
         </div>
 
         <!-- Table -->
-        <table class="min-w-full border">
-            <thead class="bg-gray-50 border-b">
+        <table class="min-w-full bg-gray-50 border mt-6">
+            <thead class="bg-gray-200 border-b">
                 <tr>
                     <th class="border px-4 py-2">ไอดี</th>
                     <th class="border px-4 py-2">รหัสหมวดหมู่</th>
@@ -56,7 +56,7 @@
         </table>
 
         <!-- Export Button -->
-        <button @click="exportCategories" class="btn btn-primary mt-4">Export Categories</button>
+        <button @click="exportCategories" class="btn btn-primary mt-4 bg-green-500 border">ดาวน์โหลดไฟล์ CSV</button>
     </div>
 </template>
 

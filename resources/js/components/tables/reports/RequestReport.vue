@@ -7,11 +7,11 @@
             <span>/</span>
             <a href="/admin/report" class="hover:text-gray-700">รายงาน</a>
             <span>></span>
-            <span class="font-semibold text-gray-900">รายงานอุปกรณ์</span>
+            <span class="font-semibold text-gray-900">รายงานคำขอยืม</span>
         </nav>
 
         <!-- title -->
-        <h2 class="text-xl font-bold mb-4">รีพอร์ตอุปกรณ์</h2>
+        <h2 class="text-xl font-bold mb-4">รายงานคำร้องขอยืม</h2>
 
         <!-- Search Input -->
         <div class="relative mb-4">
@@ -25,14 +25,11 @@
         </div>
 
         <!-- Filter Controls -->
-        <div class="flex flex-wrap gap-2 items-center relative" ref="filtersWrap">
+        <div class="flex flex-wrap gap-2 items-center relative mb-4" ref="filtersWrap">
             <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
                 ตัวกรอง
                 <span class="text-xs text-gray-500 ml-1">
-                    {{ filterStatus || 'all' }} ·
-                    {{filterCategoryId
-                        ? (categories.find(c => String(c.id) === String(filterCategoryId))?.name || 'category')
-                        : 'all categories'}}
+                    {{ filterRole || 'ทั้งหมด' }} ·
                 </span>
             </button>
 
@@ -45,21 +42,10 @@
                 <!-- Status Filter -->
                 <div class="mb-2">
                     <div class="text-sm font-semibold mb-1">สถานะ</div>
-                    <select v-model="filterStatus" class="w-full px-2 py-1 border rounded">
-                        <option value="">ทั้งหมด ({{ statusCounts.all }})</option>
-                        <option v-for="s in statuses" :key="s" :value="s">
-                            {{ capitalize(s) }} ({{ statusCounts[s] || 0 }})
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Category Filter -->
-                <div class="mb-3">
-                    <div class="text-sm font-semibold mb-1">หมวดหมู่</div>
-                    <select v-model="filterCategoryId" class="w-full px-2 py-1 border rounded">
-                        <option value="">ทุกหมวดหมู่ ({{ categoryCounts.all }})</option>
-                        <option v-for="c in categories" :key="c.id" :value="String(c.id)">
-                            {{ c.name }} ({{ categoryCounts[String(c.id)] || 0 }})
+                    <select v-model="filterRole" class="w-full px-2 py-1 border rounded">
+                        <option value="">ทั้งหมด ({{ statusRoles.all }})</option>
+                        <option v-for="r in roles" :key="r" :value="r">
+                            {{ capitalize(r) }} ({{ statusRoles[r] || 0 }})
                         </option>
                     </select>
                 </div>
@@ -67,7 +53,7 @@
                 <!-- Filter Actions -->
                 <div class="flex justify-between">
                     <button class="px-3 py-1 border rounded" @click="clearFilters">ล้างตัวกรอง</button>
-                    <button class="px-3 py-1 bg-blue-500 text-white rounded"
+                    <button class="px-3 py-1 bg-gray-900 text-white rounded"
                         @click="filtersOpen = false">เสร็จสิ้น</button>
                 </div>
             </div>
@@ -78,27 +64,35 @@
             <thead class="bg-gray-200 border-b">
                 <tr>
                     <th class="border px-4 py-2">ไอดี</th>
-                    <th class="border px-4 py-2">หมายเลขครุภัณฑ์</th>
-                    <th class="border px-4 py-2">ชื่ออุปกรณ์</th>
-                    <th class="border px-4 py-2">หมวดหมู่</th>
+                    <th class="border px-4 py-2">รหัสคําร้อง</th>
+                    <th class="border px-4 py-2">รหัสผู้ใช้</th>
+                    <th class="border px-4 py-2">รหัสอุปกรณ์</th>
+                    <th class="border px-4 py-2">เริ่มวันที่</th>
+                    <th class="border px-4 py-2">ถึงวันที่</th>
                     <th class="border px-4 py-2">สถานะ</th>
+                    <th class="border px-4 py-2">สาเหตุการปฏิเสธ</th>
+                    <th class="border px-4 py-2">สาเหตุการยกเลิก</th>
                     <th class="border px-4 py-2">วันที่เพิ่ม</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="eq in filteredEquipments" :key="eq.id">
-                    <td class="border px-4 py-2">{{ eq.id }}</td>
-                    <td class="border px-4 py-2">{{ eq.code }}</td>
-                    <td class="border px-4 py-2">{{ eq.name }}</td>
-                    <td class="border px-4 py-2">{{ eq.category?.name || 'NA' }}</td>
-                    <td class="border px-4 py-2">{{ capitalize(eq.status) }}</td>
-                    <td class="border px-4 py-2">{{ eq.created_at || '—' }}</td>
+                <tr v-for="req in filteredRequests" :key="req.id">
+                    <td class="border px-4 py-2">{{ req.id }}</td>
+                    <td class="border px-4 py-2">{{ req.req_id }}</td>
+                    <td class="border px-4 py-2">{{ req.user_name }}</td>
+                    <td class="border px-4 py-2">{{ req.equipment_name }}</td>
+                    <td class="border px-4 py-2">{{ req.start_at }}</td>
+                    <td class="border px-4 py-2">{{ req.end_at }}</td>
+                    <td class="border px-4 py-2">{{ req.status }}</td>
+                    <td class="border px-4 py-2">{{ req.reject_reason || 'ไม่มี' }}</td>
+                    <td class="border px-4 py-2">{{ req.cancel_reason || 'ไม่มี' }}</td>
+                    <td class="border px-4 py-2">{{ req.created_at || '—' }}</td>
                 </tr>
             </tbody>
         </table>
 
         <!-- Export Button -->
-        <button @click="exportEquipments" class="btn btn-primary mt-4 bg-green-500 border">ดาวน์โหลดไฟล์ CSV</button>
+        <button @click="exportRequests" class="btn btn-primary mt-4 bg-green-500 border">ดาวน์โหลดไฟล์ CSV</button>
     </div>
 </template>
 
@@ -106,69 +100,57 @@
 import axios from 'axios';
 
 export default {
-    name: 'EquipmentReport',
+    name: 'RequestReport',
     data() {
         return {
             searchQuery: "",
             filterStatus: "",
-            filterCategoryId: "",
-            sortKey: "name",
+            sortKey: "created_at",
             sortDir: "asc",
             filtersOpen: false,
+            isLoading: false,
             statuses: ["available", "retired", "maintenance"],
-            categories: [],
-            equipments: [],
+            Request: [],
         };
     },
     computed: {
-        statusCounts() {
-            const counts = { all: this.equipments.length };
-            for (const e of this.equipments) {
-                const k = e.status || "unknown";
-                counts[k] = (counts[k] || 0) + 1;
+        statusRoles() {
+            const counts = { all: this.Request.length };
+            for (const req of this.Request) {
+                const status = req.status || "unknown";
+                counts[status] = (counts[status] || 0) + 1;
             }
             return counts;
         },
-        categoryCounts() {
-            const counts = { all: this.equipments.length };
-            for (const e of this.equipments) {
-                const id = String(e.categories_id || e.category?.id || "");
-                if (!id) continue;
-                counts[id] = (counts[id] || 0) + 1;
-            }
-            return counts;
-        },
-        filteredEquipments() {
-            const q = (this.searchQuery || "").toLowerCase();
-            const catId = this.filterCategoryId ? String(this.filterCategoryId) : "";
+        filteredRequests() {
+            const q = this.searchQuery.toLowerCase();
             const status = this.filterStatus;
 
-            let list = this.equipments.filter((e) => {
+            let list = this.Request.filter((req) => {
                 const matchesSearch =
                     !q ||
-                    e.name.toLowerCase().includes(q) ||
-                    (e.category?.name || "").toLowerCase().includes(q) ||
-                    e.status.toLowerCase().includes(q) ||
-                    String(e.code).includes(q);
+                    req.req_id.toLowerCase().includes(q) ||
+                    req.equipment_name?.toLowerCase().includes(q) ||
+                    req.user_name?.toLowerCase().includes(q) ||
+                    req.status?.toLowerCase().includes(q) ||
+                    req.reject_reason?.toLowerCase().includes(q) ||
+                    req.cancel_reason?.toLowerCase().includes(q) ||
+                    String(req.id).includes(q) ||
+                    String(req.created_at || "").includes(q);
 
-                const matchesStatus = !status || e.status === status;
-                const matchesCategory = !catId || String(e.categories_id || e.category?.id) === catId;
+                const matchesStatus = !status || req.status === status;
 
-                return matchesSearch && matchesStatus && matchesCategory;
+                return matchesSearch && matchesStatus;
             });
 
             const dir = this.sortDir === "asc" ? 1 : -1;
             const key = this.sortKey;
 
             list = list.slice().sort((a, b) => {
-                const av = key === "category" ? a.category?.name || "" : a[key] ?? "";
-                const bv = key === "category" ? b.category?.name || "" : b[key] ?? "";
-
-                if (typeof av === "number" && typeof bv === "number") return (av - bv) * dir;
-
+                const av = a[key] ?? "";
+                const bv = b[key] ?? "";
                 const as = String(av).toLowerCase();
                 const bs = String(bv).toLowerCase();
-
                 if (as < bs) return -1 * dir;
                 if (as > bs) return 1 * dir;
                 return 0;
@@ -178,31 +160,30 @@ export default {
         }
     },
     methods: {
-        async fetchEquipments() {
+
+        async fetchRequests() {
             try {
-                const response = await axios.get('/api/equipments');
-                this.equipments = response.data;
+                const response = await axios.get('/api/requests');
+                this.Request = response.data;
             } catch (error) {
-                console.error('Failed to fetch equipments:', error);
+                console.error('Failed to fetch Requests:', error);
             }
         },
-        exportEquipments() {
+        exportRequests() {
             const params = new URLSearchParams({
                 search: this.searchQuery,
-                category_id: this.filterCategoryId,
                 status: this.filterStatus,
                 sort: this.sortKey,
                 direction: this.sortDir
             });
 
-            window.location.href = `/admin/report/export/equipments?${params.toString()}`;
+            window.location.href = `/admin/report/export/requests?${params.toString()}`;
         },
         toggleSortDir() {
             this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
         },
         clearFilters() {
-            this.filterStatus = "";
-            this.filterCategoryId = "";
+            this.filterRole = "";
             this.searchQuery = "";
         },
         capitalize(str) {
@@ -213,12 +194,12 @@ export default {
         searchQuery() {
             this.currentPage = 1;
         },
-        filteredEquipments() {
+        filteredRequests() {
             if (this.currentPage > this.pageCount) this.currentPage = 1;
         }
     },
     mounted() {
-        this.fetchEquipments();
+        this.fetchRequests();
         this._onClickOutside = (e) => {
             const wrap = this.$refs.filtersWrap;
             if (!wrap) return;
@@ -229,7 +210,7 @@ export default {
     beforeUnmount() {
         document.removeEventListener("click", this._onClickOutside);
     }
-}
+};
 </script>
 
 <style scoped>

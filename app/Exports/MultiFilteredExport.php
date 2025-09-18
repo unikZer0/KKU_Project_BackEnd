@@ -5,6 +5,8 @@ namespace App\Exports;
 use App\Models\User;
 use App\Models\Equipment;
 use App\Models\Category;
+use App\Models\BorrowRequest;
+
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -26,6 +28,7 @@ class MultiFilteredExport implements FromCollection, WithHeadings
             'users' => $this->filteredUsers(),
             'equipments' => $this->filteredEquipments(),
             'categories' => $this->filteredCategories(),
+            'requests' => $this->filteredRequests(),
             default => collect(),
         };
     }
@@ -33,9 +36,10 @@ class MultiFilteredExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return match ($this->type) {
-            'users' => ['ID', 'UID', 'Name', 'Email', 'Phone', 'Role', 'Created At'],
-            'equipments' => ['ID', 'Code', 'Name', 'Category', 'Status', 'Created At'],
-            'categories' => ['ID', 'CATE_ID', 'Name', 'Created At'],
+            'users' => ['ไอดี', 'รหัสผู้ใช้', 'ชื่อ', 'อีเมล', 'โทรศัพท์', 'ตำแหน่ง', 'สร้างวันที่'],
+            'equipments' => ['ไอดี', 'หมายเลขคุรุภัณฑ์', 'ชื่ออุปกรณ์', 'หมวดหมู่', 'สถานะ', 'สร้างวันที่'],
+            'categories' => ['ไอดี', 'รหัสหมวดหมู่', 'ชื่อ', 'สร้างวันที่'],
+            'requests' => ['ไอดี', 'รหัสคำขอ', 'ไอดีผู้ยืม', 'ชื่อผู้ยืม', 'เลขไอดีอุปกรณ์', 'ชื่ออุปกรณ์', 'เริ่มวันที่', 'ถึงวันที่', 'สถานะ', 'สาเหตุการปฏิเสธ', 'สาเหตุการยกเลิก', 'สร้างวันที่'],
             default => [],
         };
     }
@@ -133,6 +137,51 @@ class MultiFilteredExport implements FromCollection, WithHeadings
             $c->equipments_count,
             optional($c->created_at)->format('Y-m-d'),
             optional($c->updated_at)->format('Y-m-d'),
+        ]);
+    }
+    protected function filteredRequests()
+    {
+        $query = BorrowRequest::with('user', 'equipment');
+
+        if ($this->request->filled('search')) {
+            $search = $this->request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas(
+                    'user',
+                    fn($u) =>
+                    $u->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('uid', 'like', "%{$search}%")
+                )->orWhereHas(
+                    'equipment',
+                    fn($e) =>
+                    $e->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%")
+                );
+            });
+        }
+
+        if ($this->request->filled('status')) {
+            $query->where('status', $this->request->status);
+        }
+
+        if ($this->request->filled('sort')) {
+            $query->orderBy($this->request->sort, $this->request->direction ?? 'asc');
+        }
+
+        return $query->get()->map(fn($r) => [
+            $r->id,
+            $r->req_id,
+            $r->user->uid,
+            $r->user->name,
+            $r->equipment->code,
+            $r->equipment->name,
+            $r->start_at ? $r->start_at->format('Y-m-d') : '-',
+            $r->end_at ? $r->end_at->format('Y-m-d') : '-',
+            $r->status,
+            $r->reject_reason ?? '-',
+            $r->$r->cancel_reason ?? '-',
+            optional($r->created_at)->format('Y-m-d'),
         ]);
     }
 }
