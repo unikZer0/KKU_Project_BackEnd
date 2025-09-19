@@ -405,7 +405,7 @@ export default {
                     this.ensureSwal().then(() => {
                         window.Swal.fire({
                             title: "อัปเดตสำเร็จ",
-                            text: `ทำการอัพเดทเรียบร้อย${equipment.name} (ID: ${equipment.code})`,
+                            text: `ทำการอัพเดทเรียบร้อย ${payload.name} (ID: ${payload.code})`,
                             icon: "success",
                             timer: 1200,
                             showConfirmButton: false,
@@ -503,7 +503,6 @@ export default {
         createEquipment(payload) {
             const formData = new FormData();
             formData.append("code", payload.code || "");
-            formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
             formData.append("categories_id", payload.categories_id || "");
@@ -560,7 +559,7 @@ export default {
                     this.ensureSwal().then(() => {
                         window.Swal.fire({
                             title: "เพิ่มข้อมูลสำเร็จ",
-                            text: `ทำการเพี่มข้อมูลเรียบร้อย ${equipment.name} (ID: ${equipment.code})`,
+                            text: `ทำการเพี่มข้อมูลเรียบร้อย ${payload.name} (ID: ${payload.code})`,
                             icon: "success",
                             timer: 1200,
                             showConfirmButton: false,

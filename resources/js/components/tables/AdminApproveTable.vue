@@ -2,42 +2,26 @@
   <div class="bg-white p-6 rounded-lg shadow">
     <div class="flex justify-between items-center flex-wrap gap-y-4 mb-6">
       <div class="flex items-center flex-wrap gap-2">
-        <button
-          v-for="status in statusSummary"
-          :key="status.key"
-          @click="setStatusFilter(status.key)"
+        <button v-for="status in statusSummary" :key="status.key" @click="setStatusFilter(status.key)"
           :class="[status.class, activeStatusFilter === status.key ? 'ring-2 ring-offset-1 ring-blue-500' : 'hover:opacity-80']"
-          class="px-4 py-1.5 rounded text-sm font-medium transition-all duration-150"
-        >
+          class="px-4 py-1.5 rounded text-sm font-medium transition-all duration-150">
           <span>{{ status.label }}: {{ status.count }}</span>
         </button>
       </div>
 
       <div class="flex items-center space-x-2">
-        <button @click="toggleSort" class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
+        <button @click="toggleSort"
+          class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
           Date: {{ sortDirection.toUpperCase() }}
         </button>
       </div>
     </div>
     <div class="relative mb-4">
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="Search"
-        class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-      />
-      <svg
-        class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
-        />
+      <input type="text" v-model="searchQuery" placeholder="Search"
+        class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto" />
+      <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
       </svg>
     </div>
 
@@ -51,7 +35,7 @@
       <table class="min-w-full text-sm border">
         <thead class="bg-gray-50 border-b">
           <tr>
-            <th class="text-left px-4 py-2">Request ID</th>
+            <th class="text-left px-4 py-2">รหัสคำขอ</th>
             <th class="text-left px-4 py-2">รหัสนสส</th>
             <th class="text-left px-4 py-2">ผู้ขอ</th>
             <th class="text-left px-4 py-2">อุปกรณ์</th>
@@ -62,11 +46,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="request in paginatedRequests"
-            :key="request.id"
-            class="border-b"
-          >
+          <tr v-for="request in paginatedRequests" :key="request.id" class="border-b">
             <td class="px-4 py-2">{{ request.req_id }}</td>
             <td class="px-4 py-2">{{ request.uid }}</td>
             <td class="px-4 py-2">{{ request.user_name }}</td>
@@ -75,10 +55,7 @@
             <td class="px-4 py-2">{{ request.end_at }}</td>
             <td class="px-4 py-2">{{ capitalize(request.status) }}</td>
             <td class="px-4 py-2">
-              <button
-                @click="openDetails(request)"
-                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-              >
+              <button @click="openDetails(request)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                 ดูรายละเอียด
               </button>
             </td>
@@ -86,34 +63,22 @@
         </tbody>
       </table>
     </div>
-  
+
     <div class="mt-4 flex flex-wrap justify-between items-center gap-4">
       <div class="text-sm text-gray-600">
         Showing {{ pageStart + 1 }} - {{ pageEnd }} of
         {{ filteredRequests.length }} items
       </div>
       <div class="flex items-center space-x-1">
-        <button
-          class="px-3 py-1 border rounded disabled:opacity-50"
-          :disabled="currentPage === 1"
-          @click="prevPage"
-        >
+        <button class="px-3 py-1 border rounded disabled:opacity-50" :disabled="currentPage === 1" @click="prevPage">
           Prev
         </button>
-        <button
-          v-for="p in visiblePageNumbers"
-          :key="p"
-          class="px-3 py-1 border rounded"
-          :class="{ 'bg-blue-600 text-white': currentPage === p }"
-          @click="goToPage(p)"
-        >
+        <button v-for="p in visiblePageNumbers" :key="p" class="px-3 py-1 border rounded"
+          :class="{ 'bg-blue-600 text-white': currentPage === p }" @click="goToPage(p)">
           {{ p }}
         </button>
-        <button
-          class="px-3 py-1 border rounded disabled:opacity-50"
-          :disabled="currentPage === pageCount || pageCount === 0"
-          @click="nextPage"
-        >
+        <button class="px-3 py-1 border rounded disabled:opacity-50"
+          :disabled="currentPage === pageCount || pageCount === 0" @click="nextPage">
           Next
         </button>
       </div>
@@ -124,10 +89,10 @@
 <script>
 export default {
   name: "AdminApproveTable",
-  props: { 
+  props: {
     // Expects an array of request objects
     // Example: [{ id: 1, req_id: 'R001', user_name: 'John', ..., status: 'pending', date: '2025-09-17' }]
-    requests: Array 
+    requests: Array
   },
   data() {
     return {
@@ -150,32 +115,32 @@ export default {
     },
     // NEW: Generates the summary for the status badges
     statusSummary() {
-        const counts = {
-            all: this.displayableRequests.length
-        };
-        this.displayableRequests.forEach(req => {
-            const status = req.status.toLowerCase();
-            counts[status] = (counts[status] || 0) + 1;
-        });
+      const counts = {
+        all: this.displayableRequests.length
+      };
+      this.displayableRequests.forEach(req => {
+        const status = req.status.toLowerCase();
+        counts[status] = (counts[status] || 0) + 1;
+      });
 
-        const summary = [{
-            key: 'all',
-            label: 'All',
-            count: counts.all,
-            class: 'bg-gray-200 text-gray-800'
-        }];
-        
-        // Create badges for each status found in the data
-        Object.keys(counts).filter(key => key !== 'all').forEach(status => {
-            summary.push({
-                key: status,
-                label: this.capitalize(status),
-                count: counts[status],
-                class: this.getStatusClass(status)
-            });
+      const summary = [{
+        key: 'all',
+        label: 'All',
+        count: counts.all,
+        class: 'bg-gray-200 text-gray-800'
+      }];
+
+      // Create badges for each status found in the data
+      Object.keys(counts).filter(key => key !== 'all').forEach(status => {
+        summary.push({
+          key: status,
+          label: this.capitalize(status),
+          count: counts[status],
+          class: this.getStatusClass(status)
         });
-        
-        return summary;
+      });
+
+      return summary;
     },
     // MODIFIED: This computed property now handles filtering AND sorting
     filteredRequests() {
@@ -196,10 +161,10 @@ export default {
             String(r.req_id).includes(q)
         );
       }
-      
+
       // 3. Apply sorting
       filtered.sort((a, b) => {
-        const dateA = new Date(a.start_at); 
+        const dateA = new Date(a.start_at);
         const dateB = new Date(b.start_at);
         return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
       });
@@ -236,20 +201,20 @@ export default {
   methods: {
     // NEW: Sets the active status for filtering
     setStatusFilter(statusKey) {
-        this.activeStatusFilter = statusKey;
+      this.activeStatusFilter = statusKey;
     },
     // NEW: Toggles the sort direction
     toggleSort() {
-        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     },
     // NEW: Assigns colors to status badges
     getStatusClass(status) {
-        switch (status.toLowerCase()) {
-            case 'pending': return 'bg-yellow-100 text-yellow-800';
-            case 'approved': return 'bg-green-100 text-green-800';
-            case 'in use': return 'bg-blue-100 text-blue-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
+      switch (status.toLowerCase()) {
+        case 'pending': return 'bg-yellow-100 text-yellow-800';
+        case 'approved': return 'bg-green-100 text-green-800';
+        case 'in use': return 'bg-blue-100 text-blue-800';
+        default: return 'bg-gray-100 text-gray-800';
+      }
     },
     capitalize(str) {
       if (!str) return '';
@@ -273,7 +238,7 @@ export default {
       this.currentPage = 1;
     },
     activeStatusFilter() {
-        this.currentPage = 1; 
+      this.currentPage = 1;
     },
     filteredRequests() {
       if (this.currentPage > this.pageCount && this.pageCount > 0) {
