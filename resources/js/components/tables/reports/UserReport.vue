@@ -41,11 +41,11 @@
             <div v-if="filtersOpen" class="absolute left-0 top-10 z-10 bg-white border rounded shadow p-3 w-72">
                 <!-- Status Filter -->
                 <div class="mb-2">
-                    <div class="text-sm font-semibold mb-1">สถานะ</div>
-                    <select v-model="filterRole" class="w-full px-2 py-1 border rounded">
-                        <option value="">ทั้งหมด ({{ statusRoles.all }})</option>
+                    <div class="text-sm font-semibold mb-1">ตำแหน่ง</div>
+                    <select v-model="filterRoles" class="w-full px-2 py-1 border rounded">
+                        <option value="">ทั้งหมด ({{ roleCounts.all }})</option>
                         <option v-for="r in roles" :key="r" :value="r">
-                            {{ capitalize(r) }} ({{ statusRoles[r] || 0 }})
+                            {{ capitalize(r) }} ({{ roleCounts[r] || 0 }})
                         </option>
                     </select>
                 </div>
@@ -98,7 +98,7 @@ export default {
     data() {
         return {
             searchQuery: "",
-            filterRole: "",
+            filterRoles: "",
             sortKey: "name",
             sortDir: "asc",
             filtersOpen: false,
@@ -107,7 +107,7 @@ export default {
         };
     },
     computed: {
-        statusRoles() {
+        roleCounts() {
             const counts = { all: this.user.length };
             for (const u of this.user) {
                 const role = u.role || "unknown";
@@ -117,7 +117,7 @@ export default {
         },
         filteredUsers() {
             const q = this.searchQuery.toLowerCase();
-            const role = this.filterRole;
+            const role = this.filterRoles;
 
             let list = this.user.filter((u) => {
                 const matchesSearch =
@@ -161,7 +161,7 @@ export default {
         exportUser() {
             const params = new URLSearchParams({
                 search: this.searchQuery,
-                role: this.filterRole,
+                role: this.filterRoles,
                 sort: this.sortKey,
                 direction: this.sortDir
             });
@@ -172,7 +172,7 @@ export default {
             this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
         },
         clearFilters() {
-            this.filterRole = "";
+            this.filterRoles = "";
             this.searchQuery = "";
         },
         capitalize(str) {

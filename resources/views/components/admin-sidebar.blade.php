@@ -24,10 +24,6 @@
 
             <!-- Dropdown Links -->
             <div x-show="open" x-transition class="pl-6 space-y-1">
-                <a href="{{ route('admin.report.vue', ['type' => 'index']) }}"
-                    class="{{ request()->routeIs('admin.report.index') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
-                    Overview
-                </a>
                 <a href="{{ route('admin.report.vue', ['type' => 'user']) }}"
                     class="{{ request()->routeIs('admin.report.users') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Users report
@@ -44,12 +40,12 @@
                     class="{{ request()->routeIs('admin.report.requests') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
                     Requests report
                 </a>
-                @can('admin')
-                    <a href="{{ route('admin.report.vue', ['type' => 'log']) }}"
-                        class="{{ request()->routeIs('admin.report.logs') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
-                        Logs report
-                    </a>
-                @endcan
+                {{-- @can('admin')
+                <a href="{{ route('admin.report.vue', ['type' => 'log']) }}"
+                    class="{{ request()->routeIs('admin.report.logs') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900' : 'block px-3 py-2 rounded-md text-sm text-gray-900' }}">
+                    Logs report
+                </a>
+                @endcan --}}
             </div>
         </div>
         <a href="{{ route('admin.equipment.index') }}"

@@ -58,6 +58,7 @@
                     <div class="text-sm font-semibold mb-1">หมวดหมู่</div>
                     <select v-model="filterCategoryId" class="w-full px-2 py-1 border rounded">
                         <option value="">ทุกหมวดหมู่ ({{ categoryCounts.all }})</option>
+                        <option v-if="categories.length === 0" disabled>ไม่มีหมวดหมู่</option>
                         <option v-for="c in categories" :key="c.id" :value="String(c.id)">
                             {{ c.name }} ({{ categoryCounts[String(c.id)] || 0 }})
                         </option>
@@ -186,6 +187,14 @@ export default {
                 console.error('Failed to fetch equipments:', error);
             }
         },
+        async fetchCategories() {
+            try {
+                const response = await axios.get('/api/categories');
+                this.categories = response.data;
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        },
         exportEquipments() {
             const params = new URLSearchParams({
                 search: this.searchQuery,
@@ -219,6 +228,7 @@ export default {
     },
     mounted() {
         this.fetchEquipments();
+        this.fetchCategories();
         this._onClickOutside = (e) => {
             const wrap = this.$refs.filtersWrap;
             if (!wrap) return;

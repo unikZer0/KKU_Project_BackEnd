@@ -29,7 +29,7 @@
             <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
                 ตัวกรอง
                 <span class="text-xs text-gray-500 ml-1">
-                    {{ filterRole || 'ทั้งหมด' }} ·
+                    {{ filterStatus || 'ทั้งหมด' }} ·
                 </span>
             </button>
 
@@ -42,10 +42,10 @@
                 <!-- Status Filter -->
                 <div class="mb-2">
                     <div class="text-sm font-semibold mb-1">สถานะ</div>
-                    <select v-model="filterRole" class="w-full px-2 py-1 border rounded">
-                        <option value="">ทั้งหมด ({{ statusRoles.all }})</option>
-                        <option v-for="r in roles" :key="r" :value="r">
-                            {{ capitalize(r) }} ({{ statusRoles[r] || 0 }})
+                    <select v-model="filterStatus" class="w-full px-2 py-1 border rounded">
+                        <option value="">ทั้งหมด ({{ statusCounts.all }})</option>
+                        <option v-for="s in statuses" :key="s" :value="s">
+                            {{ capitalize(s) }} ({{ statusCounts[s] || 0 }})
                         </option>
                     </select>
                 </div>
@@ -109,16 +109,16 @@ export default {
             sortDir: "asc",
             filtersOpen: false,
             isLoading: false,
-            statuses: ["available", "retired", "maintenance"],
-            Request: [],
+            statuses: ["pending", "approved", "rejected", "check_out", "check_in", "cancelled"],
+            requests: [],
         };
     },
     computed: {
-        statusRoles() {
-            const counts = { all: this.Request.length };
-            for (const req of this.Request) {
-                const status = req.status || "unknown";
-                counts[status] = (counts[status] || 0) + 1;
+        statusCounts() {
+            const counts = { all: this.requests.length };
+            for (const req of this.requests) {
+                const rs = req.status || "unknown";
+                counts[rs] = (counts[rs] || 0) + 1;
             }
             return counts;
         },
@@ -126,10 +126,10 @@ export default {
             const q = this.searchQuery.toLowerCase();
             const status = this.filterStatus;
 
-            let list = this.Request.filter((req) => {
+            let list = this.requests.filter((req) => {
                 const matchesSearch =
                     !q ||
-                    req.req_id.toLowerCase().includes(q) ||
+                    req.req_id?.toLowerCase().includes(q) ||
                     req.equipment_name?.toLowerCase().includes(q) ||
                     req.user_name?.toLowerCase().includes(q) ||
                     req.status?.toLowerCase().includes(q) ||
@@ -138,7 +138,7 @@ export default {
                     String(req.id).includes(q) ||
                     String(req.created_at || "").includes(q);
 
-                const matchesStatus = !status || req.status === status;
+                const matchesStatus = !status || (req.status && req.status.toLowerCase() === status.toLowerCase());
 
                 return matchesSearch && matchesStatus;
             });
@@ -164,7 +164,7 @@ export default {
         async fetchRequests() {
             try {
                 const response = await axios.get('/api/requests');
-                this.Request = response.data;
+                this.requests = response.data;
             } catch (error) {
                 console.error('Failed to fetch Requests:', error);
             }
@@ -183,7 +183,7 @@ export default {
             this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
         },
         clearFilters() {
-            this.filterRole = "";
+            this.filterStatus = "";
             this.searchQuery = "";
         },
         capitalize(str) {

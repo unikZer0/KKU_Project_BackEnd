@@ -28,7 +28,7 @@ route::get('/requests', function () {
             'equipment_name' => $req->equipment->name ?? 'N/A',
             'start_at' => $req->start_at ? $req->start_at->format('Y-m-d') : '-',
             'end_at' => $req->end_at ? $req->end_at->format('Y-m-d') : '-',
-            'status' => ucfirst($req->status),
+            'status' => $req->status,
             'eject_reason' => $req->eject_reason ?? '-',
             'reason' => $req->reject_reason ?? $req->cancel_reason ?? '-',
             'created_at' => optional($req->created_at)->format('Y-m-d'),

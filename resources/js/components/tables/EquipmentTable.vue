@@ -1,101 +1,63 @@
 <template>
     <div class="bg-white p-6 rounded-lg shadow">
         <div class="relative mb-4">
-            <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search"
-                class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <svg
-                class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
-                />
+            <input type="text" v-model="searchQuery" placeholder="Search"
+                class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
             </svg>
         </div>
 
-        <div
-            class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4"
-        >
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
             <h2 class="text-lg font-semibold">
                 อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
             </h2>
             <!-- Badges row -->
             <div class="flex gap-2 flex-wrap items-center">
                 <!-- Status badges -->
-                <span
-                    v-for="s in statuses"
-                    :key="s"
-                    class="px-2 py-1 rounded text-sm font-medium"
-                    :class="statusClass(s)"
-                >
+                <span v-for="s in statuses" :key="s" class="px-2 py-1 rounded text-sm font-medium"
+                    :class="statusClass(s)">
                     {{ capitalize(s) }}: {{ statusCounts[s] || 0 }}
                 </span>
 
                 <!-- Category badges -->
-                <span
-                    v-for="c in validCategories"
-                    :key="c.id"
-                    class="px-2 py-1 rounded text-sm font-medium bg-gray-100 text-gray-800"
-                >
+                <span v-for="c in validCategories" :key="c.id"
+                    class="px-2 py-1 rounded text-sm font-medium bg-gray-100 text-gray-800">
                     {{ c.name }}: {{ categoryCounts[String(c.id)] || 0 }}
                 </span>
             </div>
-            <div
-                class="flex flex-wrap gap-2 items-center relative"
-                ref="filtersWrap"
-            >
-                <button
-                    @click="filtersOpen = !filtersOpen"
-                    class="px-3 py-1 border rounded"
-                >
+            <div class="flex flex-wrap gap-2 items-center relative" ref="filtersWrap">
+                <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
                     ตัวกรอง
                     <span class="text-xs text-gray-500 ml-1">
                         {{ filterStatus ? filterStatus : "all" }} ·
                         {{
                             filterCategoryId
                                 ? categories.find(
-                                      (c) =>
-                                          String(c.id) ===
-                                          String(filterCategoryId)
-                                  )?.name || "category"
+                                    (c) =>
+                                        String(c.id) ===
+                                        String(filterCategoryId)
+                                )?.name || "category"
                                 : "all categories"
                         }}
                     </span>
                 </button>
-                <button
-                    @click="toggleSort"
-                    class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35"
-                >
+                <button @click="toggleSort"
+                    class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
                     Date: {{ sortDirection.toUpperCase() }}
                 </button>
-                <button
-                    v-if="userRole === 'admin'"
-                    @click="openCreateModal"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
+                <button v-if="userRole === 'admin'" @click="openCreateModal"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                     เพิ่มอุปกรณ์ใหม่
                 </button>
 
                 <!-- Dropdown panel -->
-                <div
-                    v-if="filtersOpen"
-                    class="absolute right-0 top-10 z-10 bg-white border rounded shadow p-3 w-72"
-                >
+                <div v-if="filtersOpen" class="absolute right-0 top-10 z-10 bg-white border rounded shadow p-3 w-72">
                     <div class="mb-2">
                         <div class="text-sm font-semibold mb-1">สถานะ</div>
-                        <select
-                            v-model="filterStatus"
-                            class="w-full px-2 py-1 border rounded"
-                        >
+                        <select v-model="filterStatus" class="w-full px-2 py-1 border rounded">
                             <option value="">
                                 ทั้งหมด ({{ statusCounts.all }})
                             </option>
@@ -106,18 +68,11 @@
                     </div>
                     <div class="mb-3">
                         <div class="text-sm font-semibold mb-1">หมวดหมู่</div>
-                        <select
-                            v-model="filterCategoryId"
-                            class="w-full px-2 py-1 border rounded"
-                        >
+                        <select v-model="filterCategoryId" class="w-full px-2 py-1 border rounded">
                             <option value="">
                                 ทุกหมวดหมู่ ({{ categoryCounts.all }})
                             </option>
-                            <option
-                                v-for="c in validCategories"
-                                :key="c.id"
-                                :value="String(c.id)"
-                            >
+                            <option v-for="c in validCategories" :key="c.id" :value="String(c.id)">
                                 {{ c.name }} ({{
                                     categoryCounts[String(c.id)] || 0
                                 }})
@@ -125,16 +80,10 @@
                         </select>
                     </div>
                     <div class="flex justify-between">
-                        <button
-                            class="px-3 py-1 border rounded"
-                            @click="clearFilters"
-                        >
+                        <button class="px-3 py-1 border rounded" @click="clearFilters">
                             ล้างตัวกรอง
                         </button>
-                        <button
-                            class="px-3 py-1 bg-gray-900 text-white rounded"
-                            @click="filtersOpen = false"
-                        >
+                        <button class="px-3 py-1 bg-gray-900 text-white rounded" @click="filtersOpen = false">
                             เสร็จสิ้น
                         </button>
                     </div>
@@ -157,19 +106,11 @@
                 </tr>
             </thead>
             <tbody>
-                <tr
-                    v-for="equipment in paginatedEquipments"
-                    :key="equipment.id"
-                    class="border-b"
-                >
+                <tr v-for="equipment in paginatedEquipments" :key="equipment.id" class="border-b">
                     <td class="px-4 py-2 flex items-center space-x-2">
-                        <img
-                            v-if="getFirstPhoto(equipment)"
-                            :src="getFirstPhoto(equipment)"
-                            alt="Equipment Photo"
+                        <img v-if="getFirstPhoto(equipment)" :src="getFirstPhoto(equipment)" alt="Equipment Photo"
                             class="w-8 h-8 object-cover rounded cursor-pointer"
-                            @click="openPhotoModal(getFirstPhoto(equipment))"
-                        />
+                            @click="openPhotoModal(getFirstPhoto(equipment))" />
                     </td>
                     <td class="px-4 py-2">{{ equipment.code }}</td>
                     <td class="px-4 py-2">{{ equipment.name }}</td>
@@ -183,18 +124,12 @@
                         {{ capitalize(equipment.status) }}
                     </td>
                     <td class="px-4 py-2 space-x-2">
-                        <button
-                            v-if="userRole === 'admin'"
-                            @click="openModal(equipment)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
-                        >
+                        <button v-if="userRole === 'admin'" @click="openModal(equipment)"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
                             แก้ไขข้อมูล
                         </button>
-                        <button
-                            v-if="userRole === 'admin'"
-                            @click="deleteEquipment(equipment)"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                        >
+                        <button v-if="userRole === 'admin'" @click="deleteEquipment(equipment)"
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                             ลบรายการ
                         </button>
                     </td>
@@ -208,55 +143,29 @@
                 {{ filteredEquipments.length }} รายการ
             </div>
             <div class="flex items-center space-x-1">
-                <button
-                    class="px-3 py-1 border rounded disabled:opacity-50"
-                    :disabled="currentPage === 1"
-                    @click="prevPage"
-                >
+                <button class="px-3 py-1 border rounded disabled:opacity-50" :disabled="currentPage === 1"
+                    @click="prevPage">
                     ก่อนหน้า
                 </button>
-                <button
-                    v-for="p in pageCount"
-                    :key="p"
-                    class="px-3 py-1 border rounded"
-                    :class="{ 'bg-blue-600 text-white': currentPage === p }"
-                    @click="goToPage(p)"
-                >
+                <button v-for="p in pageCount" :key="p" class="px-3 py-1 border rounded"
+                    :class="{ 'bg-blue-600 text-white': currentPage === p }" @click="goToPage(p)">
                     {{ p }}
                 </button>
-                <button
-                    class="px-3 py-1 border rounded disabled:opacity-50"
-                    :disabled="currentPage === pageCount || pageCount === 0"
-                    @click="nextPage"
-                >
+                <button class="px-3 py-1 border rounded disabled:opacity-50"
+                    :disabled="currentPage === pageCount || pageCount === 0" @click="nextPage">
                     ถัดไป
                 </button>
             </div>
         </div>
 
-        <EquipmentEditModal
-            :isOpen="isOpen"
-            :equipment="selectedEquipment"
-            :categories="categories"
-            :statuses="statuses"
-            @cancel="isOpen = false"
-            @save="updateEquipment"
-            @image-change="selectedImageFile = $event"
-        />
+        <EquipmentEditModal :isOpen="isOpen" :equipment="selectedEquipment" :categories="categories"
+            :statuses="statuses" @cancel="isOpen = false" @save="updateEquipment"
+            @image-change="selectedImageFile = $event" />
 
-        <EquipmentCreateModal
-            :isOpen="createModal.isOpen"
-            :categories="categories"
-            :statuses="statuses"
-            @cancel="closeCreateModal"
-            @create="createEquipment"
-        />
+        <EquipmentCreateModal :isOpen="createModal.isOpen" :categories="categories" :statuses="statuses"
+            @cancel="closeCreateModal" @create="createEquipment" />
 
-        <PhotoModal
-            :isOpen="photoModal.isOpen"
-            :url="photoModal.url"
-            @close="closePhotoModal"
-        />
+        <PhotoModal :isOpen="photoModal.isOpen" :url="photoModal.url" @close="closePhotoModal" />
     </div>
 </template>
 
@@ -538,7 +447,7 @@ export default {
                                     try {
                                         const j = await res.json();
                                         msg = j.message || JSON.stringify(j);
-                                    } catch (e) {}
+                                    } catch (e) { }
                                     throw new Error(msg);
                                 }
                                 return res.json();
@@ -631,7 +540,7 @@ export default {
                         try {
                             const j = await res.json();
                             msg = j.message || JSON.stringify(j);
-                        } catch (e) {}
+                        } catch (e) { }
                         throw new Error(msg);
                     }
                     return res.json();
