@@ -1,4 +1,11 @@
 <template>
+  <!-- Breadcrumb -->
+  <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+    <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
+    <span>/</span>
+    <span class="font-semibold text-gray-900">หน้าจัดการหมวดหมู่</span>
+  </nav>
+
   <div class="bg-white p-6 rounded-lg shadow">
     <!-- Search Bar -->
     <div class="relative mb-4">

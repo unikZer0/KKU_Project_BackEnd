@@ -1,11 +1,4 @@
 <template>
-    <!-- Breadcrumb -->
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-        <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
-        <span>/</span>
-        <span class="font-semibold text-gray-900">หน้าจัดการอุปกรณ์</span>
-    </nav>
-
     <div class="bg-white p-6 rounded-lg shadow">
         <div class="relative mb-4">
             <input type="text" v-model="searchQuery" placeholder="Search"
@@ -21,155 +14,127 @@
             <h2 class="text-lg font-semibold">
                 อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
             </h2>
-            <!-- Badges row -->
-            <div class="flex gap-2 flex-wrap items-center">
-                <!-- Status badges -->
-                <span v-for="s in statuses" :key="s" class="px-2 py-1 rounded text-sm font-medium"
-                    :class="statusClass(s)">
-                    {{ capitalize(s) }}: {{ statusCounts[s] || 0 }}
-                </span>
+            <button @click="toggleSort"
+                class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
+                Date: {{ sortDirection.toUpperCase() }}
+            </button>
+            <button v-if="userRole === 'admin'" @click="openCreateModal"
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                เพิ่มอุปกรณ์ใหม่
+            </button>
 
-                <!-- Category badges -->
-            </div>
-            <div class="flex flex-wrap gap-2 items-center relative" ref="filtersWrap">
-                <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
-                    ตัวกรอง
-                    <span class="text-xs text-gray-500 ml-1">
-                        {{ filterStatus ? filterStatus : "all" }} ·
-                        {{
-                            filterCategoryId
-                                ? categories.find(
-                                    (c) =>
-                                        String(c.id) ===
-                                        String(filterCategoryId)
-                                )?.name || "category"
-                                : "all categories"
-                        }}
-                    </span>
-                </button>
-                <button @click="toggleSort"
-                    class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
-                    Date: {{ sortDirection.toUpperCase() }}
-                </button>
-                <button v-if="userRole === 'admin'" @click="openCreateModal"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    เพิ่มอุปกรณ์ใหม่
-                </button>
-
-                <!-- Dropdown panel -->
-                <div v-if="filtersOpen" class="absolute right-0 top-10 z-10 bg-white border rounded shadow p-3 w-72">
-                    <div class="mb-2">
-                        <div class="text-sm font-semibold mb-1">สถานะ</div>
-                        <select v-model="filterStatus" class="w-full px-2 py-1 border rounded">
-                            <option value="">
-                                ทั้งหมด ({{ statusCounts.all }})
-                            </option>
-                            <option v-for="s in statuses" :key="s" :value="s">
-                                {{ capitalize(s) }} ({{ statusCounts[s] || 0 }})
-                            </option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <div class="text-sm font-semibold mb-1">หมวดหมู่</div>
-                        <select v-model="filterCategoryId" class="w-full px-2 py-1 border rounded">
-                            <option value="">
-                                ทุกหมวดหมู่ ({{ categoryCounts.all }})
-                            </option>
-                            <option v-for="c in validCategories" :key="c.id" :value="String(c.id)">
-                                {{ c.name }} ({{
-                                    categoryCounts[String(c.id)] || 0
-                                }})
-                            </option>
-                        </select>
-                    </div>
-                    <div class="flex justify-between">
-                        <button class="px-3 py-1 border rounded" @click="clearFilters">
-                            ล้างตัวกรอง
-                        </button>
-                        <button class="px-3 py-1 bg-gray-900 text-white rounded" @click="filtersOpen = false">
-                            เสร็จสิ้น
-                        </button>
-                    </div>
+            <!-- Dropdown panel -->
+            <div v-if="filtersOpen" class="absolute right-0 top-10 z-10 bg-white border rounded shadow p-3 w-72">
+                <div class="mb-2">
+                    <div class="text-sm font-semibold mb-1">สถานะ</div>
+                    <select v-model="filterStatus" class="w-full px-2 py-1 border rounded">
+                        <option value="">
+                            ทั้งหมด ({{ statusCounts.all }})
+                        </option>
+                        <option v-for="s in statuses" :key="s" :value="s">
+                            {{ capitalize(s) }} ({{ statusCounts[s] || 0 }})
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <div class="text-sm font-semibold mb-1">หมวดหมู่</div>
+                    <select v-model="filterCategoryId" class="w-full px-2 py-1 border rounded">
+                        <option value="">
+                            ทุกหมวดหมู่ ({{ categoryCounts.all }})
+                        </option>
+                        <option v-for="c in validCategories" :key="c.id" :value="String(c.id)">
+                            {{ c.name }} ({{
+                                categoryCounts[String(c.id)] || 0
+                            }})
+                        </option>
+                    </select>
+                </div>
+                <div class="flex justify-between">
+                    <button class="px-3 py-1 border rounded" @click="clearFilters">
+                        ล้างตัวกรอง
+                    </button>
+                    <button class="px-3 py-1 bg-gray-900 text-white rounded" @click="filtersOpen = false">
+                        เสร็จสิ้น
+                    </button>
                 </div>
             </div>
         </div>
-
-        <table class="min-w-full text-sm">
-            <thead class="bg-gray-50 border-b">
-                <tr>
-                    <th class="px-4 py-2 text-left">รูป</th>
-                    <th class="px-4 py-2 text-left">ID</th>
-                    <th class="px-4 py-2 text-left">ชื่ออุปกรณ์</th>
-                    <th class="px-4 py-2 text-left">รายละเอียด</th>
-                    <th class="px-4 py-2 text-left">หมวดหมู่</th>
-                    <th class="px-4 py-2 text-left">สถานะ</th>
-                    <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">
-                        แอคชั่น
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="equipment in paginatedEquipments" :key="equipment.id" class="border-b">
-                    <td class="px-4 py-2 flex items-center space-x-2">
-                        <img v-if="getFirstPhoto(equipment)" :src="getFirstPhoto(equipment)" alt="Equipment Photo"
-                            class="w-8 h-8 object-cover rounded cursor-pointer"
-                            @click="openPhotoModal(getFirstPhoto(equipment))" />
-                    </td>
-                    <td class="px-4 py-2">{{ equipment.code }}</td>
-                    <td class="px-4 py-2">{{ equipment.name }}</td>
-                    <td class="px-4 py-2 max-w-[200px] truncate">
-                        {{ equipment.description }}
-                    </td>
-                    <td class="px-4 py-2">
-                        {{ equipment.category?.name || "N/A" }}
-                    </td>
-                    <td class="px-4 py-2">
-                        {{ capitalize(equipment.status) }}
-                    </td>
-                    <td class="px-4 py-2 space-x-2">
-                        <button v-if="userRole === 'admin'" @click="openModal(equipment)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                            แก้ไขข้อมูล
-                        </button>
-                        <button v-if="userRole === 'admin'" @click="deleteEquipment(equipment)"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                            ลบรายการ
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="mt-4 flex items-center justify-between">
-            <div class="text-sm text-gray-600">
-                แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด
-                {{ filteredEquipments.length }} รายการ
-            </div>
-            <div class="flex items-center space-x-1">
-                <button class="px-3 py-1 border rounded disabled:opacity-50" :disabled="currentPage === 1"
-                    @click="prevPage">
-                    ก่อนหน้า
-                </button>
-                <button v-for="p in pageCount" :key="p" class="px-3 py-1 border rounded"
-                    :class="{ 'bg-blue-600 text-white': currentPage === p }" @click="goToPage(p)">
-                    {{ p }}
-                </button>
-                <button class="px-3 py-1 border rounded disabled:opacity-50"
-                    :disabled="currentPage === pageCount || pageCount === 0" @click="nextPage">
-                    ถัดไป
-                </button>
-            </div>
-        </div>
-
-        <EquipmentEditModal :isOpen="isOpen" :equipment="selectedEquipment" :categories="categories"
-            :statuses="statuses" @cancel="isOpen = false" @save="updateEquipment"
-            @image-change="selectedImageFile = $event" />
-
-        <EquipmentCreateModal :isOpen="createModal.isOpen" :categories="categories" :statuses="statuses"
-            @cancel="closeCreateModal" @create="createEquipment" />
-
-        <PhotoModal :isOpen="photoModal.isOpen" :url="photoModal.url" @close="closePhotoModal" />
     </div>
+
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 border-b">
+            <tr>
+                <th class="px-4 py-2 text-left">รูป</th>
+                <th class="px-4 py-2 text-left">ID</th>
+                <th class="px-4 py-2 text-left">ชื่ออุปกรณ์</th>
+                <th class="px-4 py-2 text-left">รายละเอียด</th>
+                <th class="px-4 py-2 text-left">หมวดหมู่</th>
+                <th class="px-4 py-2 text-left">สถานะ</th>
+                <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">
+                    แอคชั่น
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="equipment in paginatedEquipments" :key="equipment.id" class="border-b">
+                <td class="px-4 py-2 flex items-center space-x-2">
+                    <img v-if="getFirstPhoto(equipment)" :src="getFirstPhoto(equipment)" alt="Equipment Photo"
+                        class="w-8 h-8 object-cover rounded cursor-pointer"
+                        @click="openPhotoModal(getFirstPhoto(equipment))" />
+                </td>
+                <td class="px-4 py-2">{{ equipment.code }}</td>
+                <td class="px-4 py-2">{{ equipment.name }}</td>
+                <td class="px-4 py-2 max-w-[200px] truncate">
+                    {{ equipment.description }}
+                </td>
+                <td class="px-4 py-2">
+                    {{ equipment.category?.name || "N/A" }}
+                </td>
+                <td class="px-4 py-2">
+                    {{ capitalize(equipment.status) }}
+                </td>
+                <td class="px-4 py-2 space-x-2">
+                    <button v-if="userRole === 'admin'" @click="openModal(equipment)"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+                        แก้ไขข้อมูล
+                    </button>
+                    <button v-if="userRole === 'admin'" @click="deleteEquipment(equipment)"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                        ลบรายการ
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="mt-4 flex items-center justify-between">
+        <div class="text-sm text-gray-600">
+            แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด
+            {{ filteredEquipments.length }} รายการ
+        </div>
+        <div class="flex items-center space-x-1">
+            <button class="px-3 py-1 border rounded disabled:opacity-50" :disabled="currentPage === 1"
+                @click="prevPage">
+                ก่อนหน้า
+            </button>
+            <button v-for="p in pageCount" :key="p" class="px-3 py-1 border rounded"
+                :class="{ 'bg-blue-600 text-white': currentPage === p }" @click="goToPage(p)">
+                {{ p }}
+            </button>
+            <button class="px-3 py-1 border rounded disabled:opacity-50"
+                :disabled="currentPage === pageCount || pageCount === 0" @click="nextPage">
+                ถัดไป
+            </button>
+        </div>
+    </div>
+
+    <EquipmentEditModal :isOpen="isOpen" :equipment="selectedEquipment" :categories="categories" :statuses="statuses"
+        @cancel="isOpen = false" @save="updateEquipment" @image-change="selectedImageFile = $event" />
+
+    <EquipmentCreateModal :isOpen="createModal.isOpen" :categories="categories" :statuses="statuses"
+        @cancel="closeCreateModal" @create="createEquipment" />
+
+    <PhotoModal :isOpen="photoModal.isOpen" :url="photoModal.url" @close="closePhotoModal" />
 </template>
 
 <script>

@@ -1,4 +1,8 @@
 <template>
+  <!-- Breadcrumb -->
+  <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+    <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
+  </nav>
   <div class="p-4 bg-white rounded-lg shadow-md">
     <h2 class="text-lg font-semibold mb-4">กราฟคำขอ</h2>
     <canvas ref="chartCanvas"></canvas>

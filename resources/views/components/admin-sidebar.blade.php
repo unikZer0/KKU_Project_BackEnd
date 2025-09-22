@@ -1,4 +1,4 @@
-<as id="admin-sidebar" class="w-64 bg-white border-r min-h-screen md:sticky md:top-0">
+<aside id="admin-sidebar" class="w-64 bg-white border-r min-h-screen md:sticky md:top-0">
     <nav class="p-4 space-y-1">
         <a href="{{ route('admin.index') }}"
             class="{{ request()->routeIs('admin.index') ? 'flex items-center px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-gray-900' : 'flex items-center px-3 py-2 rounded-md text-sm text-gray-900' }}">
@@ -12,7 +12,7 @@
         </a>
         <div x-data="{ open: false }" class="space-y-1">
             <button @click="open = !open"
-                class="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none">
+                class="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-gray-900 hover:focus:outline-none">
                 <span class="flex items-center gap-2">
                     <!-- Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -34,7 +34,7 @@
             <!-- Dropdown container -->
             <div x-show="open" x-transition class="pl-6 mt-1 space-y-1 border-l border-gray-200">
                 <a href="{{ route('admin.report.vue', ['type' => 'user']) }}"
-                    class="{{ request()->routeIs('admin.report.users') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900 flex items-center' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
+                    class="{{ request()->routeIs('admin.report.vue?type=user') ? 'block px-3 py-2 rounded-md text-sm font-medium text-gray-900 flex items-center bg-blue-100' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -45,7 +45,7 @@
                 </a>
 
                 <a href="{{ route('admin.report.vue', ['type' => 'equipment']) }}"
-                    class="{{ request()->routeIs('admin.report.equipments') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900 flex items-center' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
+                    class="{{ request()->routeIs('admin.report.equipments') ? 'block px-3 py-2 rounded-md text-sm font-medium text-gray-900 flex items-center bg-blue-100' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -56,7 +56,7 @@
                 </a>
 
                 <a href="{{ route('admin.report.vue', ['type' => 'category']) }}"
-                    class="{{ request()->routeIs('admin.report.categories') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900 flex items-center' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
+                    class="{{ request()->routeIs('admin.report.categories') ? 'block px-3 py-2 rounded-md text-sm font-medium text-gray-900 flex items-center bg-blue-100' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
                     <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -66,7 +66,7 @@
                 </a>
 
                 <a href="{{ route('admin.report.vue', ['type' => 'request']) }}"
-                    class="{{ request()->routeIs('admin.report.requests') ? 'block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900 flex items-center' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
+                    class="{{ request()->routeIs('admin.report.requests') ? 'block px-3 py-2 rounded-md text-sm font-medium text-gray-900 flex items-center bg-blue-100' : 'block px-3 py-2 rounded-md text-sm text-gray-900 flex items-center' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -110,4 +110,4 @@
             หน้าจัดการคำขอ
         </a>
     </nav>
-</as ide>
+</aside>

@@ -11,6 +11,7 @@ import AdminApproveTable from './components/tables/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
 import EquipmentTable from './components/tables/EquipmentTable.vue';
 import CategoriesTable from './components/tables/CategoryTable.vue';
+import UsersTable from './components/tables/UserTable.vue';
 import RecentAct from './components/RecentAct.vue';
 
 // Header Search
@@ -28,14 +29,14 @@ if (paginationEl) createApp(Pagination).mount(paginationEl);
 // Admin Approve Table
 const tableEl = document.getElementById('admin-table');
 if (tableEl) {
-    const requests = JSON.parse(tableEl.dataset.requests);
-    createApp(AdminApproveTable, { requests }).mount(tableEl);
+  const requests = JSON.parse(tableEl.dataset.requests);
+  createApp(AdminApproveTable, { requests }).mount(tableEl);
 }
 
 const recentActivitiesEl = document.getElementById('recent-activities');
 if (recentActivitiesEl) {
-    const requests = JSON.parse(recentActivitiesEl.dataset.requests);
-    createApp(RecentAct, { requests }).mount(recentActivitiesEl);
+  const requests = JSON.parse(recentActivitiesEl.dataset.requests);
+  createApp(RecentAct, { requests }).mount(recentActivitiesEl);
 }
 
 // Chart Dashboard
@@ -57,11 +58,17 @@ if (chartEl) {
 // Equipment Table
 const equipmentTableEl = document.getElementById('equipment-table');
 if (equipmentTableEl) {
-    createApp(EquipmentTable).mount(equipmentTableEl);
+  createApp(EquipmentTable).mount(equipmentTableEl);
 }
 
 // Category Table
 const categoryTableEl = document.getElementById('category-table');
 if (categoryTableEl) {
-    createApp(CategoriesTable).mount(categoryTableEl);
+  createApp(CategoriesTable).mount(categoryTableEl);
+}
+
+// User Table
+const userTableEl = document.getElementById('user-table');
+if (userTableEl) {
+  createApp(UsersTable).mount(userTableEl);
 }
