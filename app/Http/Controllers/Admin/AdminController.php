@@ -13,56 +13,73 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         $year = $request->input('year', now()->year);
-        $cacheKey = "admin_dashboard_{$year}";
+        $month = $request->input('month'); // optional
 
-        $data = Cache::remember($cacheKey, 300, function () use ($year) {
-            $recentRequests = BorrowRequest::with('user', 'equipment')
-                ->latest()
-                ->take(5)
-                ->get()
-                ->map(function ($r) {
-                    return [
-                        'id' => $r->req_id,
-                        'user_name' => $r->user->name ?? 'N/A',
-                        'equipment_name' => $r->equipment->name ?? 'N/A',
-                        'start' => optional($r->start_at)->format('Y-m-d'),
-                        'end' => optional($r->end_at)->format('Y-m-d'),
-                        'status' => ucfirst($r->status),
-                    ];
-                });
+        $cacheKey = "admin_dashboard_{$year}_{$month}";
 
+        $data = Cache::remember($cacheKey, 300, function () use ($year, $month) {
+            $query = BorrowRequest::query();
+            $query->whereYear('created_at', $year);
+
+            if ($month) {
+                $query->whereMonth('created_at', $month);
+            }
+
+            // KPI Cards
             $borrowStatus = [
-                'TotalRequests' => BorrowRequest::count(),
-                'checkinReq' => BorrowRequest::where('status','check_in')->count(),
-                'Approved' => BorrowRequest::where('status', 'approved')->count(),
-                'Rejected' => BorrowRequest::where('status', 'rejected')->count(),
-                'Pending' => BorrowRequest::where('status', 'pending')->count(),
+                'TotalRequests' => (clone $query)->count(),
+                'checkinReq' => (clone $query)->where('status', 'check_in')->count(),
+                'Approved' => (clone $query)->where('status', 'approved')->count(),
+                'Rejected' => (clone $query)->where('status', 'rejected')->count(),
+                'Pending' => (clone $query)->where('status', 'pending')->count(),
             ];
 
-            $monthlyData = BorrowRequest::selectRaw('
-                    MONTH(created_at) as month,
-                    COUNT(*) as total,
-                    SUM(status = "approved") as approved,
-                    SUM(status = "rejected") as rejected
-                ')
-                ->whereYear('created_at', $year)
-                ->groupBy('month')
-                ->orderBy('month')
-                ->get()
-                ->keyBy('month');
+            // Chart data
+            if ($month) {
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
-            $months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-            $borrowStatusMonthly = [
-                'months' => $months,
-                'TotalRequests' => [],
-                'Approved' => [],
-                'Rejected' => [],
-            ];
+                $dailyData = BorrowRequest::selectRaw('DAY(created_at) as day, COUNT(*) as total, SUM(status="approved") as approved, SUM(status="rejected") as rejected')
+                    ->whereYear('created_at', $year)
+                    ->whereMonth('created_at', $month)
+                    ->groupBy('day')
+                    ->orderBy('day')
+                    ->get()
+                    ->keyBy('day');
 
-            for ($month = 1; $month <= 12; $month++) {
-                $borrowStatusMonthly['TotalRequests'][] = $monthlyData[$month]->total ?? 0;
-                $borrowStatusMonthly['Approved'][] = $monthlyData[$month]->approved ?? 0;
-                $borrowStatusMonthly['Rejected'][] = $monthlyData[$month]->rejected ?? 0;
+                $chartData = [
+                    'labels' => array_map(fn($d) => "Day $d", range(1, $daysInMonth)),
+                    'TotalRequests' => [],
+                    'Approved' => [],
+                    'Rejected' => [],
+                ];
+
+                for ($d = 1; $d <= $daysInMonth; $d++) {
+                    $chartData['TotalRequests'][] = $dailyData[$d]->total ?? 0;
+                    $chartData['Approved'][] = $dailyData[$d]->approved ?? 0;
+                    $chartData['Rejected'][] = $dailyData[$d]->rejected ?? 0;
+                }
+            } else {
+                $months = range(1, 12);
+
+                $monthlyData = BorrowRequest::selectRaw('MONTH(created_at) as month, COUNT(*) as total, SUM(status="approved") as approved, SUM(status="rejected") as rejected')
+                    ->whereYear('created_at', $year)
+                    ->groupBy('month')
+                    ->orderBy('month')
+                    ->get()
+                    ->keyBy('month');
+
+                $chartData = [
+                    'labels' => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                    'TotalRequests' => [],
+                    'Approved' => [],
+                    'Rejected' => [],
+                ];
+
+                foreach ($months as $m) {
+                    $chartData['TotalRequests'][] = $monthlyData[$m]->total ?? 0;
+                    $chartData['Approved'][] = $monthlyData[$m]->approved ?? 0;
+                    $chartData['Rejected'][] = $monthlyData[$m]->rejected ?? 0;
+                }
             }
 
             $availableYears = BorrowRequest::selectRaw('YEAR(created_at) as year')
@@ -70,17 +87,25 @@ class AdminController extends Controller
                 ->orderBy('year', 'desc')
                 ->pluck('year');
 
+            $recentRequests = (clone $query)->with('user', 'equipment')->latest()->take(5)->get()->map(function($r) {
+                return [
+                    'id' => $r->req_id,
+                    'user_name' => $r->user->name ?? 'N/A',
+                    'equipment_name' => $r->equipment->name ?? 'N/A',
+                    'start' => optional($r->start_at)->format('Y-m-d'),
+                    'end' => optional($r->end_at)->format('Y-m-d'),
+                    'status' => ucfirst($r->status),
+                ];
+            });
+
             return [
-                'totalRequests' => $borrowStatus['TotalRequests'],
-                'checkinReq' => $borrowStatus['checkinReq'],
-                'pendingRequests' => $borrowStatus['Pending'],
-                'penaltyNotices' => BorrowRequest::where('status', 'overdue')->count(),
                 'borrowStatus' => $borrowStatus,
-                'borrowStatusMonthly' => $borrowStatusMonthly,
+                'chartData' => $chartData,
+                'availableYears' => $availableYears,
+                'selectedYear' => $year,
+                'selectedMonth' => $month,
                 'recentRequests' => $recentRequests,
                 'categoryCounts' => Category::withCount('equipments')->get(),
-                'selectedYear' => $year,
-                'availableYears' => $availableYears,
             ];
         });
 

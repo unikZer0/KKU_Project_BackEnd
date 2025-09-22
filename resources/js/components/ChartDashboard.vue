@@ -36,33 +36,30 @@ export default {
       if (this.chart) this.chart.destroy();
 
       this.chart = new Chart(ctx, {
-        type: "line",
+        type: "bar", // 🔹 change to bar (tower)
         data: {
           labels: this.months,
           datasets: [
             {
               label: "คำขอทั้งหมด",
               data: this.totalRequestsData,
+              backgroundColor: "rgba(74, 222, 128, 0.6)",
               borderColor: "#4ade80",
-              backgroundColor: "rgba(74, 222, 128, 0.2)",
-              fill: true,
-              tension: 0.4,
+              borderWidth: 1,
             },
             {
               label: "คำขอที่อนุมัติ",
               data: this.approvedData,
+              backgroundColor: "rgba(59, 130, 246, 0.6)",
               borderColor: "#3b82f6",
-              backgroundColor: "rgba(59, 130, 246, 0.2)",
-              fill: true,
-              tension: 0.4,
+              borderWidth: 1,
             },
             {
               label: "คำขอที่ถูกปฏิเสธ",
               data: this.rejectedData,
+              backgroundColor: "rgba(239, 68, 68, 0.6)",
               borderColor: "#ef4444",
-              backgroundColor: "rgba(239, 68, 68, 0.2)",
-              fill: true,
-              tension: 0.4,
+              borderWidth: 1,
             },
           ],
         },
