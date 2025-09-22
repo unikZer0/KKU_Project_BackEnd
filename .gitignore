@@ -18,9 +18,6 @@
 /node_modules
 /public/build
 /public/hot
-/public/storage
-/storage/*.key
-/storage/pail
 /vendor
 Homestead.json
 Homestead.yaml
@@ -31,3 +28,7 @@ dockerforprod.txt
 composeforprod.txt
 composePROD.txt
 DockerfilePROD.txt
+Dockerfile
+compose.yaml
+Dockerfile
+public/storage
