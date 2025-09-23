@@ -3,6 +3,7 @@ import EquipmentReport from './components/tables/reports/EquipmentReport.vue';
 import CategoryReport from './components/tables/reports/CategoryReport.vue';
 import UserReport from './components/tables/reports/UserReport.vue';
 import RequestReport from './components/tables/reports/RequestReport.vue';
+import LogReport from './components/tables/reports/LogReport.vue';
 
 const el = document.getElementById('report-app');
 
@@ -12,7 +13,8 @@ if (el) {
         equipment: EquipmentReport,
         category: CategoryReport,
         user: UserReport,
-        request: RequestReport
+        request: RequestReport,
+        log: LogReport
     };
 
     const SelectedComponent = components[type] || EquipmentReport;

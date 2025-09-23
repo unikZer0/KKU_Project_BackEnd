@@ -23,11 +23,6 @@
         หมวดหมู่ทั้งหมด: {{ filteredCategories.length }}
       </h2>
       <div class="flex flex-wrap gap-2 items-center">
-        <!-- Sort toggle -->
-        <button @click="toggleSort"
-          class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-          {{ sortDirection.toUpperCase() }}
-        </button>
         <!-- Add button (only admin) -->
         <button v-if="userRole === 'admin'" @click="createModalOpen = true"
           class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
@@ -40,9 +35,15 @@
     <table class="min-w-full text-sm">
       <thead class="bg-gray-50 border-b">
         <tr>
-          <th class="px-4 py-2 text-left">รหัสหมวดหมู่</th>
-          <th class="px-4 py-2 text-left">ชื่อหมวดหมู่</th>
-          <th class="px-4 py-2 text-left">จํานวนอุปกรณ์</th>
+          <th class="px-4 py-2 text-left" @canplay="setSort('cate_id')">รหัสหมวดหมู่
+            <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
+          <th class="px-4 py-2 text-left" @click="setSort('name')">ชื่อหมวดหมู่
+            <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
+          <th class="px-4 py-2 text-left" @click="setSort('equipments_count')">จํานวนอุปกรณ์
+            <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          </th>
           <th v-if="userRole === 'admin'" class="px-4 py-2 text-left">แอคชั่น</th>
         </tr>
       </thead>
@@ -92,6 +93,7 @@ export default {
       createModalOpen: false,
       selectedCategory: null,
       categoryTypes: [],
+      sortKey: "created_at",
       sortDirection: "asc",
     };
   },
@@ -120,8 +122,13 @@ export default {
     }
   },
   methods: {
-    toggleSort() {
-      this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+    setSort(key) {
+      if (this.sortKey === key) {
+        this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+      } else {
+        this.sortKey = key;
+        this.sortDirection = "asc";
+      }
     },
     typeClass(type) {
       return type === 'Unknown'
