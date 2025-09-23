@@ -21,16 +21,6 @@
             <h2 class="text-lg font-semibold">
                 อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
             </h2>
-            <!-- Badges row -->
-            <div class="flex gap-2 flex-wrap items-center">
-                <!-- Status badges -->
-                <span v-for="s in statuses" :key="s" class="px-2 py-1 rounded text-sm font-medium"
-                    :class="statusClass(s)">
-                    {{ capitalize(s) }}: {{ statusCounts[s] || 0 }}
-                </span>
-
-                <!-- Category badges -->
-            </div>
             <div class="flex flex-wrap gap-2 items-center relative" ref="filtersWrap">
                 <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
                     ตัวกรอง
@@ -108,7 +98,12 @@
                     <th class="px-4 py-2 text-left" @click="setSort('category')">หมวดหมู่
                         <span v-if="sortKey === 'category'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
                     </th>
-                    <th class="px-4 py-2 text-left">สถานะ</th>
+                    <th class="px-4 py-2 text-left" @click="setSort('brand')">แบรนด์
+                        <span v-if="sortKey === 'brand'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class="px-4 py-2 text-left" @click="setSort('model')">รุ่น
+                        <span v-if="sortKey === 'model'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
                     <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">
                         แอคชั่น
                     </th>
@@ -119,7 +114,7 @@
                     <td class="px-4 py-2 flex items-center space-x-2">
                         <img v-if="getFirstPhoto(equipment)" :src="getFirstPhoto(equipment)" alt="Equipment Photo"
                             class="w-8 h-8 object-cover rounded cursor-pointer"
-                            @click="openPhotoModal(getFirstPhoto(equipment))" />
+                            @click="openPhotoModal(getFirstPhoto(equipment))" /> NA
                     </td>
                     <td class="px-4 py-2">{{ equipment.code }}</td>
                     <td class="px-4 py-2">{{ equipment.name }}</td>
@@ -130,7 +125,10 @@
                         {{ equipment.category?.name || "N/A" }}
                     </td>
                     <td class="px-4 py-2">
-                        {{ capitalize(equipment.status) }}
+                        {{ equipment.brand || "N/A" }}
+                    </td>
+                    <td class="px-4 py-2">
+                        {{ equipment.model || "N/A" }}
                     </td>
                     <td class="px-4 py-2 space-x-2">
                         <button v-if="userRole === 'admin'" @click="openModal(equipment)"

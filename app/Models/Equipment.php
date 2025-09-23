@@ -13,7 +13,9 @@ class Equipment extends Model
         'name',
         'description',
         'categories_id',
-        'status',
+        'brand',
+        'model',
+        'specification',
         'photo_path'
     ];
 

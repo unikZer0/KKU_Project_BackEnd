@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
- [x-cloak] {
-        display: none !important;
-    }
+@font-face {
+    font-family: "PKM";
+    src: url("../fonts/PK-Maehongson-Medium.ttf") format("truetype"),
+        url(../fonts/PK-Maehongson-Medium.otf") format("opentype");
+}
+
+[x-cloak] {
+    display: none !important;
+}

@@ -17,7 +17,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-pkm antialiased bg-gray-50">
     <div class="min-h-screen">
         <x-admin-header />
         <div class="flex">
@@ -30,20 +30,20 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const toggle = document.getElementById('sidebar-toggle');
             const sidebarWrapper = document.querySelector('body .flex > .hidden.md\\:block');
             if (toggle && sidebarWrapper) {
-                toggle.addEventListener('click', function() {
+                toggle.addEventListener('click', function () {
                     sidebarWrapper.classList.toggle('hidden');
                 });
             }
         });
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const logoutForms = document.querySelectorAll('.logout-form');
 
-            logoutForms.forEach(function(form) {
-                form.addEventListener('submit', function(e) {
+            logoutForms.forEach(function (form) {
+                form.addEventListener('submit', function (e) {
                     e.preventDefault();
 
                     Swal.fire({

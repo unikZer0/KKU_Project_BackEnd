@@ -35,7 +35,7 @@
                             <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-900 mb-1 truncate">
                                 {{ $equipment->name }}
                             </h3>
-                            <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{{ $equipment->category->name }}
+                            <p class="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">{{ $equipment->category?->name }}
                             </p>
                             <p class="text-xs text-gray-400 mb-2 line-clamp-2">
                                 {{ $equipment->description }}
