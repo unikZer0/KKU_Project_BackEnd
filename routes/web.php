@@ -57,10 +57,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.category.destroy');
         });
 
-        // Reports (subset)
-        Route::prefix('admin/report')->group(function () {
-            Route::get('/logs', [LogController::class, 'logReport'])->name('admin.report.logs');
-        });
+        //     // Reports (subset)
+        //     Route::prefix('admin/report')->group(function () {
+        //         Route::get('/logs', [LogController::class, 'logReport'])->name('admin.report.logs');
+        //     });
     });
 
     // Staff and Admin routes

@@ -7,6 +7,7 @@ use App\Models\Equipment;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\BorrowRequest;
+use App\Models\Log;
 
 Route::get('/equipments', function () {
     return Equipment::with('category')->get();
@@ -34,4 +35,8 @@ route::get('/requests', function () {
             'created_at' => optional($req->created_at)->format('Y-m-d'),
         ];
     });
+});
+
+Route::get('/logs', function () {
+    return Log::all();
 });

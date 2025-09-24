@@ -21,16 +21,6 @@
             <h2 class="text-lg font-semibold">
                 อุปกรณ์รวมกันทั้งหมด: {{ filteredEquipments.length }} ชิ้น
             </h2>
-            <!-- Badges row -->
-            <div class="flex gap-2 flex-wrap items-center">
-                <!-- Status badges -->
-                <span v-for="s in statuses" :key="s" class="px-2 py-1 rounded text-sm font-medium"
-                    :class="statusClass(s)">
-                    {{ capitalize(s) }}: {{ statusCounts[s] || 0 }}
-                </span>
-
-                <!-- Category badges -->
-            </div>
             <div class="flex flex-wrap gap-2 items-center relative" ref="filtersWrap">
                 <button @click="filtersOpen = !filtersOpen" class="px-3 py-1 border rounded">
                     ตัวกรอง
@@ -47,10 +37,7 @@
                         }}
                     </span>
                 </button>
-                <button @click="toggleSort"
-                    class="border border-gray-300 rounded-md px-5 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-35">
-                    Date: {{ sortDirection.toUpperCase() }}
-                </button>
+
                 <button v-if="userRole === 'admin'" @click="openCreateModal"
                     class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                     เพิ่มอุปกรณ์ใหม่
@@ -98,11 +85,25 @@
             <thead class="bg-gray-50 border-b">
                 <tr>
                     <th class="px-4 py-2 text-left">รูป</th>
-                    <th class="px-4 py-2 text-left">ID</th>
-                    <th class="px-4 py-2 text-left">ชื่ออุปกรณ์</th>
-                    <th class="px-4 py-2 text-left">รายละเอียด</th>
-                    <th class="px-4 py-2 text-left">หมวดหมู่</th>
-                    <th class="px-4 py-2 text-left">สถานะ</th>
+                    <th class="px-4 py-2 text-left" @click="setSort('id')">ID
+                        <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @click="setSort('name')">
+                        ชื่ออุปกรณ์
+                        <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class=" px-4 py-2 text-left" @click="setSort('description')">รายละเอียด
+                        <span v-if="sortKey === 'description'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class="px-4 py-2 text-left" @click="setSort('category')">หมวดหมู่
+                        <span v-if="sortKey === 'category'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class="px-4 py-2 text-left" @click="setSort('brand')">แบรนด์
+                        <span v-if="sortKey === 'brand'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class="px-4 py-2 text-left" @click="setSort('model')">รุ่น
+                        <span v-if="sortKey === 'model'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
                     <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">
                         แอคชั่น
                     </th>
@@ -113,7 +114,7 @@
                     <td class="px-4 py-2 flex items-center space-x-2">
                         <img v-if="getFirstPhoto(equipment)" :src="getFirstPhoto(equipment)" alt="Equipment Photo"
                             class="w-8 h-8 object-cover rounded cursor-pointer"
-                            @click="openPhotoModal(getFirstPhoto(equipment))" />
+                            @click="openPhotoModal(getFirstPhoto(equipment))" /> NA
                     </td>
                     <td class="px-4 py-2">{{ equipment.code }}</td>
                     <td class="px-4 py-2">{{ equipment.name }}</td>
@@ -124,7 +125,10 @@
                         {{ equipment.category?.name || "N/A" }}
                     </td>
                     <td class="px-4 py-2">
-                        {{ capitalize(equipment.status) }}
+                        {{ equipment.brand || "N/A" }}
+                    </td>
+                    <td class="px-4 py-2">
+                        {{ equipment.model || "N/A" }}
                     </td>
                     <td class="px-4 py-2 space-x-2">
                         <button v-if="userRole === 'admin'" @click="openModal(equipment)"
@@ -190,6 +194,7 @@ export default {
             userRole: el?.dataset?.role || "",
             equipments: JSON.parse(el.dataset.equipments || "[]"),
             categories: JSON.parse(el.dataset.categories || "[]"),
+            sortKey: "created_at",
             sortDirection: "asc",
             statuses: ["available", "retired", "maintenance"],
             searchQuery: "",
@@ -262,11 +267,21 @@ export default {
                 return matchesSearch && matchesStatus && matchesCategory;
             });
             list.sort((a, b) => {
-                const da = new Date(a.created_at);
-                const db = new Date(b.created_at);
-                return this.sortDirection === "asc" ? da - db : db - da;
-            });
+                let x = a[this.sortKey] ?? "";
+                let y = b[this.sortKey] ?? "";
 
+                if (this.sortKey === "created_at") {
+                    x = new Date(x);
+                    y = new Date(y);
+                }
+                else {
+                    x = String(x).toLowerCase();
+                    y = String(y).toLowerCase();
+                }
+                if (x < y) return this.sortDirection === "asc" ? -1 : 1;
+                if (x > y) return this.sortDirection === "asc" ? 1 : -1;
+                return 0;
+            });
             return list;
         },
         pageCount() {
@@ -313,8 +328,13 @@ export default {
                 return equipment.photo_path;
             }
         },
-        toggleSort() {
-            this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+        setSort(key) {
+            if (this.sortKey === key) {
+                this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+            } else {
+                this.sortKey = key;
+                this.sortDirection = "asc";
+            }
         },
         goToPage(p) {
             this.currentPage = p;

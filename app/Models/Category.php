@@ -9,11 +9,11 @@ class Category extends Model
 {
     protected $table = 'categories';
     protected $fillable = [
-        "id",
-        "cate_id",
+        'cate_id',
         "name",
+        "description"
     ];
-    
+
     protected static function generateEcode()
     {
         do {
@@ -23,7 +23,7 @@ class Category extends Model
         return $cate_id;
     }
 
-        protected static function boot()
+    protected static function boot()
     {
         parent::boot();
 
