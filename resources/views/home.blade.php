@@ -17,20 +17,18 @@
                             @endphp
                             <img src="{{ $firstPhoto }}" alt="{{ $equipment->name }}"
                                 class="w-full h-32 sm:h-48 lg:h-60 object-cover group-hover:scale-105 transition-transform" />
-                            @if ($equipment->status === 'maintenance')
+                            @php
+                                $derived = $equipment->availability_status ?? 'unavailable';
+                            @endphp
+                            @if ($derived === 'unavailable')
                                 <span
                                     class="absolute top-2 right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded">
-                                    {{ ucfirst($equipment->status) }}
+                                    Unavailable
                                 </span>
-                            @elseif ($equipment->status === 'retired')
-                                <span
-                                    class="absolute top-2 right-2 bg-gray-600 text-white text-xs px-1.5 py-0.5 rounded">
-                                    {{ ucfirst($equipment->status) }}
-                                </span>
-                            @else
+                            @elseif ($derived === 'available')
                                 <span
                                     class="absolute top-2 right-2 bg-green-600 text-white text-xs px-1.5 py-0.5 rounded">
-                                    {{ ucfirst($equipment->status) }}
+                                    Available
                                 </span>
                             @endif
                         </div>
@@ -42,8 +40,6 @@
                             <p class="text-xs text-gray-400 mb-2 line-clamp-2">
                                 {{ $equipment->description }}
                             </p>
-
-                            {{-- <span class="text-sm sm:text-lg font-semibold text-green-600">Free</span> --}}
                         </div>
                     </div>
                 </a>

@@ -4,7 +4,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 my-5">
             @php
-                $activeRequests = $reQuests->where('status', '!=', 'cancelled');
+                $activeRequests = ($requests ?? collect())->where('status', '!=', 'cancelled');
             @endphp
 
             @if ($activeRequests->isEmpty())

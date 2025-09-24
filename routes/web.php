@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Borrowers\BorrowerCtrl;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -26,6 +27,10 @@ Route::middleware('auth')->group(function () {
     // Notifications
     Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile/request-verification', [ProfileController::class, 'requestVerification'])->name('profile.requestVerification');
 
     // Borrower area
     Route::prefix('/borrower')->group(function () {

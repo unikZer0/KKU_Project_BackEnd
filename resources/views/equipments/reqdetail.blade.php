@@ -2,7 +2,7 @@
     <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">คำขอยืมอุปกรณ์</h1>
             @php
-                $activeRequests = $reQuests->where('status', '!=', 'cancelled');
+                $activeRequests = ($reQuests ?? collect())->where('status', '!=', 'cancelled');
             @endphp
             @if ($activeRequests->isEmpty())
                 <div class="text-center py-10 text-gray-500 ">

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
+use App\Models\EquipmentItem;
+use App\Models\EquipmentAccessory;
 use Illuminate\Http\Request;
 use App\Notifications\BorrowRequestApproved;
 use App\Notifications\BorrowRequestRejected;
@@ -169,9 +171,27 @@ class BorrowRequestController extends Controller
         $hasCheckedOut = !is_null($transaction->checked_out_at);
 
         if ($hasCheckedIn) {
+            // Mark equipment and accessories returned
+            $itemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
+            $accIds = $borrowRequest->items()->whereNotNull('accessory_id')->pluck('accessory_id')->unique()->all();
+            if (!empty($itemIds)) {
+                EquipmentItem::whereIn('id', $itemIds)->update(['status' => 'available']);
+            }
+            if (!empty($accIds)) {
+                EquipmentAccessory::whereIn('id', $accIds)->update(['status' => 'available']);
+            }
             $borrowRequest->status = 'check_in';
             $borrowRequest->save();
         } elseif ($hasCheckedOut) {
+            // Reserve/borrow equipment and accessories
+            $itemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
+            $accIds = $borrowRequest->items()->whereNotNull('accessory_id')->pluck('accessory_id')->unique()->all();
+            if (!empty($itemIds)) {
+                EquipmentItem::whereIn('id', $itemIds)->update(['status' => 'unavailable']);
+            }
+            if (!empty($accIds)) {
+                EquipmentAccessory::whereIn('id', $accIds)->update(['status' => 'borrowed']);
+            }
             $borrowRequest->status = 'check_out';
             $borrowRequest->save();
         }

@@ -12,10 +12,11 @@ class BorrowRequest extends Model
     protected $fillable = [
         'users_id',
         'req_id',
-        'equipments_id',
+        // no direct equipments_id; items link requests to equipment via equipment_items
         'start_at',
         'end_at',
         'status',
+        'request_reason',
         'reject_reason',
         'cancel_reason',
         'uid',
@@ -39,9 +40,10 @@ class BorrowRequest extends Model
         return $this->belongsTo(User::class, 'users_id');
     }
 
-    public function equipment()
+    // Access equipment via items if needed
+    public function items()
     {
-        return $this->belongsTo(Equipment::class, 'equipments_id');
+        return $this->hasMany(BorrowRequestItem::class, 'borrow_request_id');
     }
 
     public function category()

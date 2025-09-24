@@ -19,7 +19,7 @@ class HomeController extends Controller
             $categoryCode = (string) $request->get('category');
             $categoryId = Category::where('cate_id', $categoryCode)->value('id');
             if ($categoryId) {
-                $query->where('categories_id', $categoryId);
+                $query->where('category_id', $categoryId);
             }
         }
 
@@ -36,7 +36,13 @@ class HomeController extends Controller
         $equipmentsCacheKey = "equipments:page:{$page}:{$queryString}";
 
         $equipments = Cache::remember($equipmentsCacheKey, now()->addMinutes(5), function () use ($query) {
-            return $query->paginate(15)->withQueryString();
+            return $query
+                ->with('category')
+                ->withCount(['items as items_count', 'items as available_items_count' => function ($q) {
+                    $q->where('status', 'available');
+                }])
+                ->paginate(15)
+                ->withQueryString();
         });
 
         $categories = Cache::remember('categories:all', now()->addMinutes(10), function () {
