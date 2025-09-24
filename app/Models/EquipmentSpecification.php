@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EquipmentSpecification extends Model
 {
+    public $timestamps = false; // Disable timestamps since the table doesn't have created_at/updated_at columns
+    
     protected $fillable = [
         'equipment_id',
         'spec_key',

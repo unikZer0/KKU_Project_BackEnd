@@ -6,15 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Log extends Model
 {
-        protected $fillable = [
-        'admin_id',
+    protected $table = 'logs';
+    
+    protected $fillable = [
+        'users_id',
         'action',
-        'target_type',
-        'target_id',
-        'description',
+        'ip_address',
     ];
-        public function admin()
+    
+    public function user()
     {
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(User::class, 'users_id');
     }
 }

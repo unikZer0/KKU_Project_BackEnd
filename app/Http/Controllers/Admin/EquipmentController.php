@@ -17,7 +17,7 @@ class EquipmentController extends Controller
     public function index()
     {
         $equipments = Cache::remember('equipments_with_category', 600, function () {
-            return Equipment::with(['category', 'specifications'])->get();
+            return Equipment::with(['category', 'items', 'accessories', 'specifications'])->get();
         });
 
         $categories = Cache::remember('all_categories', 600, function () {
@@ -37,8 +37,24 @@ class EquipmentController extends Controller
                 "code" => "nullable|string|unique:equipments,code|max:10",
                 "name" => "required|string",
                 "description" => "nullable|string",
-                "categories_id" => "required|integer|exists:categories,id",
-                "status" => "required|in:available,retired,maintenance",
+                "category_id" => "required|integer|exists:categories,id",
+                "brand" => "nullable|string|max:255",
+                "model" => "nullable|string|max:255",
+                "items" => "required|array|min:1",
+                "items.*.serial_number" => "nullable|string|max:255",
+                "items.*.condition" => "required|string|in:Good,Fair,Poor",
+                "items.*.status" => "required|string|in:available,unavailable,maintenance",
+                "accessories" => "nullable|array",
+                "accessories.*.name" => "required|string|max:255",
+                "accessories.*.description" => "nullable|string",
+                "accessories.*.serial_number" => "nullable|string|max:255",
+                "accessories.*.condition" => "required|string|in:Good,Fair,Poor",
+                "accessories.*.status" => "required|string|in:available,unavailable",
+                "specifications" => "nullable|array",
+                "specifications.*.spec_key" => "required|string|max:100",
+                "specifications.*.spec_value_text" => "nullable|string|max:255",
+                "specifications.*.spec_value_number" => "nullable|numeric",
+                "specifications.*.spec_value_bool" => "nullable|boolean",
                 "images.*" => "image|mimes:jpg,jpeg,png,webp,gif|max:5120",
             ]);
 
@@ -51,23 +67,62 @@ class EquipmentController extends Controller
             }
 
             $data['photo_path'] = json_encode($paths);
+            
+            // Create equipment
             $equipment = Equipment::create($data);
 
-            Log::create([
-                'admin_id' => Auth::id() ?? 1,
-                'action' => 'create',
-                'target_type' => 'equipment',
-                'target_id' => $equipment->id,
-                'description' => "Created equipment: {$equipment->name} (ID {$equipment->id})",
-            ]);
+            // Create equipment items
+            foreach ($data['items'] as $itemData) {
+                $equipment->items()->create([
+                    'serial_number' => $itemData['serial_number'] ?: $data['code'] . '-' . str_pad(($equipment->items()->count() + 1), 3, '0', STR_PAD_LEFT),
+                    'condition' => $itemData['condition'],
+                    'status' => $itemData['status']
+                ]);
+            }
 
+            // Create accessories - add to ALL equipment items
+            if (!empty($data['accessories'])) {
+                foreach ($data['accessories'] as $accessoryData) {
+                    // Add accessory to each equipment item
+                    foreach ($equipment->items as $item) {
+                        \App\Models\EquipmentAccessory::create([
+                            'equipment_id' => $equipment->id,
+                            'equipment_item_id' => $item->id,
+                            'name' => $accessoryData['name'],
+                            'description' => $accessoryData['description'] ?? '',
+                            'serial_number' => $accessoryData['serial_number'] . '-' . $item->id, // Make serial unique per item
+                            'condition' => $accessoryData['condition'],
+                            'status' => $accessoryData['status']
+                        ]);
+                    }
+                }
+            }
+
+            // Create specifications
+            if (!empty($data['specifications'])) {
+                foreach ($data['specifications'] as $specData) {
+                    \App\Models\EquipmentSpecification::create([
+                        'equipment_id' => $equipment->id,
+                        'spec_key' => $specData['spec_key'],
+                        'spec_value_text' => $specData['spec_value_text'],
+                        'spec_value_number' => $specData['spec_value_number'],
+                        'spec_value_bool' => $specData['spec_value_bool']
+                    ]);
+                }
+            }
+
+            Log::create([
+                'users_id' => Auth::id() ?? 1,
+                'action' => 'create',
+                'ip_address' => request()->ip(),
+            ]);
 
             Cache::forget('equipments_with_category');
 
             return response()->json([
                 "status" => true,
-                "message" => "Equipment created successfully",
-                "data" => $equipment->load('category')
+                "message" => "Equipment created successfully with " . count($data['items']) . " items",
+                "data" => $equipment->load(['category', 'items', 'accessories', 'specifications'])
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->errors();
@@ -97,14 +152,127 @@ class EquipmentController extends Controller
                 "code" => "nullable|string|max:10",
                 "name" => "required|string",
                 "description" => "nullable|string",
-                "categories_id" => "required|integer|exists:categories,id",
-                "status" => "required|in:available,retired,maintenance",
+                "category_id" => "required|integer|exists:categories,id",
+                "brand" => "nullable|string|max:255",
+                "model" => "nullable|string|max:255",
+                "items" => "nullable|array",
+                "items.*.id" => "nullable|integer|exists:equipment_items,id",
+                "items.*.serial_number" => "nullable|string|max:255",
+                "items.*.condition" => "required|string|in:Good,Fair,Poor",
+                "items.*.status" => "required|string|in:available,unavailable,maintenance",
+                "accessories" => "nullable|array",
+                "accessories.*.id" => "nullable|integer|exists:equipment_accessories,id",
+                "accessories.*.name" => "required|string|max:255",
+                "accessories.*.description" => "nullable|string",
+                "accessories.*.serial_number" => "nullable|string|max:255",
+                "accessories.*.equipment_item_id" => "nullable|integer|exists:equipment_items,id",
+                "accessories.*.condition" => "required|string|in:Good,Fair,Poor",
+                "accessories.*.status" => "required|string|in:available,unavailable",
+                "specifications" => "nullable|array",
+                "specifications.*.id" => "nullable|integer|exists:equipment_specifications,id",
+                "specifications.*.spec_key" => "required|string|max:100",
+                "specifications.*.spec_value_text" => "nullable|string|max:255",
+                "specifications.*.spec_value_number" => "nullable|numeric",
+                "specifications.*.spec_value_bool" => "nullable|boolean",
                 "images.*" => "image|mimes:jpg,jpeg,png,webp,gif|max:5120",
                 "images_to_delete" => "nullable|array",
                 "images_to_delete.*" => "string",
                 "selected_main_identifier" => "nullable|string",
             ]);
 
+            // Update basic equipment data
+            $equipment->update([
+                'code' => $validatedData['code'],
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'category_id' => $validatedData['category_id'],
+                'brand' => $validatedData['brand'],
+                'model' => $validatedData['model'],
+            ]);
+
+            // Update equipment items
+            if (isset($validatedData['items'])) {
+                foreach ($validatedData['items'] as $itemData) {
+                    if (isset($itemData['id'])) {
+                        // Update existing item
+                        $item = \App\Models\EquipmentItem::find($itemData['id']);
+                        if ($item) {
+                            $item->update([
+                                'serial_number' => $itemData['serial_number'],
+                                'condition' => $itemData['condition'],
+                                'status' => $itemData['status']
+                            ]);
+                        }
+                    } else {
+                        // Create new item
+                        $equipment->items()->create([
+                            'serial_number' => $itemData['serial_number'] ?: $equipment->code . '-' . str_pad(($equipment->items()->count() + 1), 3, '0', STR_PAD_LEFT),
+                            'condition' => $itemData['condition'],
+                            'status' => $itemData['status']
+                        ]);
+                    }
+                }
+            }
+
+            // Update accessories
+            if (isset($validatedData['accessories'])) {
+                foreach ($validatedData['accessories'] as $accessoryData) {
+                    if (isset($accessoryData['id'])) {
+                        // Update existing accessory
+                        $accessory = \App\Models\EquipmentAccessory::find($accessoryData['id']);
+                        if ($accessory) {
+                            $accessory->update([
+                                'name' => $accessoryData['name'],
+                                'description' => $accessoryData['description'] ?? '',
+                                'serial_number' => $accessoryData['serial_number'],
+                                'equipment_item_id' => $accessoryData['equipment_item_id'] ?? null,
+                                'condition' => $accessoryData['condition'],
+                                'status' => $accessoryData['status']
+                            ]);
+                        }
+                    } else {
+                        // Create new accessory
+                        \App\Models\EquipmentAccessory::create([
+                            'equipment_id' => $equipment->id,
+                            'equipment_item_id' => $accessoryData['equipment_item_id'] ?? null,
+                            'name' => $accessoryData['name'],
+                            'description' => $accessoryData['description'] ?? '',
+                            'serial_number' => $accessoryData['serial_number'],
+                            'condition' => $accessoryData['condition'],
+                            'status' => $accessoryData['status']
+                        ]);
+                    }
+                }
+            }
+
+            // Update specifications
+            if (isset($validatedData['specifications'])) {
+                foreach ($validatedData['specifications'] as $specData) {
+                    if (isset($specData['id'])) {
+                        // Update existing specification
+                        $spec = \App\Models\EquipmentSpecification::find($specData['id']);
+                        if ($spec) {
+                            $spec->update([
+                                'spec_key' => $specData['spec_key'],
+                                'spec_value_text' => $specData['spec_value_text'],
+                                'spec_value_number' => $specData['spec_value_number'],
+                                'spec_value_bool' => $specData['spec_value_bool']
+                            ]);
+                        }
+                    } else {
+                        // Create new specification
+                        \App\Models\EquipmentSpecification::create([
+                            'equipment_id' => $equipment->id,
+                            'spec_key' => $specData['spec_key'],
+                            'spec_value_text' => $specData['spec_value_text'],
+                            'spec_value_number' => $specData['spec_value_number'],
+                            'spec_value_bool' => $specData['spec_value_bool']
+                        ]);
+                    }
+                }
+            }
+
+            // Handle images
             $currentPhotos = json_decode($equipment->photo_path, true) ?? [];
 
             if ($request->filled('images_to_delete')) {
@@ -151,18 +319,14 @@ class EquipmentController extends Controller
                 array_unshift($finalPhotoList, $mainPhotoUrl);
             }
 
-            $updatePayload = $validatedData;
-            $updatePayload['photo_path'] = json_encode(array_values($finalPhotoList));
-            unset($updatePayload['images'], $updatePayload['images_to_delete'], $updatePayload['selected_main_identifier']);
-
-            $equipment->update($updatePayload);
+            $equipment->update(['photo_path' => json_encode(array_values($finalPhotoList))]);
 
             Cache::forget('equipments_with_category');
 
             return response()->json([
                 "status" => true,
                 "message" => "Equipment updated successfully",
-                "data" => $equipment->fresh()->load('category')
+                "data" => $equipment->fresh()->load(['category', 'items', 'accessories', 'specifications'])
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -191,11 +355,9 @@ class EquipmentController extends Controller
         }
 
         Log::create([
-            'admin_id' => Auth::id() ?? 1,
+            'users_id' => Auth::id() ?? 1,
             'action' => 'delete',
-            'target_type' => 'equipment',
-            'target_id' => $id,
-            'description' => "Deleted equipment: {$equipment->name} (ID {$equipment->code})",
+            'ip_address' => request()->ip(),
         ]);
 
         $equipment->delete();

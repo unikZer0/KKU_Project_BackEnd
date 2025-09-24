@@ -19,7 +19,7 @@ class BorrowRequestController extends Controller
 
     public function index()
     {
-        $requests = BorrowRequest::with('user', 'equipment')
+        $requests = BorrowRequest::with(['user', 'equipment'])
             ->whereNotIn('status', ['check_in', 'rejected'])
             ->latest()
             ->get()
@@ -27,7 +27,7 @@ class BorrowRequestController extends Controller
                 return [
                     'id' => $r->id,
                     'req_id' => $r->req_id,
-                    'uid' => $r->user->uid,
+                    'uid' => $r->user->uid ?? null,
                     'user_name' => $r->user->name ?? 'N/A',
                     'equipment_name' => $r->equipment->name ?? 'N/A',
                     'equipment_photo' => $r->equipment->photo_path ?? null,
@@ -48,7 +48,7 @@ class BorrowRequestController extends Controller
             ->where('req_id', $req_id)
             ->firstOrFail();
 
-        $tableRequests = BorrowRequest::with('user', 'equipment')
+        $tableRequests = BorrowRequest::with(['user', 'equipment'])
             ->latest()
             ->take(25)
             ->get()
@@ -76,7 +76,7 @@ class BorrowRequestController extends Controller
 
     public function approve(Request $req, $req_id)
     {
-        $borrowRequest = BorrowRequest::with('transaction', 'user', 'equipment')
+        $borrowRequest = BorrowRequest::with(['transaction', 'user', 'equipment'])
             ->where('req_id', $req_id)
             ->firstOrFail();
 
@@ -123,7 +123,7 @@ class BorrowRequestController extends Controller
 
     public function update(Request $req, $req_id)
     {
-        $borrowRequest = BorrowRequest::with('transaction')
+        $borrowRequest = BorrowRequest::with(['transaction'])
             ->where('req_id', $req_id)
             ->firstOrFail();
 

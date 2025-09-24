@@ -104,7 +104,7 @@
                     <th class="px-4 py-2 text-left" @click="setSort('model')">รุ่น
                         <span v-if="sortKey === 'model'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
                     </th>
-                    <th class="px-4 py-2 text-left">สเปค</th>
+                    <th class="px-4 py-2 text-left">จำนวน</th>
                     <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">
                         แอคชั่น
                     </th>
@@ -131,16 +131,11 @@
                     <td class="px-4 py-2">
                         {{ equipment.model || "N/A" }}
                     </td>
-                    <td class="px-4 py-2">
-                        <div v-if="equipment.specifications && equipment.specifications.length">
-                            <div v-for="(s, index) in equipment.specifications" :key="index">
-                                {{ s.spec_key }}: {{
-                                    s.spec_value_text ?? s.spec_value_number ?? (s.spec_value_bool !== null ?
-                                        (s.spec_value_bool ? 'Yes' : 'No') : 'N/A')
-                                }}
-                            </div>
-                        </div>
-                        <span v-else>N/A</span>
+                    <td class="px-4 py-2 text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                              :class="getAmountClass(equipment.items?.length || 0)">
+                            {{ equipment.items?.length || 0 }} ชิ้น
+                        </span>
                     </td>
                     <td class="px-4 py-2 space-x-2">
                         <button v-if="userRole === 'admin'" @click="openModal(equipment)"
@@ -317,6 +312,17 @@ export default {
             if (!str) return "";
             return str.charAt(0).toUpperCase() + str.slice(1);
         },
+        getAmountClass(amount) {
+            if (amount === 0) {
+                return 'bg-red-100 text-red-800';
+            } else if (amount <= 2) {
+                return 'bg-yellow-100 text-yellow-800';
+            } else if (amount <= 5) {
+                return 'bg-blue-100 text-blue-800';
+            } else {
+                return 'bg-green-100 text-green-800';
+            }
+        },
         statusClass(status) {
             switch (status) {
                 case "available":
@@ -376,15 +382,50 @@ export default {
         },
         updateEquipment(payload) {
             const formData = new FormData();
+            
+            // Basic equipment data
             formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
-            formData.append(
-                "categories_id",
-                String(payload.categories_id ?? "")
-            );
-            formData.append("status", payload.status || "available");
+            formData.append("category_id", String(payload.category_id ?? ""));
+            formData.append("brand", payload.brand || "");
+            formData.append("model", payload.model || "");
 
+            // Equipment items
+            if (payload.items && payload.items.length > 0) {
+                payload.items.forEach((item, index) => {
+                    if (item.id) formData.append(`items[${index}][id]`, item.id);
+                    formData.append(`items[${index}][serial_number]`, item.serial_number || "");
+                    formData.append(`items[${index}][condition]`, item.condition || "Good");
+                    formData.append(`items[${index}][status]`, item.status || "available");
+                });
+            }
+
+            // Accessories
+            if (payload.accessories && payload.accessories.length > 0) {
+                payload.accessories.forEach((accessory, index) => {
+                    if (accessory.id) formData.append(`accessories[${index}][id]`, accessory.id);
+                    formData.append(`accessories[${index}][name]`, accessory.name || "");
+                    formData.append(`accessories[${index}][description]`, accessory.description || "");
+                    formData.append(`accessories[${index}][serial_number]`, accessory.serial_number || "");
+                    formData.append(`accessories[${index}][equipment_item_id]`, accessory.equipment_item_id || "");
+                    formData.append(`accessories[${index}][condition]`, accessory.condition || "Good");
+                    formData.append(`accessories[${index}][status]`, accessory.status || "available");
+                });
+            }
+
+            // Specifications
+            if (payload.specifications && payload.specifications.length > 0) {
+                payload.specifications.forEach((spec, index) => {
+                    if (spec.id) formData.append(`specifications[${index}][id]`, spec.id);
+                    formData.append(`specifications[${index}][spec_key]`, spec.spec_key || "");
+                    formData.append(`specifications[${index}][spec_value_text]`, spec.spec_value_text || "");
+                    formData.append(`specifications[${index}][spec_value_number]`, spec.spec_value_number || "");
+                    formData.append(`specifications[${index}][spec_value_bool]`, spec.spec_value_bool || "");
+                });
+            }
+
+            // Images
             if (payload.imagesToDelete && payload.imagesToDelete.length > 0) {
                 payload.imagesToDelete.forEach((url) => {
                     formData.append("images_to_delete[]", url);
@@ -537,17 +578,52 @@ export default {
         },
         createEquipment(payload) {
             const formData = new FormData();
+            
+            // Basic equipment data
             formData.append("code", payload.code || "");
             formData.append("name", payload.name || "");
             formData.append("description", payload.description || "");
-            formData.append("categories_id", payload.categories_id || "");
-            formData.append("status", payload.status || "available");
+            formData.append("category_id", payload.category_id || "");
+            formData.append("brand", payload.brand || "");
+            formData.append("model", payload.model || "");
 
+            // Equipment items
+            if (payload.items && payload.items.length > 0) {
+                payload.items.forEach((item, index) => {
+                    formData.append(`items[${index}][serial_number]`, item.serial_number || "");
+                    formData.append(`items[${index}][condition]`, item.condition || "Good");
+                    formData.append(`items[${index}][status]`, item.status || "available");
+                });
+            }
+
+            // Accessories
+            if (payload.accessories && payload.accessories.length > 0) {
+                payload.accessories.forEach((accessory, index) => {
+                    formData.append(`accessories[${index}][name]`, accessory.name || "");
+                    formData.append(`accessories[${index}][description]`, accessory.description || "");
+                    formData.append(`accessories[${index}][serial_number]`, accessory.serial_number || "");
+                    formData.append(`accessories[${index}][condition]`, accessory.condition || "Good");
+                    formData.append(`accessories[${index}][status]`, accessory.status || "available");
+                });
+            }
+
+            // Specifications
+            if (payload.specifications && payload.specifications.length > 0) {
+                payload.specifications.forEach((spec, index) => {
+                    formData.append(`specifications[${index}][spec_key]`, spec.spec_key || "");
+                    formData.append(`specifications[${index}][spec_value_text]`, spec.spec_value_text || "");
+                    formData.append(`specifications[${index}][spec_value_number]`, spec.spec_value_number || "");
+                    formData.append(`specifications[${index}][spec_value_bool]`, spec.spec_value_bool || "");
+                });
+            }
+
+            // Images
             if (payload.imageFiles && payload.imageFiles.length > 0) {
                 for (const file of payload.imageFiles) {
                     formData.append("images[]", file);
                 }
             }
+            
             if (
                 payload.selectedProfileImage !== null &&
                 payload.selectedProfileImage !== undefined
@@ -581,9 +657,9 @@ export default {
                 })
                 .then((data) => {
                     let created = data.data;
-                    if (!created.category && created.categories_id) {
+                    if (!created.category && created.category_id) {
                         const found = this.categories.find(
-                            (c) => c.id === created.categories_id
+                            (c) => c.id === created.category_id
                         );
                         if (found) {
                             created = { ...created, category: found };

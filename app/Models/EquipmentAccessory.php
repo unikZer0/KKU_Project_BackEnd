@@ -13,7 +13,7 @@ class EquipmentAccessory extends Model
         'equipment_item_id',
         'name',
         'serial_number',
-        'condition_',
+        'condition',
         'status',
         'description'
     ];

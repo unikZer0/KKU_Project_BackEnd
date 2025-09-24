@@ -8,43 +8,176 @@
         aria-modal="true"
         role="dialog"
     >
-        <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3 p-6">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-1/2 p-6 max-h-[90vh] overflow-y-auto">
             <h3 class="text-lg font-semibold mb-4">เพิ่มอุปกรณ์ใหม่</h3>
             <form @submit.prevent="onCreate" novalidate>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">หมายเลขครุภัณฑ์</label>
-                    <input required type="text" v-model.trim="form.code"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <!-- Basic Equipment Information -->
+                <div class="mb-6">
+                    <h4 class="text-md font-semibold mb-3 text-gray-800 border-b pb-2">ข้อมูลอุปกรณ์พื้นฐาน</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-1">หมายเลขครุภัณฑ์</label>
+                            <input required type="text" v-model.trim="form.code"
+                                class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
+                            <input required type="text" v-model.trim="form.name"
+                                class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-1">หมวดหมู่</label>
+                            <select required v-model="form.category_id"
+                                class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="" disabled>เลือกหมวดหมู่</option>
+                                <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                                    {{ cat.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-1">แบรนด์</label>
+                            <input type="text" v-model.trim="form.brand"
+                                class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-1">รุ่น</label>
+                            <input type="text" v-model.trim="form.model"
+                                class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-1">จำนวนอุปกรณ์</label>
+                            <input required type="number" min="1" v-model.number="form.itemCount"
+                                class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-gray-700 font-semibold mb-1">รายละเอียด</label>
+                        <textarea v-model.trim="form.description"
+                            class="w-full h-24 border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            placeholder="กรอกรายละเอียดอุปกรณ์"></textarea>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">ชื่ออุปกรณ์</label>
-                    <input required type="text" v-model.trim="form.name"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+                <!-- Equipment Items -->
+                <div class="mb-6">
+                    <h4 class="text-md font-semibold mb-3 text-gray-800 border-b pb-2">รายการอุปกรณ์</h4>
+                    <div class="space-y-3">
+                        <div v-for="(item, index) in form.items" :key="index" 
+                             class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 border rounded-lg bg-gray-50">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขซีเรียล</label>
+                                <input type="text" v-model.trim="item.serial_number"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    :placeholder="`${form.code}-${String(index + 1).padStart(3, '0')}`" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">สภาพ</label>
+                                <select v-model="item.condition"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                    <option value="Good">ดี</option>
+                                    <option value="Fair">พอใช้</option>
+                                    <option value="Poor">ชำรุด</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
+                                <select v-model="item.status"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                    <option value="available">พร้อมใช้งาน</option>
+                                    <option value="unavailable">ไม่พร้อมใช้งาน</option>
+                                    <option value="maintenance">ซ่อมบำรุง</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">หมวดหมู่</label>
-                    <select required v-model="form.categories_id"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" disabled>เลือกหมวดหมู่</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                            {{ cat.name }}
-                        </option>
-                    </select>
+
+                <!-- Accessories -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <h4 class="text-md font-semibold text-gray-800">อุปกรณ์เสริม</h4>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            จะเพิ่มให้กับทุกรายการอุปกรณ์
+                        </span>
+                    </div>
+                    <div class="space-y-3">
+                        <div v-for="(accessory, index) in form.accessories" :key="index" 
+                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-3 border rounded-lg bg-gray-50">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่ออุปกรณ์เสริม</label>
+                                <input type="text" v-model.trim="accessory.name"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขซีเรียล</label>
+                                <input type="text" v-model.trim="accessory.serial_number"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">สภาพ</label>
+                                <select v-model="accessory.condition"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                    <option value="Good">ดี</option>
+                                    <option value="Fair">พอใช้</option>
+                                    <option value="Poor">ชำรุด</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" @click="removeAccessory(index)"
+                                    class="w-full px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                                    ลบ
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" @click="addAccessory"
+                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                            + เพิ่มอุปกรณ์เสริม
+                        </button>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">รายละเอียด</label>
-                    <textarea v-model.trim="form.description"
-                        class="w-full h-24 border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                        placeholder="กรอกรายละเอียดอุปกรณ์"></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-1">สถานะ</label>
-                    <select required v-model="form.status"
-                        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option v-for="s in statuses" :key="s" :value="s">
-                            {{ capitalize(s) }}
-                        </option>
-                    </select>
+
+                <!-- Specifications -->
+                <div class="mb-6">
+                    <h4 class="text-md font-semibold mb-3 text-gray-800 border-b pb-2">ข้อมูลจำเพาะ</h4>
+                    <div class="space-y-3">
+                        <div v-for="(spec, index) in form.specifications" :key="index" 
+                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-3 border rounded-lg bg-gray-50">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อข้อมูล</label>
+                                <input type="text" v-model.trim="spec.spec_key"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ค่า</label>
+                                <input type="text" v-model.trim="spec.spec_value_text"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ค่าตัวเลข</label>
+                                <input type="number" step="0.01" v-model.number="spec.spec_value_number"
+                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" @click="removeSpecification(index)"
+                                    class="w-full px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                                    ลบ
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" @click="addSpecification"
+                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                            + เพิ่มข้อมูลจำเพาะ
+                        </button>
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -143,8 +276,13 @@ export default {
                 code: "",
                 name: "",
                 description: "",
-                categories_id: "",
-                status: "available"
+                category_id: "",
+                brand: "",
+                model: "",
+                itemCount: 1,
+                items: [],
+                accessories: [],
+                specifications: []
             },
             imageFiles: [],
             imagePreviewUrls: [],
@@ -158,25 +296,80 @@ export default {
         isOpen(newVal) {
             if (newVal) {
                 // Resetting the form when the modal opens
-                this.form = { code: "", name: "", description: "", categories_id: "", status: "available" };
-                this.imageFiles = [];
-                this.imagePreviewUrls = [];
-                this.imageError = "";
-                this.submitting = false;
-                this.processingImages = false;
-                this.selectedProfileImage = null;
+                this.resetForm();
             }
+        },
+        'form.itemCount': {
+            handler(newVal, oldVal) {
+                if (newVal > oldVal) {
+                    // Add new items
+                    for (let i = this.form.items.length; i < newVal; i++) {
+                        this.form.items.push({
+                            serial_number: "",
+                            condition: "Good",
+                            status: "available"
+                        });
+                    }
+                } else if (newVal < oldVal) {
+                    // Remove excess items
+                    this.form.items = this.form.items.slice(0, newVal);
+                }
+            },
+            immediate: true
         }
     },
     computed: {
         isValid() {
-            return !!(this.form.code && this.form.name && this.form.categories_id && this.form.status && this.imageFiles.length > 0 && !this.imageError);
+            return !!(this.form.code && this.form.name && this.form.category_id && this.form.itemCount > 0 && this.imageFiles.length > 0 && !this.imageError);
         }
     },
     methods: {
         capitalize(str) {
             if (!str) return "";
             return str.charAt(0).toUpperCase() + str.slice(1);
+        },
+        resetForm() {
+            this.form = {
+                code: "",
+                name: "",
+                description: "",
+                category_id: "",
+                brand: "",
+                model: "",
+                itemCount: 1,
+                items: [],
+                accessories: [],
+                specifications: []
+            };
+            this.imageFiles = [];
+            this.imagePreviewUrls = [];
+            this.imageError = "";
+            this.submitting = false;
+            this.processingImages = false;
+            this.selectedProfileImage = null;
+        },
+        addAccessory() {
+            this.form.accessories.push({
+                name: "",
+                description: "",
+                serial_number: "",
+                condition: "Good",
+                status: "available"
+            });
+        },
+        removeAccessory(index) {
+            this.form.accessories.splice(index, 1);
+        },
+        addSpecification() {
+            this.form.specifications.push({
+                spec_key: "",
+                spec_value_text: "",
+                spec_value_number: null,
+                spec_value_bool: null
+            });
+        },
+        removeSpecification(index) {
+            this.form.specifications.splice(index, 1);
         },
         removeImage(index) {
             this.imageFiles.splice(index, 1);
@@ -275,11 +468,23 @@ export default {
         onCreate() {
             if (this.submitting || !this.isValid) return;
             this.submitting = true;
-            this.$emit('create', {
-                ...this.form,
+            
+            // Prepare the data to send
+            const equipmentData = {
+                code: this.form.code,
+                name: this.form.name,
+                description: this.form.description,
+                category_id: this.form.category_id,
+                brand: this.form.brand,
+                model: this.form.model,
+                items: this.form.items,
+                accessories: this.form.accessories,
+                specifications: this.form.specifications,
                 imageFiles: this.imageFiles,
                 selectedProfileImage: this.selectedProfileImage
-            });
+            };
+            
+            this.$emit('create', equipmentData);
         },
     }
 };

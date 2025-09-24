@@ -12,19 +12,13 @@ class BorrowRequest extends Model
     protected $fillable = [
         'users_id',
         'req_id',
+        'equipment_item_id',
         'start_at',
         'end_at',
         'status',
         'request_reason',
         'reject_reason',
         'cancel_reason',
-        'photo_path',
-        'email',
-        'phonenumber',
-        'code',
-        'name',
-        'description',
-        'categories_id',
     ];
 
     protected $casts = [
@@ -38,9 +32,14 @@ class BorrowRequest extends Model
         return $this->belongsTo(User::class, 'users_id');
     }
 
+    public function equipmentItem()
+    {
+        return $this->belongsTo(EquipmentItem::class, 'equipment_item_id');
+    }
+
     public function equipment()
     {
-        return $this->belongsTo(BorrowRequestItem::class, 'equipment_id');
+        return $this->hasOneThrough(Equipment::class, EquipmentItem::class, 'id', 'id', 'equipment_item_id', 'equipment_id');
     }
 
     // Access equipment via items if needed
