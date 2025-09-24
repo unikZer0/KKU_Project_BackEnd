@@ -55,12 +55,12 @@ class BorrowerCtrl extends Controller
             ->get();
         $baseAccessories = $equipment->accessories()->whereNull('equipment_item_id')->get();
         $accessories = $equipment->accessories()
-    ->whereNull('equipment_item_id')   // base accessories only
-    ->whereHas('equipmentItems', function ($q) {
-        $q->where('status', 'available'); // filter only equipment types that have available items
-    })
-    ->orderBy('name')
-    ->get();
+            ->whereNull('equipment_item_id')   // base accessories only
+            ->whereHas('equipmentItems', function ($q) {
+                $q->where('status', 'available'); // filter only equipment types that have available items
+            })
+            ->orderBy('name')
+            ->get();
 
         $itemAccessories = $equipment->accessories()
             ->whereNotNull('equipment_item_id')
@@ -72,7 +72,7 @@ class BorrowerCtrl extends Controller
             ->get();
 
         $currentDate = Carbon::now()->toDateString();
-        
+
         $itemSerials = $equipment->equipmentItems()
             ->where('status', 'available')
             ->pluck('serial_number', 'id');
@@ -129,7 +129,7 @@ class BorrowerCtrl extends Controller
                 });
         })
             ->whereHas('equipmentItem', function ($q) use ($equipment) {
-                $q->where('equipment_type_id', $equipment->id);
+                $q->where('equipment_id', $equipment->id);
             })
             ->count();
 

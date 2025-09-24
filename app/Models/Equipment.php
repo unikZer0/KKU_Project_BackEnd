@@ -25,17 +25,17 @@ class Equipment extends Model
 
     public function items()
     {
-        return $this->hasMany(EquipmentItem::class, 'equipment_type_id', 'id');
+        return $this->hasMany(EquipmentItem::class, 'equipment_id', 'id');
     }
 
     public function accessories()
     {
-        return $this->hasMany(EquipmentAccessory::class, 'equipment_type_id', 'id');
+        return $this->hasMany(EquipmentAccessory::class, 'equipment_id', 'id');
     }
-public function equipmentItems()
-{
-    return $this->hasMany(EquipmentItem::class, 'equipment_type_id');
-}
+    public function equipmentItems()
+    {
+        return $this->hasMany(EquipmentItem::class, 'equipment_id');
+    }
 
 
     public function getAvailabilityStatusAttribute(): string

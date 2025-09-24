@@ -15,6 +15,8 @@ class EquipmentController extends Controller
 {
     public function index()
     {
+        $equipments = Equipment::with('specifications', )->get();
+
         $equipments = Cache::remember('equipments_with_category', 600, function () {
             return Equipment::with('category')->get();
         });
@@ -95,10 +97,10 @@ class EquipmentController extends Controller
                 "description" => "nullable|string",
                 "categories_id" => "required|integer|exists:categories,id",
                 "status" => "required|in:available,retired,maintenance",
-                "images.*" => "image|mimes:jpg,jpeg,png,webp,gif|max:5120", 
+                "images.*" => "image|mimes:jpg,jpeg,png,webp,gif|max:5120",
                 "images_to_delete" => "nullable|array",
-                "images_to_delete.*" => "string", 
-                "selected_main_identifier" => "nullable|string", 
+                "images_to_delete.*" => "string",
+                "selected_main_identifier" => "nullable|string",
             ]);
 
             $currentPhotos = json_decode($equipment->photo_path, true) ?? [];
@@ -127,7 +129,7 @@ class EquipmentController extends Controller
                 is_array($currentPhotos) ? $currentPhotos : [],
                 is_array($newPhotoPaths) ? $newPhotoPaths : []
             );
-            
+
             $mainPhotoIdentifier = $request->input('selected_main_identifier');
             $mainPhotoUrl = null;
             if ($mainPhotoIdentifier) {
@@ -150,7 +152,7 @@ class EquipmentController extends Controller
             $updatePayload = $validatedData;
             $updatePayload['photo_path'] = json_encode(array_values($finalPhotoList));
             unset($updatePayload['images'], $updatePayload['images_to_delete'], $updatePayload['selected_main_identifier']);
-            
+
             $equipment->update($updatePayload);
 
             Cache::forget('equipments_with_category');

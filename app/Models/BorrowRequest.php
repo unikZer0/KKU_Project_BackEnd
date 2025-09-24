@@ -12,7 +12,6 @@ class BorrowRequest extends Model
     protected $fillable = [
         'users_id',
         'req_id',
-        // no direct equipments_id; items link requests to equipment via equipment_items
         'start_at',
         'end_at',
         'status',
