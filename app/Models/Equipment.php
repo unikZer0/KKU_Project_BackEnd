@@ -32,11 +32,14 @@ class Equipment extends Model
     {
         return $this->hasMany(EquipmentAccessory::class, 'equipment_id', 'id');
     }
+    public function specifications()
+    {
+        return $this->hasMany(EquipmentSpecification::class, 'equipment_id', 'id');
+    }
     public function equipmentItems()
     {
         return $this->hasMany(EquipmentItem::class, 'equipment_id');
     }
-
 
     public function getAvailabilityStatusAttribute(): string
     {

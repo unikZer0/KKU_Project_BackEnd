@@ -13,21 +13,23 @@ use Illuminate\Support\Facades\Cache;
 
 class EquipmentController extends Controller
 {
+    //? INDEX
     public function index()
     {
-        $equipments = Equipment::with('specifications', )->get();
-
         $equipments = Cache::remember('equipments_with_category', 600, function () {
-            return Equipment::with('category')->get();
+            return Equipment::with(['category', 'specifications'])->get();
         });
 
         $categories = Cache::remember('all_categories', 600, function () {
             return Category::all();
         });
 
-        return view('admin.equipment.index', compact('equipments', 'categories'));
+        return view('admin.equipment.index', [
+            'equipments' => $equipments,
+            'categories' => Category::all(),
+        ]);
     }
-
+    //? STORE
     public function store(Request $request)
     {
         try {
@@ -85,7 +87,7 @@ class EquipmentController extends Controller
             ], 500);
         }
     }
-
+    //? UPDATE
     public function update(Request $request, $id)
     {
         try {
@@ -175,7 +177,7 @@ class EquipmentController extends Controller
             ], 500);
         }
     }
-
+    //? DELETE
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);

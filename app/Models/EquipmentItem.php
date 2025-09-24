@@ -23,8 +23,4 @@ class EquipmentItem extends Model
     {
         return $this->hasMany(EquipmentAccessory::class, 'equipment_item_id');
     }
-    public function equipmentType()
-    {
-        return $this->belongsTo(Equipment::class, 'equipment_id');
-    }
 }

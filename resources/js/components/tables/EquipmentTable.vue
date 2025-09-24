@@ -104,6 +104,7 @@
                     <th class="px-4 py-2 text-left" @click="setSort('model')">รุ่น
                         <span v-if="sortKey === 'model'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
                     </th>
+                    <th class="px-4 py-2 text-left">สเปค</th>
                     <th class="px-4 py-2 text-left" v-if="userRole === 'admin'">
                         แอคชั่น
                     </th>
@@ -129,6 +130,17 @@
                     </td>
                     <td class="px-4 py-2">
                         {{ equipment.model || "N/A" }}
+                    </td>
+                    <td class="px-4 py-2">
+                        <div v-if="equipment.specifications && equipment.specifications.length">
+                            <div v-for="(s, index) in equipment.specifications" :key="index">
+                                {{ s.spec_key }}: {{
+                                    s.spec_value_text ?? s.spec_value_number ?? (s.spec_value_bool !== null ?
+                                        (s.spec_value_bool ? 'Yes' : 'No') : 'N/A')
+                                }}
+                            </div>
+                        </div>
+                        <span v-else>N/A</span>
                     </td>
                     <td class="px-4 py-2 space-x-2">
                         <button v-if="userRole === 'admin'" @click="openModal(equipment)"

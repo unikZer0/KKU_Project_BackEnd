@@ -18,7 +18,6 @@ class BorrowRequest extends Model
         'request_reason',
         'reject_reason',
         'cancel_reason',
-        'uid',
         'photo_path',
         'email',
         'phonenumber',
@@ -37,6 +36,11 @@ class BorrowRequest extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'users_id');
+    }
+
+    public function equipment()
+    {
+        return $this->belongsTo(BorrowRequestItem::class, 'equipment_id');
     }
 
     // Access equipment via items if needed

@@ -35,6 +35,6 @@ class Category extends Model
     // Add this relationship
     public function equipments()
     {
-        return $this->hasMany(Equipment::class, 'categories_id');
+        return $this->hasMany(Equipment::class, 'category_id', 'id');
     }
 }
