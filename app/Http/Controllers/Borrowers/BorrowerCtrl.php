@@ -14,6 +14,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Models\BorrowRequestAccessory;
 use Illuminate\Support\Facades\Cache;
+use App\Models\EquipmentSpecification;
 
 class BorrowerCtrl extends Controller
 {
@@ -25,7 +26,7 @@ class BorrowerCtrl extends Controller
                 ->with([
                     'category',
                     'accessories' => function ($q) {
-                        $q->orderBy('name');
+                    $q->orderBy('name');
                     }
                 ])
                 ->withCount([
@@ -40,7 +41,7 @@ class BorrowerCtrl extends Controller
         if (Auth::check()) {
             $hasBorrowed = BorrowRequest::where('users_id', Auth::id())
                 ->whereIn('status', ['pending', 'approved', 'check_out'])
-                ->whereHas('items.equipmentItem.equipmentType', function ($q) use ($equipment) {
+                ->whereHas('items.equipmentItem.equipment', function ($q) use ($equipment) {
                     $q->where('id', $equipment->id);
                 })
                 ->exists();
@@ -48,7 +49,7 @@ class BorrowerCtrl extends Controller
 
         $bookings = BorrowRequest::select('start_at', 'end_at')
             ->whereIn('status', ['pending', 'approved', 'check_out'])
-            ->whereHas('items.equipmentItem.equipmentType', function ($q) use ($equipment) {
+            ->whereHas('items.equipmentItem.equipment', function ($q) use ($equipment) {
                 $q->where('id', $equipment->id);
             })
             ->orderBy('start_at')
@@ -73,10 +74,102 @@ class BorrowerCtrl extends Controller
 
         $currentDate = Carbon::now()->toDateString();
 
+        // Build per-day borrow counts within next 3 months for this equipment
+        $rangeStart = Carbon::today();
+        $rangeEnd = Carbon::today()->copy()->addMonths(3);
+        $totalUnits = $equipment->items()->count();
+
+        // Count per-day number of items borrowed (by item) overlapping each day
+        $activeItems = BorrowRequestItem::whereHas('request', function ($q) use ($rangeStart, $rangeEnd) {
+                $q->whereIn('status', ['pending', 'approved', 'check_out'])
+                  ->where(function ($query) use ($rangeStart, $rangeEnd) {
+                      $query->whereBetween('start_at', [$rangeStart, $rangeEnd])
+                            ->orWhereBetween('end_at', [$rangeStart, $rangeEnd])
+                            ->orWhere(function ($sub) use ($rangeStart, $rangeEnd) {
+                                $sub->where('start_at', '<', $rangeStart)
+                                    ->where('end_at', '>', $rangeEnd);
+                            });
+                  });
+            })
+            ->whereHas('equipmentItem', function ($q) use ($equipment) {
+                $q->where('equipment_id', $equipment->id);
+            })
+            ->with(['request:id,start_at,end_at'])
+            ->get();
+
+        $dayCounts = [];
+        for ($d = $rangeStart->copy(); $d->lte($rangeEnd); $d->addDay()) {
+            $dayCounts[$d->toDateString()] = 0;
+        }
+        $freeCounts = [];
+        foreach ($activeItems as $it) {
+            $s = Carbon::parse($it->request->start_at)->startOfDay();
+            $e = Carbon::parse($it->request->end_at)->startOfDay();
+            if ($e->lt($rangeStart) || $s->gt($rangeEnd)) {
+                continue;
+            }
+            $cur = $s->copy()->max($rangeStart);
+            $to = $e->copy()->min($rangeEnd);
+            for (; $cur->lte($to); $cur->addDay()) {
+                $key = $cur->toDateString();
+                if (isset($dayCounts[$key])) {
+                    $dayCounts[$key] += 1;
+                }
+            }
+
+            // Track when items become free (the day after end_at is available for new rentals)
+            $freeDate = $e->copy()->addDay()->toDateString();
+            if (Carbon::parse($freeDate)->betweenIncluded($rangeStart, $rangeEnd)) {
+                $freeCounts[$freeDate] = ($freeCounts[$freeDate] ?? 0) + 1;
+            }
+        }
+
+        // Find earliest date with availability and how many units available that day
+        $earliestDate = null;
+        $earliestAvail = 0;
+        foreach ($dayCounts as $dateStr => $count) {
+            $avail = max($totalUnits - $count, 0);
+            if ($avail > 0) {
+                $earliestDate = $dateStr;
+                $earliestAvail = $avail;
+                break;
+            }
+        }
+
+        // Find the next date when availability increases (some items return)
+        ksort($freeCounts);
+        $nextFreeDate = null;
+        $nextFreeCount = 0;
+        foreach ($freeCounts as $dateStr => $cnt) {
+            $nextFreeDate = $dateStr;
+            $nextFreeCount = $cnt;
+            break;
+        }
+
+        $calendarData = [
+            'dayCounts' => $dayCounts,
+            'totalUnits' => $totalUnits,
+            'rangeEnd' => $rangeEnd->toDateString(),
+            'earliest' => [
+                'date' => $earliestDate,
+                'available' => $earliestAvail,
+            ],
+            'nextFree' => [
+                'date' => $nextFreeDate,
+                'count' => $nextFreeCount,
+            ],
+        ];
+
         $itemSerials = $equipment->equipmentItems()
             ->where('status', 'available')
             ->pluck('serial_number', 'id');
         $userVerified = Auth::check() ? (int) (Auth::user()->is_verified ?? 1) : null;
+
+        // Specific specs to show under the picture
+        $specs = EquipmentSpecification::where('equipment_id', $equipment->id)
+            ->whereIn('spec_key', ['sensor', 'megapixels', 'wifi'])
+            ->get()
+            ->keyBy('spec_key');
 
         return view('equipments.show', compact(
             'equipment',
@@ -87,7 +180,9 @@ class BorrowerCtrl extends Controller
             'baseAccessories',
             'accessories',
             'itemAccessories',
-            'itemSerials'
+            'itemSerials',
+            'calendarData',
+            'specs'
         ));
     }
     public function myRequests(Request $request)
@@ -104,9 +199,11 @@ class BorrowerCtrl extends Controller
             'end_at' => $end_at,
         ]);
 
+        $maxDate = Carbon::today()->addMonths(3)->format('Y-m-d');
+        
         $validated = $request->validate([
-            'start_at' => 'required|date|after_or_equal:today',
-            'end_at' => 'required|date|after:start_at',
+            'start_at' => 'required|date|after_or_equal:today|before_or_equal:' . $maxDate,
+            'end_at' => 'required|date|after:start_at|before_or_equal:' . $maxDate,
             'equipments_id' => 'required|exists:equipments,id',
             'request_reason' => 'required|in:assignment,personal,other',
             'request_reason_other' => 'required_if:request_reason,other|nullable|string|max:255',
@@ -118,32 +215,51 @@ class BorrowerCtrl extends Controller
         $equipment = Equipment::findOrFail($validated['equipments_id']);
 
         $conflictingBookingsCount = BorrowRequestItem::whereHas('request', function ($q) use ($validated) {
-            $q->whereIn('status', ['pending', 'approved', 'check_out'])
-                ->where(function ($query) use ($validated) {
-                    $query->whereBetween('start_at', [$validated['start_at'], $validated['end_at']])
-                        ->orWhereBetween('end_at', [$validated['start_at'], $validated['end_at']])
-                        ->orWhere(function ($sub) use ($validated) {
-                            $sub->where('start_at', '<', $validated['start_at'])
-                                ->where('end_at', '>', $validated['end_at']);
-                        });
-                });
-        })
+                $q->whereIn('status', ['pending', 'approved', 'check_out'])
+                  ->where(function ($query) use ($validated) {
+                      $query->whereBetween('start_at', [$validated['start_at'], $validated['end_at']])
+                            ->orWhereBetween('end_at', [$validated['start_at'], $validated['end_at']])
+                            ->orWhere(function ($sub) use ($validated) {
+                                $sub->where('start_at', '<', $validated['start_at'])
+                                    ->where('end_at', '>', $validated['end_at']);
+                            });
+                  });
+            })
             ->whereHas('equipmentItem', function ($q) use ($equipment) {
                 $q->where('equipment_id', $equipment->id);
             })
             ->count();
-
-        $availableCount = $equipment->items()->where('status', 'available')->count();
-
-        if (($availableCount - $conflictingBookingsCount) < $validated['quantity']) {
+        
+        // Use total units instead of current status for future-dated availability
+        $totalUnits = $equipment->items()->count();
+        
+        if (($totalUnits - $conflictingBookingsCount) < $validated['quantity']) {
             return redirect()->back()->with('error', 'อุปกรณ์ไม่เพียงพอสำหรับช่วงวันที่และจำนวนที่เลือก');
         }
 
+        // Find items that are NOT booked in the selected range
+        $occupiedItemIds = BorrowRequestItem::whereHas('request', function ($q) use ($validated) {
+                $q->whereIn('status', ['pending', 'approved', 'check_out'])
+                  ->where(function ($query) use ($validated) {
+                      $query->whereBetween('start_at', [$validated['start_at'], $validated['end_at']])
+                            ->orWhereBetween('end_at', [$validated['start_at'], $validated['end_at']])
+                            ->orWhere(function ($sub) use ($validated) {
+                                $sub->where('start_at', '<', $validated['start_at'])
+                                    ->where('end_at', '>', $validated['end_at']);
+                            });
+                  });
+            })
+            ->whereHas('equipmentItem', function ($q) use ($equipment) {
+                $q->where('equipment_id', $equipment->id);
+            })
+            ->pluck('equipment_item_id')
+            ->toArray();
+
         $availableItems = $equipment->items()
-            ->where('status', 'available')
+            ->whereNotIn('id', $occupiedItemIds)
             ->limit($validated['quantity'])
             ->get();
-
+        
         $borrowRequest = new BorrowRequest();
         $borrowRequest->users_id = Auth::id();
         $borrowRequest->equipment_item_id = optional($availableItems->first())->id;
@@ -194,7 +310,7 @@ class BorrowerCtrl extends Controller
         foreach ($admins as $admin) {
             $admin->notify(new BorrowRequestCreated($borrowRequest));
         }
-
+        
         Cache::forget("myreq:" . Auth::id());
         Cache::forget("equipment_details:{$equipment->code}");
 
@@ -214,9 +330,9 @@ class BorrowerCtrl extends Controller
 
         $requests = Cache::remember($cacheKey, 600, function () use ($userId) {
             return BorrowRequest::with([
-                'items.equipmentItem.equipmentType.category',
-                'user:id,uid,name,email,phonenumber'
-            ])
+                    'items.equipmentItem.equipmentType.category',
+                    'user:id,uid,name,email,phonenumber'
+                ])
                 ->where('users_id', $userId)
                 ->latest()
                 ->get();
@@ -232,7 +348,7 @@ class BorrowerCtrl extends Controller
         ]);
 
         $req = BorrowRequest::where('id', $id)->where('users_id', Auth::id())->firstOrFail();
-
+        
         if (!in_array($req->status, ['pending', 'approved'])) {
             return redirect()->back()->with('error', 'ไม่สามารถยกเลิกคำขอในสถานะนี้ได้');
         }
@@ -246,7 +362,7 @@ class BorrowerCtrl extends Controller
 
         return redirect()->back()->with('success', 'คำขอถูกยกเลิกแล้ว');
     }
-
+    
     public function search(Request $request)
     {
         try {
@@ -273,35 +389,35 @@ class BorrowerCtrl extends Controller
     }
 
     public function getAllEquipment()
-    {
-        try {
-            $equipments = Cache::remember('all_equipment_list', 1800, function () {
-                return Equipment::with('category')
-                    ->orderBy('name')
-                    ->limit(50)
-                    ->get();
-            });
-
-            return response()->json(['data' => $equipments]);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-    public function reqdetail($req_id)
-    {
-        if (!Auth::check()) {
-            return redirect()->back()->with('showLoginConfirm', true);
-        }
-        $reQuests = Cache::remember("reqdetail:{$req_id}", 600, function () use ($req_id) {
-            return BorrowRequest::with(
-                'equipment:id,code,name,description,categories_id,photo_path',
-                'user:id,uid,name,email,phonenumber',
-                'equipment.category:id,name'
-            )
-                ->where('req_id', $req_id)
+{
+    try {
+        $equipments = Cache::remember('all_equipment_list', 1800, function () { 
+            return Equipment::with('category')
+                ->orderBy('name')
+                ->limit(50)
                 ->get();
         });
 
-        return view('equipments.reqdetail', compact('reQuests'));
+        return response()->json(['data' => $equipments]);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
     }
+}
+    public function reqdetail($req_id)
+{
+    if (!Auth::check()) {
+        return redirect()->back()->with('showLoginConfirm', true);
+    }
+    $reQuests = Cache::remember("reqdetail:{$req_id}", 600, function () use ($req_id) { 
+        return BorrowRequest::with(
+            'equipment:id,code,name,description,categories_id,photo_path',
+            'user:id,uid,name,email,phonenumber',
+            'equipment.category:id,name'
+        )
+            ->where('req_id', $req_id)
+            ->get();
+    });
+
+    return view('equipments.reqdetail', compact('reQuests'));
+}
 }

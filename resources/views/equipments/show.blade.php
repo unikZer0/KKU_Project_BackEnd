@@ -192,6 +192,31 @@
                         </div>
                     </div>
                 @endif
+                {{-- Classic Spec block (responsive) --}}
+                @php
+                    $sensor = optional($specs['sensor'] ?? null)->spec_value_text;
+                    $megapixels = optional($specs['megapixels'] ?? null)->spec_value_number ?? optional($specs['megapixels'] ?? null)->spec_value_text;
+                    $wifi = (optional($specs['wifi'] ?? null)->spec_value_bool ?? 0) ? 'Yes' : 'No';
+                @endphp
+                <div class="mt-4 w-full">
+                    <div class="border rounded-lg bg-white">
+                        <div class="px-4 py-3 border-b font-semibold text-gray-800">สเปค</div>
+                        <div class="divide-y">
+                            <div class="flex items-center justify-between px-4 py-3 text-sm">
+                                <span class="text-gray-600">Sensor</span>
+                                <span class="font-medium text-gray-900">{{ $sensor ?? '-' }}</span>
+                            </div>
+                            <div class="flex items-center justify-between px-4 py-3 text-sm">
+                                <span class="text-gray-600">Megapixels</span>
+                                <span class="font-medium text-gray-900">{{ $megapixels ?? '-' }}</span>
+                            </div>
+                            <div class="flex items-center justify-between px-4 py-3 text-sm">
+                                <span class="text-gray-600">Wi‑Fi</span>
+                                <span class="font-medium text-gray-900">{{ $wifi }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- Details and Borrow Form Section --}}
@@ -225,6 +250,14 @@
                                 class="font-semibold text-green-600">{{ $equipment->available_items_count ?? 0 }}</span>
                             ชิ้น</p>
                     </div>
+                    @if(isset($calendarData['nextFree']['date']) && $calendarData['nextFree']['date'])
+                        <div class="mb-3 text-sm text-blue-700">
+                            วันที่เร็วสุดที่ว่าง: <span class="font-semibold">
+                                {{ \Carbon\Carbon::parse($calendarData['nextFree']['date'])->format('d/m/Y') }}
+                            </span>
+                            (<span class="font-semibold">{{ $calendarData['nextFree']['count'] }}</span> ชิ้น)
+                        </div>
+                    @endif
                     <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
                         @csrf
                         <input type="hidden" name="equipments_id" value="{{ $equipment->id }}">
@@ -243,7 +276,7 @@
                                 placeholder="ระบุเหตุผลการยืม" maxlength="255">
                             <p class="text-xs text-gray-500 mt-1">หากเลือก "อื่น ๆ" กรุณาระบุเหตุผล</p>
                         </div>
-                        
+                        <div id="message" class="text-sm text-red-500 mb-4 h-4"></div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div><label for="start_at"
                                     class="block text-sm font-medium text-gray-700">วันที่รับ</label><input
@@ -284,7 +317,6 @@
                                 <div id="perItemAccContainer" class="space-y-3"></div>
                             </div>
                         </div>
-                        <div id="message" class="text-sm text-red-500 mb-4 h-4"></div>
                         <div class="mb-4" x-data="{ open: false }">
                             <label class="block text-sm font-medium text-gray-700 mb-1">ขออุปกรณ์เสริมเพิ่มเติม
                                 (ถ้ามี)</label>
@@ -351,12 +383,12 @@
     let calendar = null;
 
     class Calendar {
-        constructor(container, borrowedDates = []) {
+        constructor(container, dayCounts = {}, totalUnits = 0, rangeEnd = null) {
             this.container = container;
-            this.borrowedDates = borrowedDates.map(b => ({
-                start: new Date(b.start_at + 'T00:00:00'),
-                end: new Date(b.end_at + 'T00:00:00')
-            }));
+            this.dayCounts = dayCounts; // { 'YYYY-MM-DD': countBorrowed }
+            this.totalUnits = totalUnits;
+            // Re-enable 3-month limit
+            this.rangeEnd = rangeEnd ? new Date(rangeEnd + 'T00:00:00') : new Date(new Date().setMonth(new Date().getMonth() + 3));
             this.currentDate = new Date();
             this.currentDate.setDate(1);
             this.render();
@@ -380,20 +412,30 @@
                 const date = new Date(y, m, d);
                 const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const isPast = date < today;
-                const isBorrowed = this.borrowedDates.some(b => date >= b.start && date <= b.end);
+                const borrowedCount = this.dayCounts[dateStr] || 0;
+                const redMark = borrowedCount >= this.totalUnits && this.totalUnits > 0; // fully booked
+                const outOfRange = this.rangeEnd ? date > this.rangeEnd : false;
                 let cls = "h-10 w-10 flex items-center justify-center text-sm mx-auto rounded-full ";
                 let clickHandler = `onclick="selectDate('${dateStr}')"`;
                 let title = '';
-                if (isBorrowed) {
-                    cls += "bg-red-200 text-red-600 cursor-not-allowed opacity-70 line-through";
+                if (outOfRange) {
+                    cls += "text-gray-300 cursor-not-allowed opacity-50";
                     clickHandler = '';
-                    title = 'วันที่นี้ถูกจองแล้ว';
+                    title = 'เกินช่วง 3 เดือนข้างหน้า';
                 } else if (isPast) {
                     cls += "text-gray-400 cursor-not-allowed opacity-60";
                     clickHandler = '';
                     title = 'ไม่สามารถเลือกวันที่ในอดีตได้';
                 } else {
                     cls += "cursor-pointer hover:bg-blue-100 transition";
+                }
+                if (redMark) {
+                    cls += " ring-2 ring-red-400 bg-red-50 ";
+                    title = (title ? title + ' | ' : '') + `จองแล้ว ${borrowedCount} ชิ้น เหลือ ${Math.max(this.totalUnits - borrowedCount, 0)} ชิ้น`;
+                    // prevent selecting fully-booked days
+                    clickHandler = '';
+                } else {
+                    title = (title ? title + ' | ' : '') + `เหลือ ${Math.max(this.totalUnits - borrowedCount, 0)} ชิ้น`;
                 }
                 if (date.getTime() === today.getTime()) {
                     cls += " bg-blue-600 text-white font-bold"
@@ -409,6 +451,10 @@
             this.render();
         }
         next() {
+            // prevent navigating beyond 3 months window visually
+            const nextMonth = new Date(this.currentDate);
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            if (this.rangeEnd && nextMonth > this.rangeEnd) return;
             this.currentDate.setMonth(this.currentDate.getMonth() + 1);
             this.render();
         }
@@ -419,8 +465,13 @@
         const modal = document.getElementById('calendarModal');
         modal.classList.remove('hidden');
         if (!calendar) {
-            const borrowed = @json($bookings->map(fn($b) => ['start_at' => $b->start_at, 'end_at' => $b->end_at]));
-            calendar = new Calendar(document.getElementById('calendar'), borrowed);
+            const cal = @json($calendarData);
+            calendar = new Calendar(
+                document.getElementById('calendar'),
+                cal.dayCounts || {},
+                cal.totalUnits || 0,
+                cal.rangeEnd || null
+            );
         }
     }
 

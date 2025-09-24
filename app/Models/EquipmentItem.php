@@ -23,4 +23,12 @@ class EquipmentItem extends Model
     {
         return $this->hasMany(EquipmentAccessory::class, 'equipment_item_id');
     }
+    public function equipmentType()
+    {
+        // if your column is equipment_type_id
+        return $this->belongsTo(Equipment::class, 'equipment_id');
+
+        // OR if your column is equipment_id
+        // return $this->belongsTo(Equipment::class, 'equipment_id');
+    }
 }
