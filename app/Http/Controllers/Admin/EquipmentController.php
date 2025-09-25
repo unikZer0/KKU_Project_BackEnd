@@ -352,7 +352,7 @@ class EquipmentController extends Controller
             if ($hasBorrowRequests) {
                 return response()->json([
                     "status" => false,
-                    "message" => "Cannot delete equipment that has borrow requests. Please cancel or complete all related requests first."
+                    "message" => "ไม่สามารถลบอุปกรณ์ที่มีคำขอยืมได้ กรุณายกเลิกหรือดำเนินการคำขอที่เกี่ยวข้องให้เสร็จสิ้นก่อน"
                 ], 400);
             }
 
@@ -390,13 +390,13 @@ class EquipmentController extends Controller
 
             return response()->json([
                 "status" => true,
-                "message" => "Equipment deleted successfully"
+                "message" => "ลบอุปกรณ์เรียบร้อยแล้ว"
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 "status" => false,
-                "message" => "Error deleting equipment: " . $e->getMessage()
+                "message" => "เกิดข้อผิดพลาดในการลบอุปกรณ์: " . $e->getMessage()
             ], 500);
         }
     }
