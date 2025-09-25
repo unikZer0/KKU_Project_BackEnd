@@ -250,14 +250,6 @@
                                 class="font-semibold text-green-600">{{ $equipment->available_items_count ?? 0 }}</span>
                             ชิ้น</p>
                     </div>
-                    @if(isset($calendarData['nextFree']['date']) && $calendarData['nextFree']['date'])
-                        <div class="mb-3 text-sm text-blue-700">
-                            วันที่เร็วสุดที่ว่าง: <span class="font-semibold">
-                                {{ \Carbon\Carbon::parse($calendarData['nextFree']['date'])->format('d/m/Y') }}
-                            </span>
-                            (<span class="font-semibold">{{ $calendarData['nextFree']['count'] }}</span> ชิ้น)
-                        </div>
-                    @endif
                     <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
                         @csrf
                         <input type="hidden" name="equipments_id" value="{{ $equipment->id }}">
@@ -522,8 +514,6 @@
         const qtyInput = document.getElementById('quantity');
         const borrowForm = document.getElementById('borrowForm');
         const calendarModal = document.getElementById('calendarModal');
-        const kitsPreview = document.getElementById('kitsPreview');
-        const baseItems = @json($baseAccessories->map(fn($a) => ['name' => $a->name, 'description' => $a->description]));
         const perItemAccContainer = document.getElementById('perItemAccContainer');
         const itemAccessories = @json($itemAccessories->map(fn($a) => [
             'equipment_item_id' => $a->equipment_item_id,
@@ -614,32 +604,11 @@
             reasonOther.addEventListener('input', validateFormState);
         }
 
-        function updateKitsPreview() {
-            if (!kitsPreview || !qtyInput) return;
-            const count = Math.max(parseInt(qtyInput.value || '0', 10), 0);
-            let html = '';
-            for (let i = 1; i <= count; i++) {
-                html += `<li class=\"border rounded p-2\">
-                    <div class=\"font-medium\">{{ addslashes($equipment->name) }} #${i}</div>
-                    <ul class=\"list-disc list-inside text-gray-700 mt-1\">`;
-                if (Array.isArray(baseItems) && baseItems.length) {
-                    baseItems.forEach((bi) => {
-                        const desc = bi.description ? ` - ${bi.description}` : '';
-                        html += `<li>${bi.name}${desc}</li>`;
-                    });
-                } else {
-                    html += '<li class=\"text-gray-500\">ไม่มีรายการพื้นฐาน</li>';
-                }
-                html += `</ul></li>`;
-            }
-            if (html === '') {
-                html = '<li class="text-gray-500">ยังไม่ได้ระบุจำนวน</li>';
-            }
-            kitsPreview.innerHTML = html;
-        }
-
         if (qtyInput) {
-            qtyInput.addEventListener('input', () => { validateFormState(); updateKitsPreview(); updatePerItemAccessories(); });
+            qtyInput.addEventListener('input', () => { 
+                validateFormState(); 
+                updatePerItemAccessories(); 
+            });
         }
 
         if (calendarModal) {
@@ -665,7 +634,7 @@
             } else {
                 itemIds.forEach((id, idx) => {
                     const serial = itemSerials[id] || id;
-                    html += `<div class=\"border rounded p-2\">\n                        <div class=\"font-medium\">ชิ้นที่ ${idx + 1} (${serial})</div>\n                        <ul class=\"list-disc list-inside text-sm text-gray-800 mt-1\">`;
+                    html += `<div class="border rounded p-2">\n                        <div class="font-medium">ชิ้นที่ ${idx + 1} (${serial})</div>\n                        <ul class="list-disc list-inside text-sm text-gray-800 mt-1">`;
                     grouped[id].forEach((it) => {
                         const desc = it.description ? ` - ${it.description}` : '';
                         html += `<li>${it.name}${desc}</li>`;
@@ -676,9 +645,8 @@
             perItemAccContainer.innerHTML = html;
         }
 
-        // Initial validation check
+        // Initial validation check and UI update on page load
         validateFormState();
-        updateKitsPreview();
         updatePerItemAccessories();
     });
 </script>

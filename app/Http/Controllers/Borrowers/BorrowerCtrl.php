@@ -18,184 +18,75 @@ use App\Models\EquipmentSpecification;
 
 class BorrowerCtrl extends Controller
 {
-    public function show($code)
-    {
-        $cacheKey = "equipment_details:{$code}";
-        $equipment = Cache::remember($cacheKey, 600, function () use ($code) {
-            return Equipment::where('code', $code)
-                ->with([
-                    'category',
-                    'accessories' => function ($q) {
-                    $q->orderBy('name');
-                    }
-                ])
-                ->withCount([
-                    'items as items_count',
-                    'items as available_items_count' => function ($q) {
-                        $q->where('status', 'available');
-                    }
-                ])
-                ->firstOrFail();
-        });
-        $hasBorrowed = false;
-        if (Auth::check()) {
-            $hasBorrowed = BorrowRequest::where('users_id', Auth::id())
-                ->whereIn('status', ['pending', 'approved', 'check_out'])
-                ->where('equipment_id', $equipment->id)
-                ->exists();
-        }
+   public function show($code)
+{
+    // Use a cached query for performance on this complex page
+    $cacheKey = "equipment_details:{$code}";
+    $equipment = Cache::remember($cacheKey, 300, function () use ($code) {
+        return Equipment::where('code', $code)
+            ->with('category')
+            ->withCount([
+                'items as items_count',
+                'items as available_items_count' => fn ($q) => $q->where('status', 'available')
+            ])
+            ->firstOrFail();
+    });
 
-        $bookings = BorrowRequest::select('start_at', 'end_at')
+    // Check if the current user has an active request for this equipment
+    $hasBorrowed = Auth::check() ? BorrowRequest::where('users_id', Auth::id())
+        ->where('equipment_id', $equipment->id)
+        ->whereIn('status', ['pending', 'approved', 'check_out'])
+        ->exists() : false;
+
+    // --- Calendar & Availability Calculation ---
+    $rangeStart = Carbon::today();
+    $rangeEnd = Carbon::today()->copy()->addMonths(3);
+    $totalUnits = $equipment->items_count;
+
+    // Get all individual item bookings that are active within our 3-month window
+    $activeItems = BorrowRequestItem::whereHas('request', function ($q) use ($equipment, $rangeStart, $rangeEnd) {
+        $q->where('equipment_id', $equipment->id)
             ->whereIn('status', ['pending', 'approved', 'check_out'])
-            ->where('equipment_id', $equipment->id)
-            ->orderBy('start_at')
-            ->get();
-        $baseAccessories = $equipment->accessories()->whereNull('equipment_item_id')->get();
-        $accessories = $equipment->accessories()
-            ->whereNull('equipment_item_id') 
-            ->whereHas('equipmentItems', function ($q) {
-                $q->where('status', 'available'); 
-            })
-            ->orderBy('name')
-            ->get();
+            ->where(fn ($query) => $query->where('start_at', '<=', $rangeEnd)->where('end_at', '>=', $rangeStart));
+    })->with('request:id,start_at,end_at')->get();
 
-        $itemAccessories = $equipment->accessories()
-            ->whereNotNull('equipment_item_id')
-            ->whereHas('equipmentItem', function ($q) {
-                $q->where('status', 'available');
-            })
-            ->orderBy('equipment_item_id')
-            ->orderBy('name')
-            ->get();
+    // Calculate daily borrowed counts for calendar display
+    $dayCounts = [];
+    foreach ($activeItems as $item) {
+        $start = Carbon::parse($item->request->start_at);
+        $end = Carbon::parse($item->request->end_at);
 
-        $currentDate = Carbon::now()->toDateString();
-
-        $rangeStart = Carbon::today();
-        $rangeEnd = Carbon::today()->copy()->addMonths(3);
-        $totalUnits = $equipment->items()->count();
-        $activeItems = BorrowRequestItem::whereHas('request', function ($q) use ($rangeStart, $rangeEnd, $equipment) {
-                $q->whereIn('status', ['pending', 'approved', 'check_out'])
-                  ->where('equipment_id', $equipment->id)
-                  ->where(function ($query) use ($rangeStart, $rangeEnd) {
-                      $query->whereBetween('start_at', [$rangeStart, $rangeEnd])
-                            ->orWhereBetween('end_at', [$rangeStart, $rangeEnd])
-                            ->orWhere(function ($sub) use ($rangeStart, $rangeEnd) {
-                                $sub->where('start_at', '<', $rangeStart)
-                                    ->where('end_at', '>', $rangeEnd);
-                            });
-                  });
-            })
-            ->with(['request:id,start_at,end_at'])
-            ->get();
-
-        $dayCounts = [];
-        for ($d = $rangeStart->copy(); $d->lte($rangeEnd); $d->addDay()) {
-            $dayCounts[$d->toDateString()] = 0;
+        // Increment borrowed count for each day of the booking period
+        for ($date = $start->copy()->max($rangeStart); $date->lte($end->copy()->min($rangeEnd)); $date->addDay()) {
+            $dateStr = $date->toDateString();
+            $dayCounts[$dateStr] = ($dayCounts[$dateStr] ?? 0) + 1;
         }
-        $freeCounts = [];
-        $equipmentFreeCounts = []; // Track by equipment_id
-        
-        foreach ($activeItems as $it) {
-            $s = Carbon::parse($it->request->start_at)->startOfDay();
-            $e = Carbon::parse($it->request->end_at)->startOfDay();
-            if ($e->lt($rangeStart) || $s->gt($rangeEnd)) {
-                continue;
-            }
-            $cur = $s->copy()->max($rangeStart);
-            $to = $e->copy()->min($rangeEnd);
-            for (; $cur->lte($to); $cur->addDay()) {
-                $key = $cur->toDateString();
-                if (isset($dayCounts[$key])) {
-                    $dayCounts[$key] += 1;
-                }
-            }
-            $freeDate = $e->copy()->addDay()->toDateString();
-            if (Carbon::parse($freeDate)->betweenIncluded($rangeStart, $rangeEnd)) {
-                // Count by equipment_id instead of individual equipment_item_id
-                $equipmentId = $it->equipmentItem->equipment_id;
-                if (!isset($equipmentFreeCounts[$freeDate])) {
-                    $equipmentFreeCounts[$freeDate] = [];
-                }
-                if (!isset($equipmentFreeCounts[$freeDate][$equipmentId])) {
-                    $equipmentFreeCounts[$freeDate][$equipmentId] = 0;
-                }
-                $equipmentFreeCounts[$freeDate][$equipmentId] += 1;
-            }
-        }
-        
-        // Convert equipment-based counts to simple counts for the current equipment
-        foreach ($equipmentFreeCounts as $date => $equipmentCounts) {
-            $freeCounts[$date] = $equipmentCounts[$equipment->id] ?? 0;
-        }
-        $earliestDate = null;
-        $earliestAvail = 0;
-        foreach ($dayCounts as $dateStr => $count) {
-            $avail = max($totalUnits - $count, 0);
-            if ($avail > 0) {
-                $earliestDate = $dateStr;
-                $earliestAvail = $avail;
-                break;
-            }
-        }
-        ksort($freeCounts);
-        $nextFreeDate = null;
-        $nextFreeCount = 0;
-        
-        // If there are available items today, show them as the next free
-        $today = Carbon::today()->toDateString();
-        $todayAvailable = $equipment->available_items_count ?? 0;
-        
-        if ($todayAvailable > 0) {
-            $nextFreeDate = $today;
-            $nextFreeCount = $todayAvailable;
-        } else {
-            // Otherwise, find the next date when items become free
-            foreach ($freeCounts as $dateStr => $cnt) {
-                $nextFreeDate = $dateStr;
-                $nextFreeCount = $cnt;
-                break;
-            }
-        }
-
-        $calendarData = [
-            'dayCounts' => $dayCounts,
-            'totalUnits' => $totalUnits,
-            'rangeEnd' => $rangeEnd->toDateString(),
-            'earliest' => [
-                'date' => $earliestDate,
-                'available' => $earliestAvail,
-            ],
-            'nextFree' => [
-                'date' => $nextFreeDate,
-                'count' => $nextFreeCount,
-            ],
-        ];
-
-        $itemSerials = $equipment->equipmentItems()
-            ->where('status', 'available')
-            ->pluck('serial_number', 'id');
-        $userVerified = Auth::check() ? (int) (Auth::user()->is_verified ?? 1) : null;
-
-        // Specific specs to show under the picture
-        $specs = EquipmentSpecification::where('equipment_id', $equipment->id)
-            ->whereIn('spec_key', ['sensor', 'megapixels', 'wifi'])
-            ->get()
-            ->keyBy('spec_key');
-
-        return view('equipments.show', compact(
-            'equipment',
-            'bookings',
-            'hasBorrowed',
-            'currentDate',
-            'userVerified',
-            'baseAccessories',
-            'accessories',
-            'itemAccessories',
-            'itemSerials',
-            'calendarData',
-            'specs'
-        ));
     }
+    
+    // Prepare calendar data for the view
+    $calendarData = [
+        'dayCounts' => $dayCounts,
+        'totalUnits' => $totalUnits,
+        'rangeEnd' => $rangeEnd->toDateString(),
+    ];
+    
+    // Fetch accessories available to be requested
+    $accessories = ($equipment->available_items_count > 0) ? $equipment->accessories()->whereNull('equipment_item_id')->orderBy('name')->get() : collect();
+    $itemAccessories = $equipment->accessories()->whereNotNull('equipment_item_id')->whereHas('equipmentItem', fn($q) => $q->where('status', 'available'))->orderBy('equipment_item_id')->get();
+    $itemSerials = $equipment->items()->where('status', 'available')->pluck('serial_number', 'id');
+    
+    // Fetch specific specs for the info box
+    $specs = EquipmentSpecification::where('equipment_id', $equipment->id)
+        ->whereIn('spec_key', ['sensor', 'megapixels', 'wifi'])
+        ->get()->keyBy('spec_key');
+
+    $userVerified = Auth::check() ? (int)Auth::user()->is_verified : null;
+
+    return view('equipments.show', compact(
+        'equipment', 'hasBorrowed', 'userVerified', 'accessories', 
+        'itemAccessories', 'itemSerials', 'calendarData', 'specs'
+    ));
+}
     public function myRequests(Request $request)
     {
         if (!Auth::check()) {
