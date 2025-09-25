@@ -41,24 +41,20 @@ class BorrowerCtrl extends Controller
         if (Auth::check()) {
             $hasBorrowed = BorrowRequest::where('users_id', Auth::id())
                 ->whereIn('status', ['pending', 'approved', 'check_out'])
-                ->whereHas('items.equipmentItem.equipment', function ($q) use ($equipment) {
-                    $q->where('id', $equipment->id);
-                })
+                ->where('equipment_id', $equipment->id)
                 ->exists();
         }
 
         $bookings = BorrowRequest::select('start_at', 'end_at')
             ->whereIn('status', ['pending', 'approved', 'check_out'])
-            ->whereHas('items.equipmentItem.equipment', function ($q) use ($equipment) {
-                $q->where('id', $equipment->id);
-            })
+            ->where('equipment_id', $equipment->id)
             ->orderBy('start_at')
             ->get();
         $baseAccessories = $equipment->accessories()->whereNull('equipment_item_id')->get();
         $accessories = $equipment->accessories()
-            ->whereNull('equipment_item_id')   // base accessories only
+            ->whereNull('equipment_item_id') 
             ->whereHas('equipmentItems', function ($q) {
-                $q->where('status', 'available'); // filter only equipment types that have available items
+                $q->where('status', 'available'); 
             })
             ->orderBy('name')
             ->get();
@@ -74,14 +70,12 @@ class BorrowerCtrl extends Controller
 
         $currentDate = Carbon::now()->toDateString();
 
-        // Build per-day borrow counts within next 3 months for this equipment
         $rangeStart = Carbon::today();
         $rangeEnd = Carbon::today()->copy()->addMonths(3);
         $totalUnits = $equipment->items()->count();
-
-        // Count per-day number of items borrowed (by item) overlapping each day
-        $activeItems = BorrowRequestItem::whereHas('request', function ($q) use ($rangeStart, $rangeEnd) {
+        $activeItems = BorrowRequestItem::whereHas('request', function ($q) use ($rangeStart, $rangeEnd, $equipment) {
                 $q->whereIn('status', ['pending', 'approved', 'check_out'])
+                  ->where('equipment_id', $equipment->id)
                   ->where(function ($query) use ($rangeStart, $rangeEnd) {
                       $query->whereBetween('start_at', [$rangeStart, $rangeEnd])
                             ->orWhereBetween('end_at', [$rangeStart, $rangeEnd])
@@ -91,9 +85,6 @@ class BorrowerCtrl extends Controller
                             });
                   });
             })
-            ->whereHas('equipmentItem', function ($q) use ($equipment) {
-                $q->where('equipment_id', $equipment->id);
-            })
             ->with(['request:id,start_at,end_at'])
             ->get();
 
@@ -102,6 +93,8 @@ class BorrowerCtrl extends Controller
             $dayCounts[$d->toDateString()] = 0;
         }
         $freeCounts = [];
+        $equipmentFreeCounts = []; // Track by equipment_id
+        
         foreach ($activeItems as $it) {
             $s = Carbon::parse($it->request->start_at)->startOfDay();
             $e = Carbon::parse($it->request->end_at)->startOfDay();
@@ -116,15 +109,24 @@ class BorrowerCtrl extends Controller
                     $dayCounts[$key] += 1;
                 }
             }
-
-            // Track when items become free (the day after end_at is available for new rentals)
             $freeDate = $e->copy()->addDay()->toDateString();
             if (Carbon::parse($freeDate)->betweenIncluded($rangeStart, $rangeEnd)) {
-                $freeCounts[$freeDate] = ($freeCounts[$freeDate] ?? 0) + 1;
+                // Count by equipment_id instead of individual equipment_item_id
+                $equipmentId = $it->equipmentItem->equipment_id;
+                if (!isset($equipmentFreeCounts[$freeDate])) {
+                    $equipmentFreeCounts[$freeDate] = [];
+                }
+                if (!isset($equipmentFreeCounts[$freeDate][$equipmentId])) {
+                    $equipmentFreeCounts[$freeDate][$equipmentId] = 0;
+                }
+                $equipmentFreeCounts[$freeDate][$equipmentId] += 1;
             }
         }
-
-        // Find earliest date with availability and how many units available that day
+        
+        // Convert equipment-based counts to simple counts for the current equipment
+        foreach ($equipmentFreeCounts as $date => $equipmentCounts) {
+            $freeCounts[$date] = $equipmentCounts[$equipment->id] ?? 0;
+        }
         $earliestDate = null;
         $earliestAvail = 0;
         foreach ($dayCounts as $dateStr => $count) {
@@ -135,15 +137,24 @@ class BorrowerCtrl extends Controller
                 break;
             }
         }
-
-        // Find the next date when availability increases (some items return)
         ksort($freeCounts);
         $nextFreeDate = null;
         $nextFreeCount = 0;
-        foreach ($freeCounts as $dateStr => $cnt) {
-            $nextFreeDate = $dateStr;
-            $nextFreeCount = $cnt;
-            break;
+        
+        // If there are available items today, show them as the next free
+        $today = Carbon::today()->toDateString();
+        $todayAvailable = $equipment->available_items_count ?? 0;
+        
+        if ($todayAvailable > 0) {
+            $nextFreeDate = $today;
+            $nextFreeCount = $todayAvailable;
+        } else {
+            // Otherwise, find the next date when items become free
+            foreach ($freeCounts as $dateStr => $cnt) {
+                $nextFreeDate = $dateStr;
+                $nextFreeCount = $cnt;
+                break;
+            }
         }
 
         $calendarData = [
@@ -214,8 +225,9 @@ class BorrowerCtrl extends Controller
 
         $equipment = Equipment::findOrFail($validated['equipments_id']);
 
-        $conflictingBookingsCount = BorrowRequestItem::whereHas('request', function ($q) use ($validated) {
+        $conflictingBookingsCount = BorrowRequestItem::whereHas('request', function ($q) use ($validated, $equipment) {
                 $q->whereIn('status', ['pending', 'approved', 'check_out'])
+                  ->where('equipment_id', $equipment->id)
                   ->where(function ($query) use ($validated) {
                       $query->whereBetween('start_at', [$validated['start_at'], $validated['end_at']])
                             ->orWhereBetween('end_at', [$validated['start_at'], $validated['end_at']])
@@ -225,21 +237,17 @@ class BorrowerCtrl extends Controller
                             });
                   });
             })
-            ->whereHas('equipmentItem', function ($q) use ($equipment) {
-                $q->where('equipment_id', $equipment->id);
-            })
             ->count();
         
-        // Use total units instead of current status for future-dated availability
         $totalUnits = $equipment->items()->count();
         
         if (($totalUnits - $conflictingBookingsCount) < $validated['quantity']) {
             return redirect()->back()->with('error', 'อุปกรณ์ไม่เพียงพอสำหรับช่วงวันที่และจำนวนที่เลือก');
         }
 
-        // Find items that are NOT booked in the selected range
-        $occupiedItemIds = BorrowRequestItem::whereHas('request', function ($q) use ($validated) {
+        $occupiedItemIds = BorrowRequestItem::whereHas('request', function ($q) use ($validated, $equipment) {
                 $q->whereIn('status', ['pending', 'approved', 'check_out'])
+                  ->where('equipment_id', $equipment->id)
                   ->where(function ($query) use ($validated) {
                       $query->whereBetween('start_at', [$validated['start_at'], $validated['end_at']])
                             ->orWhereBetween('end_at', [$validated['start_at'], $validated['end_at']])
@@ -248,9 +256,6 @@ class BorrowerCtrl extends Controller
                                     ->where('end_at', '>', $validated['end_at']);
                             });
                   });
-            })
-            ->whereHas('equipmentItem', function ($q) use ($equipment) {
-                $q->where('equipment_id', $equipment->id);
             })
             ->pluck('equipment_item_id')
             ->toArray();
@@ -262,7 +267,7 @@ class BorrowerCtrl extends Controller
         
         $borrowRequest = new BorrowRequest();
         $borrowRequest->users_id = Auth::id();
-        $borrowRequest->equipment_item_id = optional($availableItems->first())->id;
+        $borrowRequest->equipment_id = $equipment->id;
         $borrowRequest->start_at = $validated['start_at'];
         $borrowRequest->end_at = $validated['end_at'];
         $borrowRequest->status = 'pending';
@@ -305,7 +310,6 @@ class BorrowerCtrl extends Controller
         }
 
 
-        // Notify admins
         $admins = User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
             $admin->notify(new BorrowRequestCreated($borrowRequest));
