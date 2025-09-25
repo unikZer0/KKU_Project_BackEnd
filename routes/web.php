@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\EquipmentItemController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BorrowRequestController;
@@ -50,6 +51,14 @@ Route::middleware('auth')->group(function () {
             Route::delete('/destroy/{id}', [EquipmentController::class, 'destroy'])->name('admin.equipment.destroy');
         });
 
+        // Equipment Items management
+        Route::prefix('admin/equipment-items')->group(function () {
+            Route::post('/store', [EquipmentItemController::class, 'store'])->name('admin.equipment-items.store');
+            Route::put('/update/{id}', [EquipmentItemController::class, 'update'])->name('admin.equipment-items.update');
+            Route::delete('/destroy/{id}', [EquipmentItemController::class, 'destroy'])->name('admin.equipment-items.destroy');
+            Route::post('/bulk-update', [EquipmentItemController::class, 'bulkUpdate'])->name('admin.equipment-items.bulk-update');
+        });
+
         // Category management
         Route::prefix('admin/category')->group(function () {
             Route::post('/store', [CategoryController::class, 'store'])->name('admin.category.store');
@@ -90,6 +99,20 @@ Route::middleware('auth')->group(function () {
         });
         Route::prefix('admin/equipment')->group(function () {
             Route::get('/', [EquipmentController::class, 'index'])->name('admin.equipment.index');
+        });
+        Route::prefix('admin/equipment-items')->group(function () {
+            Route::get('/', [EquipmentItemController::class, 'index'])->name('admin.equipment-items.index');
+            Route::get('/equipment/{equipmentId}', [EquipmentItemController::class, 'getByEquipment'])->name('admin.equipment-items.by-equipment');
+            Route::get('/debug/{id}', function($id) {
+                $item = \App\Models\EquipmentItem::find($id);
+                $existing = \App\Models\EquipmentItem::where('serial_number', $item->serial_number)->where('id', '!=', $id)->first();
+                return response()->json([
+                    'item_id' => $id,
+                    'current_serial' => $item->serial_number,
+                    'existing_item' => $existing ? $existing->id : null,
+                    'validation_rule' => 'unique:equipment_items,serial_number,' . $id . ',id'
+                ]);
+            })->name('admin.equipment-items.debug');
         });
     });
 });

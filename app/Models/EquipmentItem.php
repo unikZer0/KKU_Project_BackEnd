@@ -25,10 +25,6 @@ class EquipmentItem extends Model
     }
     public function equipmentType()
     {
-        // if your column is equipment_type_id
         return $this->belongsTo(Equipment::class, 'equipment_id');
-
-        // OR if your column is equipment_id
-        // return $this->belongsTo(Equipment::class, 'equipment_id');
     }
 }

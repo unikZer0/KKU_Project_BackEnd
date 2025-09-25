@@ -16,6 +16,7 @@ import AdminApproveTable from './components/tables/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
 import EquipmentChart from './components/EquipmentChart.vue';
 import EquipmentTable from './components/tables/EquipmentTable.vue';
+import EquipmentItemsTable from './components/tables/EquipmentItemsTable.vue';
 import CategoriesTable from './components/tables/CategoryTable.vue';
 import UsersTable from './components/tables/UserTable.vue';
 import RecentAct from './components/RecentAct.vue';
@@ -69,6 +70,12 @@ if (chartEl) {
 const equipmentTableEl = document.getElementById('equipment-table');
 if (equipmentTableEl) {
   createApp(EquipmentTable).mount(equipmentTableEl);
+}
+
+// Equipment Items Table
+const equipmentItemsTableEl = document.getElementById('equipment-items-table');
+if (equipmentItemsTableEl) {
+  createApp(EquipmentItemsTable).mount(equipmentItemsTableEl);
 }
 
 // Category Table

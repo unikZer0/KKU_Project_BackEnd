@@ -14,7 +14,9 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-                pkm: ['PKM', 'sans-seriff'],
+                pkm: ['PKM', 'sans-serif'],
+                noto: ['NotoSansThai', 'sans-serif'],
+                thai: ['NotoSansThai', 'PKM', 'sans-serif'], // Fallback chain for Thai text
             },
         },
     },
