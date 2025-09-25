@@ -132,8 +132,7 @@
                         {{ equipment.model || "N/A" }}
                     </td>
                     <td class="px-4 py-2 text-center">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                              :class="getAmountClass(equipment.items?.length || 0)">
+                        <span class="text-sm">
                             {{ equipment.items?.length || 0 }} ชิ้น
                         </span>
                     </td>
