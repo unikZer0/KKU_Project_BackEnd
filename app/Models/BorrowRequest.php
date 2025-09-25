@@ -37,6 +37,11 @@ class BorrowRequest extends Model
         return $this->belongsTo(Equipment::class, 'equipment_id');
     }
 
+    public function equipmentItem()
+    {
+        return $this->belongsTo(EquipmentItem::class, 'equipment_id');
+    }
+
     // Access equipment via items if needed
     public function items()
     {

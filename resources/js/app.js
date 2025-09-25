@@ -11,10 +11,15 @@ import Filter from './components/Filter.vue';
 import Pagination from './components/Pagination.vue';
 import AdminApproveTable from './components/tables/AdminApproveTable.vue';
 import ChartDashboard from './components/ChartDashboard.vue';
+import EquipmentChart from './components/EquipmentChart.vue';
 import EquipmentTable from './components/tables/EquipmentTable.vue';
 import CategoriesTable from './components/tables/CategoryTable.vue';
 import UsersTable from './components/tables/UserTable.vue';
 import RecentAct from './components/RecentAct.vue';
+
+// Make EquipmentChart and createApp available globally
+window.EquipmentChart = EquipmentChart;
+window.createApp = createApp;
 
 // Header Search
 const headerEl = document.getElementById('header-search');
