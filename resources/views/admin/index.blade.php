@@ -52,9 +52,33 @@
             </form>
         </div>
 
-        <!-- Chart -->
-        <div id="dashboard-chart" class="lg:col-span-7 bg-white rounded-lg border p-4" data-chart='@json($chartData)'>
+        <!-- Chart Toggle -->
+        <div class="lg:col-span-12 bg-white rounded-lg border p-4 mb-4">
+            <div class="flex gap-2">
+                <button 
+                    id="monthly-chart-btn" 
+                    class="px-4 py-2 text-sm rounded-md bg-blue-500 text-white transition-colors"
+                    onclick="showMonthlyChart()"
+                >
+                    กราฟรายเดือน
+                </button>
+                <button 
+                    id="equipment-chart-btn" 
+                    class="px-4 py-2 text-sm rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                    onclick="showEquipmentChart()"
+                >
+                    กราฟรายการอุปกรณ์
+                </button>
+            </div>
+        </div>
+
+        <!-- Monthly Chart -->
+        <div id="monthly-chart-container" class="lg:col-span-7 bg-white rounded-lg border p-4" data-chart='@json($chartData)'>
             <canvas></canvas>
+        </div>
+
+        <!-- Equipment Chart -->
+        <div id="equipment-chart-container" class="lg:col-span-7 bg-white rounded-lg border p-4" style="display: none;" data-equipment-time='@json($equipmentTimeData)'>
         </div>
 
         <!-- Category Chart -->
@@ -71,6 +95,11 @@
     @vite('resources/js/app.js')
 
     <script>
+        let monthlyChart = null;
+        let equipmentChartApp = null;
+        let isTransitioning = false;
+        let transitionTimeout = null;
+
         document.addEventListener('DOMContentLoaded', function () {
             // ---------- Category Chart ----------
             const barEl = document.getElementById('categoryBar');
@@ -89,14 +118,18 @@
                 });
             }
 
-            // ---------- Dashboard Chart ----------
-            const chartEl = document.getElementById('dashboard-chart');
+            // Initialize monthly chart
+            initializeMonthlyChart();
+        });
+
+        function initializeMonthlyChart() {
+            const chartEl = document.getElementById('monthly-chart-container');
             if (!chartEl) return;
 
             const chartData = JSON.parse(chartEl.dataset.chart);
             const ctx = chartEl.querySelector('canvas').getContext('2d');
 
-            new Chart(ctx, {
+            monthlyChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: chartData.labels,
@@ -108,6 +141,74 @@
                 },
                 options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
             });
-        });
+        }
+
+        function showMonthlyChart() {
+            // Prevent rapid switching
+            if (isTransitioning) {
+                return;
+            }
+
+            isTransitioning = true;
+            
+            // Clear any existing timeout
+            if (transitionTimeout) {
+                clearTimeout(transitionTimeout);
+            }
+
+            // Debounce the chart switching
+            transitionTimeout = setTimeout(() => {
+                document.getElementById('monthly-chart-container').style.display = 'block';
+                document.getElementById('equipment-chart-container').style.display = 'none';
+                
+                // Update button styles
+                document.getElementById('monthly-chart-btn').className = 'px-4 py-2 text-sm rounded-md bg-blue-500 text-white transition-colors';
+                document.getElementById('equipment-chart-btn').className = 'px-4 py-2 text-sm rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors';
+                
+                isTransitioning = false;
+            }, 200);
+        }
+
+        function showEquipmentChart() {
+            // Prevent rapid switching
+            if (isTransitioning) {
+                return;
+            }
+
+            isTransitioning = true;
+            
+            // Clear any existing timeout
+            if (transitionTimeout) {
+                clearTimeout(transitionTimeout);
+            }
+
+            // Debounce the chart switching
+            transitionTimeout = setTimeout(() => {
+                document.getElementById('monthly-chart-container').style.display = 'none';
+                document.getElementById('equipment-chart-container').style.display = 'block';
+                
+                // Update button styles
+                document.getElementById('equipment-chart-btn').className = 'px-4 py-2 text-sm rounded-md bg-blue-500 text-white transition-colors';
+                document.getElementById('monthly-chart-btn').className = 'px-4 py-2 text-sm rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors';
+
+                // Initialize equipment chart if not already done
+                if (!equipmentChartApp) {
+                    // Wait a bit for Vue components to be available
+                    setTimeout(() => {
+                        const equipmentEl = document.getElementById('equipment-chart-container');
+                        if (equipmentEl && window.createApp && window.EquipmentChart) {
+                            const equipmentTimeData = JSON.parse(equipmentEl.dataset.equipmentTime);
+                            equipmentChartApp = window.createApp(window.EquipmentChart, {
+                                equipmentTimeData: equipmentTimeData
+                            }).mount(equipmentEl);
+                        } else {
+                            console.error('Vue components not loaded yet');
+                        }
+                    }, 100);
+                }
+                
+                isTransitioning = false;
+            }, 200);
+        }
     </script>
 </x-admin-layout>
