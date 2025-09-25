@@ -344,29 +344,60 @@ class EquipmentController extends Controller
     //? DELETE
     public function destroy($id)
     {
-        $equipment = Equipment::findOrFail($id);
+        try {
+            $equipment = Equipment::findOrFail($id);
 
-        if ($equipment->photo_path) {
-            $oldPhotos = json_decode($equipment->photo_path, true) ?? [];
-            foreach ($oldPhotos as $photo) {
-                $path = str_replace('/storage/', '', $photo);
-                Storage::disk('public')->delete($path);
+            // Check if equipment has any borrow requests
+            $hasBorrowRequests = \App\Models\BorrowRequest::where('equipment_id', $id)->exists();
+            if ($hasBorrowRequests) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Cannot delete equipment that has borrow requests. Please cancel or complete all related requests first."
+                ], 400);
             }
+
+            // Delete related records first to avoid foreign key constraints
+            // Delete accessories
+            $equipment->accessories()->delete();
+            
+            // Delete equipment items
+            $equipment->items()->delete();
+            
+            // Delete specifications
+            $equipment->specifications()->delete();
+
+            // Delete photos from storage
+            if ($equipment->photo_path) {
+                $oldPhotos = json_decode($equipment->photo_path, true) ?? [];
+                foreach ($oldPhotos as $photo) {
+                    $path = str_replace('/storage/', '', $photo);
+                    Storage::disk('public')->delete($path);
+                }
+            }
+
+            // Create log entry
+            Log::create([
+                'users_id' => Auth::id() ?? 1,
+                'action' => 'delete',
+                'ip_address' => request()->ip(),
+            ]);
+
+            // Delete the equipment
+            $equipment->delete();
+
+            // Clear cache
+            Cache::forget('equipments_with_category');
+
+            return response()->json([
+                "status" => true,
+                "message" => "Equipment deleted successfully"
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "status" => false,
+                "message" => "Error deleting equipment: " . $e->getMessage()
+            ], 500);
         }
-
-        Log::create([
-            'users_id' => Auth::id() ?? 1,
-            'action' => 'delete',
-            'ip_address' => request()->ip(),
-        ]);
-
-        $equipment->delete();
-
-        Cache::forget('equipments_with_category');
-
-        return response()->json([
-            "status" => true,
-            "message" => "Equipment deleted successfully"
-        ]);
     }
 }
