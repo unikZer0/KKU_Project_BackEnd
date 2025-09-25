@@ -243,12 +243,33 @@
                     </div>
                 </div>
 
+                {{-- Availability Status Section --}}
+                @if($earliestAvailableDate && $earliestAvailableDate['date'])
+                    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-800">
+                                    <span class="font-medium">สถานะอุปกรณ์:</span> {{ $earliestAvailableDate['message'] }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="mt-4 p-4 sm:p-6 bg-gray-50 border border-gray-200 rounded-lg">
                     <div class="flex items-center justify-between mb-2">
                         <p class="font-semibold text-lg">เลือกวันที่รับ-ส่ง :</p>
-                        <p class="text-sm text-gray-600">พร้อมให้ยืม: <span
-                                class="font-semibold text-green-600">{{ $equipment->available_items_count ?? 0 }}</span>
-                            ชิ้น</p>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600">
+                                <p>พร้อมให้ยืม: <span class="font-semibold text-green-600">{{ $equipment->available_items_count ?? 0 }}</span> ชิ้น</p>
+                                @if($borrowedCount > 0)
+                                    <p class="text-xs text-gray-500">ถูกยืมไปแล้ว: <span class="font-medium text-orange-600">{{ $borrowedCount }}</span> ชิ้น</p>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                     <form action="{{ route('borrower.borrow_request', $equipment) }}" method="POST" id="borrowForm">
                         @csrf

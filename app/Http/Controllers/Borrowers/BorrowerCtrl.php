@@ -80,11 +80,18 @@ class BorrowerCtrl extends Controller
         ->whereIn('spec_key', ['sensor', 'megapixels', 'wifi'])
         ->get()->keyBy('spec_key');
 
-    $userVerified = Auth::check() ? (int)Auth::user()->is_verified : null;
+    // $userVerified = Auth::check() ? (int)Auth::user()->is_verified : null;
+    $userVerified = Auth::check() ;
+
+    // Calculate earliest available date when equipment will be free
+    $earliestAvailableDate = $this->calculateEarliestAvailableDate($equipment, $activeItems, $totalUnits);
+    
+    // Calculate borrowed count
+    $borrowedCount = $totalUnits - $equipment->available_items_count;
 
     return view('equipments.show', compact(
         'equipment', 'hasBorrowed', 'userVerified', 'accessories', 
-        'itemAccessories', 'itemSerials', 'calendarData', 'specs'
+        'itemAccessories', 'itemSerials', 'calendarData', 'specs', 'earliestAvailableDate', 'borrowedCount'
     ));
 }
     public function myRequests(Request $request)
@@ -314,5 +321,75 @@ class BorrowerCtrl extends Controller
     });
 
     return view('equipments.reqdetail', compact('reQuests'));
+}
+
+/**
+ * Calculate the earliest available date when equipment will be free
+ */
+private function calculateEarliestAvailableDate($equipment, $activeItems, $totalUnits)
+{
+    // If all items are available, return today
+    if ($equipment->available_items_count >= $totalUnits) {
+        return [
+            'date' => Carbon::today()->format('Y-m-d'),
+            'available_count' => $totalUnits,
+            'message' => 'พร้อมให้ยืมทันที'
+        ];
+    }
+
+    // Get all return dates from active borrow requests with their counts
+    $returnDatesWithCounts = [];
+    foreach ($activeItems as $item) {
+        $endDate = Carbon::parse($item->request->end_at);
+        $dateStr = $endDate->format('Y-m-d');
+        
+        if (!isset($returnDatesWithCounts[$dateStr])) {
+            $returnDatesWithCounts[$dateStr] = 0;
+        }
+        $returnDatesWithCounts[$dateStr]++;
+    }
+
+    // Sort by date
+    ksort($returnDatesWithCounts);
+    
+    // Find the earliest date when we'll have items available
+    $today = Carbon::today();
+    $earliestDate = null;
+    $firstRequestCount = 0;
+    
+    foreach ($returnDatesWithCounts as $returnDate => $count) {
+        $returnCarbon = Carbon::parse($returnDate);
+        
+        // Only consider future return dates
+        if ($returnCarbon->gte($today)) {
+            $earliestDate = $returnDate;
+            $firstRequestCount = $count;
+            break; // We found the first request that will be returned
+        }
+    }
+
+    if ($earliestDate) {
+        $dateFormatted = Carbon::parse($earliestDate)->format('d/m/Y');
+        return [
+            'date' => $earliestDate,
+            'available_count' => $equipment->available_items_count + $firstRequestCount,
+            'message' => "เร็วสุด: {$dateFormatted} (จะว่าง {$firstRequestCount} ชิ้น)"
+        ];
+    }
+
+    // If no future return dates found, check if there are any items available now
+    if ($equipment->available_items_count > 0) {
+        return [
+            'date' => Carbon::today()->format('Y-m-d'),
+            'available_count' => $equipment->available_items_count,
+            'message' => "พร้อมให้ยืม {$equipment->available_items_count} ชิ้น"
+        ];
+    }
+
+    return [
+        'date' => null,
+        'available_count' => 0,
+        'message' => 'ไม่พร้อมให้ยืมในขณะนี้'
+    ];
 }
 }
