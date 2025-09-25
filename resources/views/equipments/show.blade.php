@@ -259,6 +259,7 @@
                     </div>
                 @endif
 
+
                 <div class="mt-4 p-4 sm:p-6 bg-gray-50 border border-gray-200 rounded-lg">
                     <div class="flex items-center justify-between mb-2">
                         <p class="font-semibold text-lg">เลือกวันที่รับ-ส่ง :</p>
@@ -370,12 +371,26 @@
     {{-- Calendar Modal --}}
     <div id="calendarModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">เลือกวันที่</h3>
+                <div class="flex items-center gap-4 text-xs">
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+                        <span>ว่าง</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
+                        <span>ไม่ว่าง</span>
+                    </div>
+                </div>
+            </div>
             <div id="calendar"></div>
-            <div class="flex justify-between mt-2 pt-2 border-t"><button onclick="setToday()"
-                    class="text-sm text-blue-600 hover:underline">วันนี้</button><button onclick="clearDate()"
-                    class="text-sm text-red-600 hover:underline">ล้าง</button><button onclick="closeCalendar()"
-                    class="text-sm text-gray-600 hover:underline">ปิด</button></div>
+            <div class="flex justify-between mt-2 pt-2 border-t">
+                <button onclick="setToday()" class="text-sm text-blue-600 hover:underline">วันนี้</button>
+                <button onclick="clearDate()" class="text-sm text-red-600 hover:underline">ล้าง</button>
+                <button onclick="closeCalendar()" class="text-sm text-gray-600 hover:underline">ปิด</button>
+            </div>
         </div>
     </div>
 </x-app-layout>
@@ -389,138 +404,118 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
+    /* Calendar styling */
+    #calendar .h-8 {
+        min-height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    #calendar .h-8:hover {
+        transform: scale(1.05);
+        z-index: 10;
+    }
+
+    #calendar .h-8[data-available="0"] {
+        background-color: #fef2f2 !important;
+        border-color: #fca5a5 !important;
+        color: #dc2626 !important;
+    }
+
+    #calendar .h-8[data-available="0"]:hover {
+        background-color: #fee2e2 !important;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    #calendar .h-8:not([data-available="0"]):hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Smooth transitions */
+    #calendar .h-8 {
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Unavailable day indicator */
+    #calendar .h-8[data-available="0"]::after {
+        content: '✕';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 8px;
+        color: #dc2626;
+        font-weight: bold;
+    }
+
+    /* Available day indicator */
+    #calendar .h-8[data-available]:not([data-available="0"])::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 4px;
+        height: 4px;
+        background-color: #22c55e;
+        border-radius: 50%;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+        #calendar .h-8 {
+            min-height: 3.5rem;
+            padding: 0.25rem;
+        }
+        
+        .mobile-only {
+            display: block !important;
+        }
+        
+        #calendar .h-8 .flex-col {
+            gap: 0.125rem;
+        }
+        
+        #calendar .h-8 .text-xs {
+            font-size: 0.625rem;
+            line-height: 1;
+            word-break: break-all;
+        }
+        
+        /* Make calendar modal larger on mobile */
+        #calendarModal .bg-white {
+            max-width: 95vw;
+            width: 95vw;
+        }
+        
+        /* Better touch targets */
+        #calendar .h-8 {
+            min-height: 3.5rem;
+            touch-action: manipulation;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .mobile-only {
+            display: none !important;
+        }
+    }
+
+    /* Touch-friendly interactions */
+    @media (hover: none) and (pointer: coarse) {
+        #calendar .h-8:hover {
+            transform: none;
+        }
+        
+        #calendar .h-8:active {
+            transform: scale(0.95);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+    }
 </style>
 
 <script>
-    let currentInput = null;
-    let calendar = null;
-
-    class Calendar {
-        constructor(container, dayCounts = {}, totalUnits = 0, rangeEnd = null) {
-            this.container = container;
-            this.dayCounts = dayCounts; // { 'YYYY-MM-DD': countBorrowed }
-            this.totalUnits = totalUnits;
-            // Re-enable 3-month limit
-            this.rangeEnd = rangeEnd ? new Date(rangeEnd + 'T00:00:00') : new Date(new Date().setMonth(new Date().getMonth() + 3));
-            this.currentDate = new Date();
-            this.currentDate.setDate(1);
-            this.render();
-        }
-        render() {
-            const y = this.currentDate.getFullYear();
-            const m = this.currentDate.getMonth();
-            const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม',
-                'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-            ];
-            const firstDay = new Date(y, m, 1);
-            const lastDay = new Date(y, m + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            const startWeek = firstDay.getDay();
-            let html =
-                `<div class="bg-white border-gray-200 rounded-lg"><div class="flex justify-between items-center p-2 bg-gray-50 border-b"><button onclick="calendar.prev()" class="px-2 py-1 rounded-full hover:bg-gray-200 transition">‹</button><div class="text-sm font-medium">${monthNames[m]} ${y}</div><button onclick="calendar.next()" class="px-2 py-1 rounded-full hover:bg-gray-200 transition">›</button></div><div class="grid grid-cols-7 bg-gray-50 border-b text-xs font-semibold text-gray-500">${['อา','จ','อ','พ','พฤ','ศ','ส'].map(d => `<div class="p-2 text-center">${d}</div>`).join('')}</div><div class="grid grid-cols-7 text-center">`;
-            for (let i = 0; i < startWeek; i++) html += `<div></div>`;
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            for (let d = 1; d <= daysInMonth; d++) {
-                const date = new Date(y, m, d);
-                const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const isPast = date < today;
-                const borrowedCount = this.dayCounts[dateStr] || 0;
-                const redMark = borrowedCount >= this.totalUnits && this.totalUnits > 0; // fully booked
-                const outOfRange = this.rangeEnd ? date > this.rangeEnd : false;
-                let cls = "h-10 w-10 flex items-center justify-center text-sm mx-auto rounded-full ";
-                let clickHandler = `onclick="selectDate('${dateStr}')"`;
-                let title = '';
-                if (outOfRange) {
-                    cls += "text-gray-300 cursor-not-allowed opacity-50";
-                    clickHandler = '';
-                    title = 'เกินช่วง 3 เดือนข้างหน้า';
-                } else if (isPast) {
-                    cls += "text-gray-400 cursor-not-allowed opacity-60";
-                    clickHandler = '';
-                    title = 'ไม่สามารถเลือกวันที่ในอดีตได้';
-                } else {
-                    cls += "cursor-pointer hover:bg-blue-100 transition";
-                }
-                if (redMark) {
-                    cls += " ring-2 ring-red-400 bg-red-50 ";
-                    title = (title ? title + ' | ' : '') + `จองแล้ว ${borrowedCount} ชิ้น เหลือ ${Math.max(this.totalUnits - borrowedCount, 0)} ชิ้น`;
-                    // prevent selecting fully-booked days
-                    clickHandler = '';
-                } else {
-                    title = (title ? title + ' | ' : '') + `เหลือ ${Math.max(this.totalUnits - borrowedCount, 0)} ชิ้น`;
-                }
-                if (date.getTime() === today.getTime()) {
-                    cls += " bg-blue-600 text-white font-bold"
-                }
-                html +=
-                    `<div class="py-1"><div class="${cls}" data-date="${dateStr}" ${clickHandler} title="${title}">${d}</div></div>`;
-            }
-            html += "</div></div>";
-            this.container.innerHTML = html;
-        }
-        prev() {
-            this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-            this.render();
-        }
-        next() {
-            // prevent navigating beyond 3 months window visually
-            const nextMonth = new Date(this.currentDate);
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
-            if (this.rangeEnd && nextMonth > this.rangeEnd) return;
-            this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-            this.render();
-        }
-    }
-
-    function toggleCalendar(input) {
-        currentInput = input;
-        const modal = document.getElementById('calendarModal');
-        modal.classList.remove('hidden');
-        if (!calendar) {
-            const cal = @json($calendarData);
-            calendar = new Calendar(
-                document.getElementById('calendar'),
-                cal.dayCounts || {},
-                cal.totalUnits || 0,
-                cal.rangeEnd || null
-            );
-        }
-    }
-
-    function closeCalendar() {
-        document.getElementById('calendarModal').classList.add('hidden');
-    }
-
-    function selectDate(dateStr) {
-        if (currentInput) {
-            const d = new Date(dateStr + 'T00:00:00');
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-
-            document.getElementById(currentInput + '_at').value = `${day}/${month}/${year}`;
-            closeCalendar();
-            validateFormState();
-        }
-    }
-
-    function clearDate() {
-        if (currentInput) {
-            document.getElementById(currentInput + '_at').value = '';
-            validateFormState();
-        }
-    }
-
-    function setToday() {
-        if (currentInput) {
-            const t = new Date();
-            selectDate(
-                `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-            );
-        }
-    }
-
     // This function will be defined after caching DOM elements
     let validateFormState = () => {};
 
@@ -670,4 +665,271 @@
         validateFormState();
         updatePerItemAccessories();
     });
+
+    // Calendar functionality with availability data
+    let currentField = '';
+    let currentDate = new Date();
+    let availabilityData = @json($activeItems->map(function($item) {
+        return [
+            'start_at' => $item->request->start_at,
+            'end_at' => $item->request->end_at
+        ];
+    }));
+    let totalUnits = {{ $totalUnits }};
+
+    function toggleCalendar(field) {
+        currentField = field;
+        const modal = document.getElementById('calendarModal');
+        if (!modal) {
+            console.error('Calendar modal not found');
+            return;
+        }
+        modal.classList.remove('hidden');
+        renderCalendarWithTouch();
+    }
+
+    function closeCalendar() {
+        const modal = document.getElementById('calendarModal');
+        if (!modal) {
+            console.error('Calendar modal not found');
+            return;
+        }
+        modal.classList.add('hidden');
+    }
+
+    function setToday() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${day}/${month}/${year}`;
+        
+        if (currentField === 'start') {
+            const startInput = document.getElementById('start_at');
+            if (startInput) startInput.value = formattedDate;
+        } else if (currentField === 'end') {
+            const endInput = document.getElementById('end_at');
+            if (endInput) endInput.value = formattedDate;
+        }
+        closeCalendar();
+        if (typeof validateFormState === 'function') {
+            validateFormState();
+        }
+    }
+
+    function clearDate() {
+        if (currentField === 'start') {
+            const startInput = document.getElementById('start_at');
+            if (startInput) startInput.value = '';
+        } else if (currentField === 'end') {
+            const endInput = document.getElementById('end_at');
+            if (endInput) endInput.value = '';
+        }
+        closeCalendar();
+        if (typeof validateFormState === 'function') {
+            validateFormState();
+        }
+    }
+
+    function renderCalendar() {
+        const calendar = document.getElementById('calendar');
+        if (!calendar) {
+            console.error('Calendar element not found');
+            return;
+        }
+        
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+        
+        // Month names in Thai
+        const monthNames = [
+            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+        
+        // Day names in Thai
+        const dayNames = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+        
+        let calendarHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="previousMonth()" class="p-2 hover:bg-gray-100 rounded">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h4 class="text-lg font-semibold">${monthNames[month]} ${year}</h4>
+                <button onclick="nextMonth()" class="p-2 hover:bg-gray-100 rounded">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm mobile-only">
+                <div class="text-center text-blue-800">
+                    <span class="font-medium">อุปกรณ์ทั้งหมด: ${totalUnits} ชิ้น</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-7 gap-1 mb-2">
+        `;
+        
+        // Add day headers
+        dayNames.forEach(day => {
+            calendarHTML += `<div class="text-center text-xs font-medium text-gray-500 py-2">${day}</div>`;
+        });
+        
+        // Add empty cells for days before month starts
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            calendarHTML += '<div class="h-8"></div>';
+        }
+        
+        // Add days of month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const dateStr = date.toISOString().split('T')[0];
+            const availability = calculateAvailability(dateStr);
+            const isToday = isSameDay(date, new Date());
+            const isPast = date < new Date() && !isToday;
+            
+            let dayClass = 'h-8 flex items-center justify-center text-sm cursor-pointer rounded transition-all duration-200 hover:scale-105 ';
+            let dayContent = day;
+            let tooltip = `วันที่ ${day}/${month + 1}/${year}`;
+            let availabilityText = '';
+            
+            if (isPast) {
+                dayClass += 'bg-gray-100 text-gray-400 cursor-not-allowed';
+                availabilityText = 'ผ่านไปแล้ว';
+            } else if (availability.available === 0) {
+                dayClass += 'bg-red-100 border border-red-300 text-red-700 hover:bg-red-200';
+                dayContent += ' ✕';
+                tooltip += ` - ไม่ว่าง (0/${totalUnits})`;
+                availabilityText = 'ไม่ว่าง';
+            } else {
+                dayClass += 'bg-green-50 border border-green-200 text-green-700 hover:bg-green-100';
+                tooltip += ` - ว่าง ${availability.available}/${totalUnits} ชิ้น`;
+                availabilityText = `ว่าง ${availability.available}/${totalUnits}`;
+            }
+            
+            if (isToday) {
+                dayClass += ' ring-2 ring-blue-400';
+            }
+            
+            calendarHTML += `
+                <div class="${dayClass} relative" 
+                     onclick="selectDate(${day}, ${month + 1}, ${year})"
+                     title="${tooltip}"
+                     data-available="${availability.available}"
+                     data-total="${totalUnits}">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-medium">${dayContent}</span>
+                        <span class="text-xs opacity-75 mobile-only">${availabilityText}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        calendarHTML += '</div>';
+        calendar.innerHTML = calendarHTML;
+    }
+
+    function calculateAvailability(dateStr) {
+        let available = totalUnits;
+        
+        availabilityData.forEach(item => {
+            const itemStart = new Date(item.start_at);
+            const itemEnd = new Date(item.end_at);
+            const checkDate = new Date(dateStr);
+            
+            if (checkDate >= itemStart && checkDate <= itemEnd) {
+                available--;
+            }
+        });
+        
+        return {
+            available: Math.max(0, available),
+            total: totalUnits
+        };
+    }
+
+    function selectDate(day, month, year) {
+        const formattedDate = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+        
+        if (currentField === 'start') {
+            const startInput = document.getElementById('start_at');
+            if (startInput) startInput.value = formattedDate;
+        } else if (currentField === 'end') {
+            const endInput = document.getElementById('end_at');
+            if (endInput) endInput.value = formattedDate;
+        }
+        
+        closeCalendar();
+        if (typeof validateFormState === 'function') {
+            validateFormState();
+        }
+    }
+
+    // Add touch event handlers for mobile
+    function addTouchHandlers() {
+        const calendar = document.getElementById('calendar');
+        if (!calendar) return;
+        
+        const calendarDays = calendar.querySelectorAll('.h-8');
+        
+        calendarDays.forEach(day => {
+            // Remove existing listeners to prevent duplicates
+            day.removeEventListener('touchstart', handleTouchStart);
+            day.removeEventListener('touchend', handleTouchEnd);
+            day.removeEventListener('touchmove', handleTouchMove);
+            
+            // Add touch feedback
+            day.addEventListener('touchstart', handleTouchStart);
+            day.addEventListener('touchend', handleTouchEnd);
+            day.addEventListener('touchmove', handleTouchMove);
+        });
+    }
+
+    function handleTouchStart(e) {
+        this.style.transform = 'scale(0.95)';
+        this.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+    }
+
+    function handleTouchEnd(e) {
+        const element = this;
+        setTimeout(() => {
+            element.style.transform = '';
+            element.style.backgroundColor = '';
+        }, 150);
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+    }
+
+    // Update renderCalendar to include touch handlers
+    function renderCalendarWithTouch() {
+        renderCalendar();
+        // Add touch handlers after calendar is rendered
+        setTimeout(addTouchHandlers, 100);
+    }
+
+    function previousMonth() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendarWithTouch();
+    }
+
+    function nextMonth() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendarWithTouch();
+    }
+
+    function isSameDay(date1, date2) {
+        return date1.getDate() === date2.getDate() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getFullYear() === date2.getFullYear();
+    }
 </script>

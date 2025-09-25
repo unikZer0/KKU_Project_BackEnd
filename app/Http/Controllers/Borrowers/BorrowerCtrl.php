@@ -50,26 +50,6 @@ class BorrowerCtrl extends Controller
             ->where(fn ($query) => $query->where('start_at', '<=', $rangeEnd)->where('end_at', '>=', $rangeStart));
     })->with('request:id,start_at,end_at')->get();
 
-    // Calculate daily borrowed counts for calendar display
-    $dayCounts = [];
-    foreach ($activeItems as $item) {
-        $start = Carbon::parse($item->request->start_at);
-        $end = Carbon::parse($item->request->end_at);
-
-        // Increment borrowed count for each day of the booking period
-        for ($date = $start->copy()->max($rangeStart); $date->lte($end->copy()->min($rangeEnd)); $date->addDay()) {
-            $dateStr = $date->toDateString();
-            $dayCounts[$dateStr] = ($dayCounts[$dateStr] ?? 0) + 1;
-        }
-    }
-    
-    // Prepare calendar data for the view
-    $calendarData = [
-        'dayCounts' => $dayCounts,
-        'totalUnits' => $totalUnits,
-        'rangeEnd' => $rangeEnd->toDateString(),
-    ];
-    
     // Fetch accessories available to be requested
     $accessories = ($equipment->available_items_count > 0) ? $equipment->accessories()->whereNull('equipment_item_id')->orderBy('name')->get() : collect();
     $itemAccessories = $equipment->accessories()->whereNotNull('equipment_item_id')->whereHas('equipmentItem', fn($q) => $q->where('status', 'available'))->orderBy('equipment_item_id')->get();
@@ -91,7 +71,7 @@ class BorrowerCtrl extends Controller
 
     return view('equipments.show', compact(
         'equipment', 'hasBorrowed', 'userVerified', 'accessories', 
-        'itemAccessories', 'itemSerials', 'calendarData', 'specs', 'earliestAvailableDate', 'borrowedCount'
+        'itemAccessories', 'itemSerials', 'specs', 'earliestAvailableDate', 'borrowedCount', 'activeItems', 'totalUnits'
     ));
 }
     public function myRequests(Request $request)
@@ -369,7 +349,9 @@ private function calculateEarliestAvailableDate($equipment, $activeItems, $total
     }
 
     if ($earliestDate) {
-        $dateFormatted = Carbon::parse($earliestDate)->format('d/m/Y');
+            $dateShifted = Carbon::parse($earliestDate)->addDay();
+    $dateFormatted = $dateShifted->format('d/m/Y');
+
         return [
             'date' => $earliestDate,
             'available_count' => $equipment->available_items_count + $firstRequestCount,
