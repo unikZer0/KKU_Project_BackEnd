@@ -115,7 +115,7 @@
                     <td class="px-4 py-2 flex items-center space-x-2">
                         <img v-if="getFirstPhoto(equipment)" :src="getFirstPhoto(equipment)" alt="Equipment Photo"
                             class="w-8 h-8 object-cover rounded cursor-pointer"
-                            @click="openPhotoModal(getFirstPhoto(equipment))" /> NA
+                            @click="openPhotoModal(getFirstPhoto(equipment))" />
                     </td>
                     <td class="px-4 py-2">{{ equipment.code }}</td>
                     <td class="px-4 py-2">{{ equipment.name }}</td>
@@ -132,9 +132,8 @@
                         {{ equipment.model || "N/A" }}
                     </td>
                     <td class="px-4 py-2 text-center">
-                        <span class="text-sm">
-                            {{ equipment.items?.length || 0 }} ชิ้น
-                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ equipment.items?.length || 0 }} ชิ้น</span>
                     </td>
                     <td class="px-4 py-2 space-x-2">
                         <button v-if="userRole === 'admin'" @click="openModal(equipment)"

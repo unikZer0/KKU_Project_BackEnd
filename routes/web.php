@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BorrowRequestController;
 use App\Http\Controllers\Admin\ReportExportController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerificationController;
 
 use App\Http\Controllers\LogController;
@@ -67,6 +68,12 @@ Route::middleware('auth')->group(function () {
             Route::delete('/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.category.destroy');
         });
 
+        // User management
+        Route::prefix('admin/user')->group(function () {
+            Route::post('/store', [UserController::class, 'store'])->name('admin.user.store');
+            Route::put('/update/{id}', [UserController::class, 'update'])->name('admin.user.update');
+            Route::delete('/destroy/{id}', [UserController::class, 'destroy'])->name('admin.user.destroy');
+        });
         //     // Reports (subset)
         //     Route::prefix('admin/report')->group(function () {
         //         Route::get('/logs', [LogController::class, 'logReport'])->name('admin.report.logs');
@@ -95,7 +102,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/{req_id}/checkout', [BorrowRequestController::class, 'checkout'])->name('admin.requests.checkout');
         });
 
-        // Category and Equipment index pages
+        // Category, Equipment, and User index pages
         Route::prefix('admin/category')->group(function () {
             Route::get('/', [CategoryController::class, 'index'])->name('admin.category.index');
         });
@@ -105,18 +112,11 @@ Route::middleware('auth')->group(function () {
         Route::prefix('admin/equipment-items')->group(function () {
             Route::get('/', [EquipmentItemController::class, 'index'])->name('admin.equipment-items.index');
             Route::get('/equipment/{equipmentId}', [EquipmentItemController::class, 'getByEquipment'])->name('admin.equipment-items.by-equipment');
-            Route::get('/debug/{id}', function($id) {
-                $item = \App\Models\EquipmentItem::find($id);
-                $existing = \App\Models\EquipmentItem::where('serial_number', $item->serial_number)->where('id', '!=', $id)->first();
-                return response()->json([
-                    'item_id' => $id,
-                    'current_serial' => $item->serial_number,
-                    'existing_item' => $existing ? $existing->id : null,
-                    'validation_rule' => 'unique:equipment_items,serial_number,' . $id . ',id'
-                ]);
-            })->name('admin.equipment-items.debug');
+           
         });
-        
+        Route::prefix('admin/user')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('admin.user.index');
+        });
         // Verification routes
         Route::prefix('admin/verification')->group(function () {
             Route::get('/', [VerificationController::class, 'index'])->name('admin.verification.index');

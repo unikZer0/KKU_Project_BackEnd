@@ -7,7 +7,7 @@
 
             <!-- Log Filter Form -->
             <form @submit.prevent="applyFilters" class="flex space-x-4 mb-4">
-                <input type="text" v-model="filters.admin" placeholder="Admin Name"
+                <input type="text" v-model="filters.admin" placeholder="ชื่อผู้ใช้"
                     class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
                 <select v-model="filters.action"
@@ -18,13 +18,6 @@
                     <option value="delete">Delete</option>
                 </select>
 
-                <select v-model="filters.target_type"
-                    class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">All Types</option>
-                    <option value="equipment">Equipment</option>
-                    <option value="category">Category</option>
-                    <option value="user">User</option>
-                </select>
 
                 <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                     Filter
@@ -36,26 +29,22 @@
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="px-4 py-2 text-left">ไอดี</th>
-                        <th class="px-4 py-2 text-left">ชื่อผู้จัดการ</th>
+                        <th class="px-4 py-2 text-left">ชื่อผู้ใช้</th>
                         <th class="px-4 py-2 text-left">แอคชั่น</th>
-                        <th class="px-4 py-2 text-left">ประเภทของแอคชั่น</th>
-                        <th class="px-4 py-2 text-left">เป้าหมาย</th>
-                        <th class="px-4 py-2 text-left">รายละเอียด</th>
+                        <th class="px-4 py-2 text-left">IP Address</th>
                         <th class="px-4 py-2 text-left">สร้างวันที่</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="log in logs" :key="log.id" class="border-b">
                         <td class="px-4 py-2">{{ log.id }}</td>
-                        <td class="px-4 py-2">{{ log.admin?.name || 'N/A' }}</td>
-                        <td class="px-4 py-2">{{ log.action }}</td>
-                        <td class="px-4 py-2">{{ log.target_type }}</td>
-                        <td class="px-4 py-2">{{ log.target_id }}</td>
-                        <td class="px-4 py-2">{{ log.description }}</td>
+                        <td class="px-4 py-2">{{ log.user?.name || 'N/A' }}</td>
+                        <td class="px-4 py-2">{{ log.action || '-' }}</td>
+                        <td class="px-4 py-2">{{ log.ip_address || '-' }}</td>
                         <td class="px-4 py-2">{{ formatDate(log.created_at) }}</td>
                     </tr>
                     <tr v-if="logs.length === 0">
-                        <td colspan="7" class="text-center py-4 text-gray-500">
+                        <td colspan="5" class="text-center py-4 text-gray-500">
                             ไม่พบข้อมูล
                         </td>
                     </tr>
@@ -96,7 +85,6 @@ export default {
             filters: {
                 admin: "",
                 action: "",
-                target_type: "",
             },
         };
     },
@@ -125,8 +113,7 @@ export default {
         exportLogs() {
             const query = new URLSearchParams({
                 admin: this.filters.admin,
-                action: this.filters.action,
-                target_type: this.filters.target_type
+                action: this.filters.action
             }).toString();
 
             window.location.href = `/admin/report/export/log?${query}`;
