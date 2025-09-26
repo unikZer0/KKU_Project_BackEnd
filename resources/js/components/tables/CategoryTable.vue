@@ -35,23 +35,56 @@
     <table class="min-w-full text-sm">
       <thead class="bg-gray-50 border-b">
         <tr>
-          <th class="px-4 py-2 text-left" @canplay="setSort('cate_id')">รหัสหมวดหมู่
-            <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          <th class="px-4 py-2 text-left">
+            <button @click="setSort('cate_id')" class="flex items-center space-x-1 hover:text-blue-600">
+              <span>รหัสหมวดหมู่</span>
+              <span class="flex flex-col">
+                <svg class="w-3 h-3" :class="{ 'text-blue-600': sortKey === 'cate_id' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'cate_id' && sortDirection === 'asc') }" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                </svg>
+                <svg class="w-3 h-3 -mt-1" :class="{ 'text-blue-600': sortKey === 'cate_id' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'cate_id' && sortDirection === 'desc') }" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                </svg>
+              </span>
+            </button>
           </th>
-          <th class="px-4 py-2 text-left" @click="setSort('name')">ชื่อหมวดหมู่
-            <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          <th class="px-4 py-2 text-left">
+            <button @click="setSort('name')" class="flex items-center space-x-1 hover:text-blue-600">
+              <span>ชื่อหมวดหมู่</span>
+              <span class="flex flex-col">
+                <svg class="w-3 h-3" :class="{ 'text-blue-600': sortKey === 'name' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'name' && sortDirection === 'asc') }" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                </svg>
+                <svg class="w-3 h-3 -mt-1" :class="{ 'text-blue-600': sortKey === 'name' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'name' && sortDirection === 'desc') }" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                </svg>
+              </span>
+            </button>
           </th>
-          <th class="px-4 py-2 text-left" @click="setSort('equipments_count')">จํานวนอุปกรณ์
-            <span v-if="sortKey === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          <th class="px-4 py-2 text-left">
+            <button @click="setSort('equipments_count')" class="flex items-center space-x-1 hover:text-blue-600">
+              <span>จํานวนอุปกรณ์</span>
+              <span class="flex flex-col">
+                <svg class="w-3 h-3" :class="{ 'text-blue-600': sortKey === 'equipments_count' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'equipments_count' && sortDirection === 'asc') }" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                </svg>
+                <svg class="w-3 h-3 -mt-1" :class="{ 'text-blue-600': sortKey === 'equipments_count' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'equipments_count' && sortDirection === 'desc') }" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                </svg>
+              </span>
+            </button>
           </th>
           <th v-if="userRole === 'admin'" class="px-4 py-2 text-left">แอคชั่น</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="category in filteredCategories" :key="category.id" class="border-b">
+        <tr v-for="category in paginatedCategories" :key="category.id" class="border-b hover:bg-gray-50">
           <td class="px-4 py-2">{{ category.cate_id }}</td>
           <td class="px-4 py-2">{{ category.name }}</td>
-          <td class="px-4 py-2">{{ category.equipments_count }}</td>
+          <td class="px-4 py-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {{ category.equipments_count }} ชิ้น</span>
+          </td>
           <td class="px-4 py-2 space-x-2">
             <button v-if="userRole === 'admin'" @click="openModal(category)"
               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
@@ -65,6 +98,26 @@
         </tr>
       </tbody>
     </table>
+
+        <!-- Pagination -->
+        <div class="mt-4 flex items-center justify-between">
+      <div class="text-sm text-gray-600">
+        แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด {{ filteredCategories.length }} รายการ
+      </div>
+      <div class="flex items-center space-x-1">
+        <button class="px-3 py-1 border rounded disabled:opacity-50" :disabled="currentPage === 1" @click="prevPage">
+          ก่อนหน้า
+        </button>
+        <button v-for="p in visiblePages" :key="p" class="px-3 py-1 border rounded"
+          :class="{ 'bg-blue-600 text-white': currentPage === p }" @click="goToPage(p)">
+          {{ p }}
+        </button>
+        <button class="px-3 py-1 border rounded disabled:opacity-50"
+          :disabled="currentPage === pageCount || pageCount === 0" @click="nextPage">
+          ถัดไป
+        </button>
+      </div>
+    </div>
 
     <!-- Edit Modal -->
     <CategoryEditModal :isOpen="isOpen" :category="selectedCategory" @close="isOpen = false"
@@ -95,6 +148,8 @@ export default {
       categoryTypes: [],
       sortKey: "created_at",
       sortDirection: "asc",
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   computed: {
@@ -104,11 +159,27 @@ export default {
         const q = this.searchQuery.toLowerCase();
         list = list.filter(c => c.name.toLowerCase().includes(q));
       }
-      // Sort by created_at
+      // Sort
       list = [...list].sort((a, b) => {
-        const da = new Date(a.created_at);
-        const db = new Date(b.created_at);
-        return this.sortDirection === "asc" ? da - db : db - da;
+        let aVal = a[this.sortKey];
+        let bVal = b[this.sortKey];
+
+        // Handle different data types
+        if (this.sortKey === 'created_at') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        } else if (this.sortKey === 'equipments_count') {
+          aVal = parseInt(aVal) || 0;
+          bVal = parseInt(bVal) || 0;
+        } else {
+          // String comparison for name, cate_id, etc.
+          aVal = String(aVal || '').toLowerCase();
+          bVal = String(bVal || '').toLowerCase();
+        }
+
+        if (aVal < bVal) return this.sortDirection === "asc" ? -1 : 1;
+        if (aVal > bVal) return this.sortDirection === "asc" ? 1 : -1;
+        return 0;
       });
       return list;
     },
@@ -119,6 +190,29 @@ export default {
         counts[type] = (counts[type] || 0) + 1;
       }
       return counts;
+    },
+    pageCount() {
+      return Math.ceil(this.filteredCategories.length / this.pageSize) || 1;
+    },
+    pageStart() {
+      return (this.currentPage - 1) * this.pageSize;
+    },
+    pageEnd() {
+      const end = this.pageStart + this.pageSize;
+      return Math.min(end, this.filteredCategories.length);
+    },
+    paginatedCategories() {
+      return this.filteredCategories.slice(this.pageStart, this.pageEnd);
+    },
+    visiblePages() {
+      const pages = [];
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(this.pageCount, this.currentPage + 2);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      return pages;
     }
   },
   methods: {
@@ -198,6 +292,15 @@ export default {
         }
       });
     },
+    prevPage() {
+      if (this.currentPage > 1) this.currentPage -= 1;
+    },
+    nextPage() {
+      if (this.currentPage < this.pageCount) this.currentPage += 1;
+    },
+    goToPage(page) {
+      this.currentPage = page;
+    },
     handleCreateCategory(newCategory) {
       fetch('/admin/category/store', {
         method: 'POST',
@@ -225,6 +328,11 @@ export default {
           console.error(err);
           Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการสร้างหมวดหมู่', 'error');
         });
+    }
+  },
+  watch: {
+    searchQuery() {
+      this.currentPage = 1; // Reset to first page when search changes
     }
   },
   mounted() {

@@ -93,6 +93,7 @@ class BorrowRequestController extends Controller
         }
 
         $borrowRequest->status = 'approved';
+        $borrowRequest->pickup_deadline = now()->addDays(3);
         $borrowRequest->save();
         $user = $borrowRequest->user;
         if ($user) {
@@ -119,6 +120,27 @@ class BorrowRequestController extends Controller
         $this->clearDashboardCache($request);
 
         return redirect()->route('admin.requests.index')->with('success', 'Request rejected successfully.');
+    }
+
+    public function checkout(Request $request, $req_id)
+    {
+        $borrowRequest = BorrowRequest::where('req_id', $req_id)->firstOrFail();
+        
+        if ($borrowRequest->status !== 'approved') {
+            return redirect()->back()->with('error', 'Cannot checkout a request that is not approved.');
+        }
+
+        if ($borrowRequest->is_checked_out) {
+            return redirect()->back()->with('error', 'This request has already been checked out.');
+        }
+
+        $borrowRequest->update([
+            'is_checked_out' => true,
+            'checked_out_at' => now(),
+            'checked_out_by' => auth()->user()->name,
+        ]);
+
+        return redirect()->back()->with('success', 'Equipment checked out successfully.');
     }
 
     public function update(Request $req, $req_id)

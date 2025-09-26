@@ -48,3 +48,9 @@ Artisan::command('reminders:returns', function () {
 
     $this->info('Return reminders processed at ' . $now);
 })->purpose('Send reminders for equipment return deadlines');
+
+// Process expired borrow requests (pickup reminders and auto-cancellation)
+Artisan::command('borrow:process-expired', function () {
+    $this->call('borrow:process-expired');
+})->purpose('Process expired borrow requests - send reminders and cancel overdue requests')
+->daily();

@@ -20,6 +20,7 @@ import EquipmentItemsTable from './components/tables/EquipmentItemsTable.vue';
 import CategoriesTable from './components/tables/CategoryTable.vue';
 import UsersTable from './components/tables/UserTable.vue';
 import RecentAct from './components/RecentAct.vue';
+import NotificationSystem from './components/NotificationSystem.vue';
 
 // Make EquipmentChart and createApp available globally
 window.EquipmentChart = EquipmentChart;
@@ -88,4 +89,10 @@ if (categoryTableEl) {
 const userTableEl = document.getElementById('user-table');
 if (userTableEl) {
   createApp(UsersTable).mount(userTableEl);
+}
+
+// Notification System
+const notificationEl = document.getElementById('notification-system');
+if (notificationEl) {
+  createApp(NotificationSystem).mount(notificationEl);
 }
