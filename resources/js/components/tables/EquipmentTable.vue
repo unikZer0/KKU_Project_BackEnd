@@ -400,6 +400,13 @@ export default {
                 });
             }
 
+            // Deleted items
+            if (payload.deletedItems && payload.deletedItems.length > 0) {
+                payload.deletedItems.forEach((itemId, index) => {
+                    formData.append(`deleted_items[${index}]`, itemId);
+                });
+            }
+
             // Accessories
             if (payload.accessories && payload.accessories.length > 0) {
                 payload.accessories.forEach((accessory, index) => {
@@ -601,6 +608,7 @@ export default {
                     formData.append(`accessories[${index}][name]`, accessory.name || "");
                     formData.append(`accessories[${index}][description]`, accessory.description || "");
                     formData.append(`accessories[${index}][serial_number]`, accessory.serial_number || "");
+                    formData.append(`accessories[${index}][equipment_item_id]`, accessory.equipment_item_id || "");
                     formData.append(`accessories[${index}][condition]`, accessory.condition || "Good");
                     formData.append(`accessories[${index}][status]`, accessory.status || "available");
                 });

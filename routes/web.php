@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/store', [EquipmentItemController::class, 'store'])->name('admin.equipment-items.store');
             Route::put('/update/{id}', [EquipmentItemController::class, 'update'])->name('admin.equipment-items.update');
             Route::delete('/destroy/{id}', [EquipmentItemController::class, 'destroy'])->name('admin.equipment-items.destroy');
+            Route::delete('/destroy-item/{equipmentId}/{itemId}', [EquipmentController::class, 'destroyItem'])->name('admin.equipment.destroy-item');
             Route::post('/bulk-update', [EquipmentItemController::class, 'bulkUpdate'])->name('admin.equipment-items.bulk-update');
         });
 

@@ -69,10 +69,17 @@
 
                 <!-- Equipment Items -->
                 <div class="mb-6">
-                    <h4 class="text-md font-semibold mb-3 text-gray-800 border-b pb-2">รายการอุปกรณ์</h4>
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-md font-semibold text-gray-800">รายการอุปกรณ์</h4>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" v-model="itemSearch" 
+                                class="px-3 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="ค้นหารายการอุปกรณ์..." />
+                        </div>
+                    </div>
                     <div class="space-y-3">
-                        <div v-for="(item, index) in form.items" :key="index" 
-                             class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 border rounded-lg bg-gray-50">
+                        <div v-for="(item, index) in filteredItems" :key="index" 
+                             class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border rounded-lg bg-gray-50">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขซีเรียล</label>
                                 <input type="text" v-model.trim="item.serial_number"
@@ -97,53 +104,19 @@
                                     <option value="maintenance">ซ่อมบำรุง</option>
                                 </select>
                             </div>
+                            <div class="flex items-end">
+                                <button type="button" @click="showItemAccessories(item, index)"
+                                    class="w-full px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm flex items-center justify-center gap-1">
+                                    <span>อุปกรณ์เสริม</span>
+                                    <span class="bg-blue-300 text-blue-800 px-1 rounded-full text-xs">
+                                        {{ getItemAccessoriesCount(index) }}
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Accessories -->
-                <div class="mb-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <h4 class="text-md font-semibold text-gray-800">อุปกรณ์เสริม</h4>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            จะเพิ่มให้กับทุกรายการอุปกรณ์
-                        </span>
-                    </div>
-                    <div class="space-y-3">
-                        <div v-for="(accessory, index) in form.accessories" :key="index" 
-                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-3 border rounded-lg bg-gray-50">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่ออุปกรณ์เสริม</label>
-                                <input type="text" v-model.trim="accessory.name"
-                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขซีเรียล</label>
-                                <input type="text" v-model.trim="accessory.serial_number"
-                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">สภาพ</label>
-                                <select v-model="accessory.condition"
-                                    class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                                    <option value="Good">ดี</option>
-                                    <option value="Fair">พอใช้</option>
-                                    <option value="Poor">ชำรุด</option>
-                                </select>
-                            </div>
-                            <div class="flex items-end">
-                                <button type="button" @click="removeAccessory(index)"
-                                    class="w-full px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
-                                    ลบ
-                                </button>
-                            </div>
-                        </div>
-                        <button type="button" @click="addAccessory"
-                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
-                            + เพิ่มอุปกรณ์เสริม
-                        </button>
-                    </div>
-                </div>
 
                 <!-- Specifications -->
                 <div class="mb-6">
@@ -254,6 +227,73 @@
             </form>
         </div>
     </div>
+
+    <!-- Item Accessories Modal -->
+    <div v-if="showAccessoriesModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" 
+         style="z-index: 9998;"
+         @click.self="closeAccessoriesModal" @keydown.esc.prevent="closeAccessoriesModal" tabindex="0" role="dialog" aria-modal="true">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-1/2 p-6 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">
+                อุปกรณ์เสริม - {{ selectedItem?.serial_number || `${form.code}-${selectedItemIndex + 1}` }}
+            </h3>
+            
+            <div class="flex justify-between items-center mb-4">
+                <input type="text" v-model="accessorySearch" 
+                    class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="ค้นหาอุปกรณ์เสริม..." />
+                <button type="button" @click="addAccessoryToItem"
+                    class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                    + เพิ่มอุปกรณ์เสริม
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div v-for="(accessory, index) in filteredItemAccessories" :key="index" 
+                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 p-3 border rounded-lg bg-gray-50">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่ออุปกรณ์เสริม</label>
+                        <input type="text" v-model.trim="accessory.name"
+                            class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รายละเอียด</label>
+                        <input type="text" v-model.trim="accessory.description"
+                            class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขซีเรียล</label>
+                        <input type="text" v-model.trim="accessory.serial_number"
+                            class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สภาพ</label>
+                        <select v-model="accessory.condition"
+                            class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="Good">ดี</option>
+                            <option value="Fair">พอใช้</option>
+                            <option value="Poor">ชำรุด</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" @click="removeAccessory(index)"
+                            class="w-full px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                            ลบ
+                        </button>
+                    </div>
+                </div>
+                <div v-if="filteredItemAccessories.length === 0" class="text-center py-8 text-gray-500">
+                    ไม่มีอุปกรณ์เสริมสำหรับรายการนี้
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-6">
+                <button type="button" @click="closeAccessoriesModal"
+                    class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -290,6 +330,11 @@ export default {
             submitting: false,
             processingImages: false,
             selectedProfileImage: null, // Index of selected image as profile
+            itemSearch: "",
+            accessorySearch: "",
+            showAccessoriesModal: false,
+            selectedItem: null,
+            selectedItemIndex: -1,
         };
     },
     watch: {
@@ -321,6 +366,26 @@ export default {
     computed: {
         isValid() {
             return !!(this.form.code && this.form.name && this.form.category_id && this.form.itemCount > 0 && this.imageFiles.length > 0 && !this.imageError);
+        },
+        filteredItems() {
+            if (!this.itemSearch) return this.form.items;
+            return this.form.items.filter(item => 
+                (item.serial_number && item.serial_number.toLowerCase().includes(this.itemSearch.toLowerCase())) ||
+                (item.condition && item.condition.toLowerCase().includes(this.itemSearch.toLowerCase())) ||
+                (item.status && item.status.toLowerCase().includes(this.itemSearch.toLowerCase()))
+            );
+        },
+        filteredItemAccessories() {
+            if (!this.selectedItem) return [];
+            const itemAccessories = this.form.accessories.filter(accessory => 
+                accessory.equipment_item_id === this.selectedItemIndex
+            );
+            if (!this.accessorySearch) return itemAccessories;
+            return itemAccessories.filter(accessory => 
+                accessory.name.toLowerCase().includes(this.accessorySearch.toLowerCase()) ||
+                (accessory.description && accessory.description.toLowerCase().includes(this.accessorySearch.toLowerCase())) ||
+                (accessory.serial_number && accessory.serial_number.toLowerCase().includes(this.accessorySearch.toLowerCase()))
+            );
         }
     },
     methods: {
@@ -347,12 +412,35 @@ export default {
             this.submitting = false;
             this.processingImages = false;
             this.selectedProfileImage = null;
+            this.itemSearch = "";
+            this.accessorySearch = "";
+            this.showAccessoriesModal = false;
+            this.selectedItem = null;
+            this.selectedItemIndex = -1;
         },
-        addAccessory() {
+        getItemAccessoriesCount(itemIndex) {
+            return this.form.accessories.filter(accessory => 
+                accessory.equipment_item_id === itemIndex
+            ).length;
+        },
+        showItemAccessories(item, index) {
+            this.selectedItem = item;
+            this.selectedItemIndex = index;
+            this.showAccessoriesModal = true;
+            this.accessorySearch = "";
+        },
+        closeAccessoriesModal() {
+            this.showAccessoriesModal = false;
+            this.selectedItem = null;
+            this.selectedItemIndex = -1;
+            this.accessorySearch = "";
+        },
+        addAccessoryToItem() {
             this.form.accessories.push({
                 name: "",
                 description: "",
                 serial_number: "",
+                equipment_item_id: this.selectedItemIndex,
                 condition: "Good",
                 status: "available"
             });
