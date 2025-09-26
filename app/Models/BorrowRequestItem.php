@@ -25,6 +25,11 @@ class BorrowRequestItem extends Model
     {
         return $this->belongsTo(EquipmentItem::class, 'equipment_item_id', 'id');
     }
+
+    public function accessories()
+    {
+        return $this->hasMany(BorrowRequestAccessory::class, 'borrow_request_item_id', 'id');
+    }
 }
 
 

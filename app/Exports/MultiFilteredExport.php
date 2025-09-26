@@ -92,7 +92,7 @@ class MultiFilteredExport implements FromCollection, WithHeadings
         }
 
         if ($this->request->filled('category_id')) {
-            $query->where('categories_id', $this->request->category_id);
+            $query->where('category_id', $this->request->category_id);
         }
 
         if ($this->request->filled('status')) {

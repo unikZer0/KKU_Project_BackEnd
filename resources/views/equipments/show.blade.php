@@ -597,15 +597,17 @@
                 if (userVerified === 0) {
                     e.preventDefault();
                     Swal.fire({
-                        title: 'กรุณายืนยันตัวตน',
-                        text: 'โปรดยืนยันตัวตนเพื่อดำเนินการต่อ',
+                        title: 'กรุณายืนยันตัวตนก่อนทำการยืมอุปกรณ์',
+                        text: 'โปรดไปที่โปรไฟล์เพื่อยืนยันตัวตนก่อนทำการยืมอุปกรณ์',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'ไปที่โปรไฟล์',
-                        cancelButtonText: 'ยกเลิก'
+                        cancelButtonText: 'ยกเลิก',
+                        confirmButtonColor: '#3B82F6',
+                        cancelButtonColor: '#6B7280'
                     }).then((r) => {
                         if (r.isConfirmed) {
-                            window.location.href = "{{ route(name: 'profile.show') }}";
+                            window.location.href = "{{ route('profile.show') }}";
                         }
                     });
                 }

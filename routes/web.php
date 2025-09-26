@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BorrowRequestController;
 use App\Http\Controllers\Admin\ReportExportController;
+use App\Http\Controllers\Admin\VerificationController;
 
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\NotificationController;
@@ -113,6 +114,14 @@ Route::middleware('auth')->group(function () {
                     'validation_rule' => 'unique:equipment_items,serial_number,' . $id . ',id'
                 ]);
             })->name('admin.equipment-items.debug');
+        });
+        
+        // Verification routes
+        Route::prefix('admin/verification')->group(function () {
+            Route::get('/', [VerificationController::class, 'index'])->name('admin.verification.index');
+            Route::get('/{id}', [VerificationController::class, 'show'])->name('admin.verification.show');
+            Route::post('/{id}/approve', [VerificationController::class, 'approve'])->name('admin.verification.approve');
+            Route::post('/{id}/reject', [VerificationController::class, 'reject'])->name('admin.verification.reject');
         });
     });
 });

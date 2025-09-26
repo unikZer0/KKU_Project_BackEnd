@@ -14,10 +14,17 @@ class BorrowRequestAccessory extends Model
         'accessory_id',
         'condition_out',
         'condition_in',
+        'name',
+        'description',
     ];
 
     public function borrowRequestItem()
     {
-        return $this->belongsTo(BorrowRequestItem::class);
+        return $this->belongsTo(BorrowRequestItem::class, 'borrow_request_item_id', 'id');
+    }
+
+    public function accessory()
+    {
+        return $this->belongsTo(EquipmentAccessory::class, 'accessory_id', 'id');
     }
 }

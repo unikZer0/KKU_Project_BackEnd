@@ -27,6 +27,11 @@ class User extends Authenticatable
         return $this->hasMany(BorrowRequest::class);
     }
 
+    public function verificationRequests()
+    {
+        return $this->hasMany(VerificationRequest::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

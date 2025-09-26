@@ -2,7 +2,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         <!-- KPI Cards -->
-        <div class="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="lg:col-span-12 grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $borrowStatus['TotalRequests'] }}</div>
                 <div class="text-xs text-gray-500">คำขอทั้งหมด</div>
@@ -18,6 +18,10 @@
             <div class="bg-white rounded-lg border p-4">
                 <div class="text-2xl font-semibold mt-1">{{ $borrowStatus['Rejected'] }}</div>
                 <div class="text-xs text-gray-500">คำขอที่ถูกปฏิเสธ</div>
+            </div>
+            <div class="bg-white rounded-lg border p-4">
+                <div class="text-2xl font-semibold mt-1">{{ $verificationRequestsCount ?? 0 }}</div>
+                <div class="text-xs text-gray-500">คำขอยืนยันตัวตน</div>
             </div>
         </div>
 

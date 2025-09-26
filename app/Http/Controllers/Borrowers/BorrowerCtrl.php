@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use App\Models\BorrowRequestAccessory;
 use Illuminate\Support\Facades\Cache;
 use App\Models\EquipmentSpecification;
+use Illuminate\Support\Facades\DB;
 
 class BorrowerCtrl extends Controller
 {
@@ -51,7 +52,7 @@ class BorrowerCtrl extends Controller
     })->with('request:id,start_at,end_at')->get();
 
     // Fetch accessories available to be requested
-    $accessories = ($equipment->available_items_count > 0) ? $equipment->accessories()->whereNull('equipment_item_id')->orderBy('name')->get() : collect();
+    $accessories =  $equipment->accessories()->whereNull('equipment_item_id')->orderBy('name')->get();
     $itemAccessories = $equipment->accessories()->whereNotNull('equipment_item_id')->whereHas('equipmentItem', fn($q) => $q->where('status', 'available'))->orderBy('equipment_item_id')->get();
     $itemSerials = $equipment->items()->where('status', 'available')->pluck('serial_number', 'id');
     
@@ -60,8 +61,15 @@ class BorrowerCtrl extends Controller
         ->whereIn('spec_key', ['sensor', 'megapixels', 'wifi'])
         ->get()->keyBy('spec_key');
 
-    // $userVerified = Auth::check() ? (int)Auth::user()->is_verified : null;
-    $userVerified = Auth::check() ;
+    // Check if user is verified
+    $userVerified = null;
+    if (Auth::check()) {
+        $verificationRequest = \App\Models\VerificationRequest::where('user_id', Auth::id())
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+        $userVerified = $verificationRequest ? 1 : 0;
+    }
 
     // Calculate earliest available date when equipment will be free
     $earliestAvailableDate = $this->calculateEarliestAvailableDate($equipment, $activeItems, $totalUnits);
@@ -78,6 +86,17 @@ class BorrowerCtrl extends Controller
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'กรุณาเข้าสู่ระบบก่อนทำการยืม');
+        }
+
+        // Check if user is verified
+        $user = Auth::user();
+        $verificationRequest = \App\Models\VerificationRequest::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+            
+        if (!$verificationRequest) {
+            return redirect()->route('profile.show')->with('error', 'กรุณายืนยันตัวตนก่อนทำการยืมอุปกรณ์');
         }
 
         $start_at = $request->start_at ? Carbon::createFromFormat('d/m/Y', $request->start_at)->format('Y-m-d') : null;
@@ -196,12 +215,12 @@ class BorrowerCtrl extends Controller
         Cache::forget("myreq:" . Auth::id());
         Cache::forget("equipment_details:{$equipment->code}");
 
-        return redirect()->route('borrower.equipments.myreq')
-            ->with('success', 'ส่งคำขอยืมสำเร็จแล้ว');
+        return redirect()->route('borrower.equipments.reqdetail', $borrowRequest->req_id)
+            ->with('reqsuccess', 'ส่งคำขอยืมสำเร็จแล้ว');
     }
 
 
-    public function myreq()
+    public function myreq(Request $request)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'กรุณาเข้าสู่ระบบ');
@@ -210,9 +229,10 @@ class BorrowerCtrl extends Controller
         $userId = Auth::id();
         $cacheKey = "myreq:{$userId}";
 
-        $requests = Cache::remember($cacheKey, 600, function () use ($userId) {
+        // Get all requests with relationships
+        $allRequests = Cache::remember($cacheKey, 600, function () use ($userId) {
             return BorrowRequest::with([
-                    'items.equipmentItem.equipmentType.category',
+                    'equipment.category',
                     'user:id,uid,name,email,phonenumber'
                 ])
                 ->where('users_id', $userId)
@@ -220,13 +240,76 @@ class BorrowerCtrl extends Controller
                 ->get();
         });
 
-        return view('equipments.myreq', compact('requests'));
+        // Get latest 3 requests
+        $latestRequests = $allRequests->take(3);
+
+        // Get remaining requests for history
+        $historyRequests = $allRequests->skip(3);
+
+        // Apply search filter
+        $search = $request->get('search');
+        if ($search) {
+            $historyRequests = $historyRequests->filter(function ($req) use ($search) {
+                return stripos($req->equipment->name, $search) !== false ||
+                       stripos($req->equipment->code, $search) !== false ||
+                       stripos($req->req_id, $search) !== false ||
+                       stripos($req->equipment->category->name, $search) !== false;
+            });
+        }
+
+        // Apply status filter
+        $statusFilter = $request->get('status');
+        if ($statusFilter) {
+            $historyRequests = $historyRequests->where('status', $statusFilter);
+        }
+
+        // Apply category filter
+        $categoryFilter = $request->get('category');
+        if ($categoryFilter) {
+            $historyRequests = $historyRequests->filter(function ($req) use ($categoryFilter) {
+                return $req->equipment->category->id == $categoryFilter;
+            });
+        }
+
+        // Apply date filter
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        if ($dateFrom) {
+            $historyRequests = $historyRequests->filter(function ($req) use ($dateFrom) {
+                return $req->start_at >= Carbon::createFromFormat('d/m/Y', $dateFrom);
+            });
+        }
+        if ($dateTo) {
+            $historyRequests = $historyRequests->filter(function ($req) use ($dateTo) {
+                return $req->end_at <= Carbon::createFromFormat('d/m/Y', $dateTo);
+            });
+        }
+
+        // Apply sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        if ($sortBy === 'start_at') {
+            $historyRequests = $historyRequests->sortBy('start_at', SORT_REGULAR, $sortOrder === 'desc');
+        } elseif ($sortBy === 'end_at') {
+            $historyRequests = $historyRequests->sortBy('end_at', SORT_REGULAR, $sortOrder === 'desc');
+        } elseif ($sortBy === 'status') {
+            $historyRequests = $historyRequests->sortBy('status', SORT_REGULAR, $sortOrder === 'desc');
+        } else {
+            $historyRequests = $historyRequests->sortBy('created_at', SORT_REGULAR, $sortOrder === 'desc');
+        }
+
+        // Get categories for filter dropdown
+        $categories = \App\Models\Category::orderBy('name')->get();
+
+        return view('equipments.myreq', compact('latestRequests', 'historyRequests', 'categories'));
     }
 
     public function cancel(Request $request, $id)
     {
         $request->validate([
-            'cancel_reason' => 'required|string|max:255',
+            'cancel_reason' => 'nullable|array',
+            'cancel_reason.*' => 'nullable|string|max:255',
         ]);
 
         $req = BorrowRequest::where('id', $id)->where('users_id', Auth::id())->firstOrFail();
@@ -235,14 +318,51 @@ class BorrowerCtrl extends Controller
             return redirect()->back()->with('error', 'ไม่สามารถยกเลิกคำขอในสถานะนี้ได้');
         }
 
-        $req->status = 'cancelled';
-        $req->cancel_reason = $request->cancel_reason;
-        $req->save();
+        // Start database transaction
+        DB::beginTransaction();
+        
+        try {
+            // Update request status
+            $req->status = 'cancelled';
+            $cancelReasons = $request->cancel_reason ?? [];
+            $cancelReasons = array_filter($cancelReasons); // Remove empty values
+            $req->cancel_reason = !empty($cancelReasons) ? implode(', ', $cancelReasons) : 'ไม่ระบุเหตุผล';
+            $req->save();
 
-        Cache::forget("myreq:{$req->users_id}");
-        Cache::forget("reqdetail:{$req->req_id}");
+            // Get all borrowed items and their accessories
+            $borrowedItems = BorrowRequestItem::where('borrow_request_id', $req->id)->get();
+            
+            foreach ($borrowedItems as $borrowedItem) {
+                // Update equipment item status to available
+                if ($borrowedItem->equipmentItem) {
+                    $borrowedItem->equipmentItem->update(['status' => 'available']);
+                }
+                
+                // Update all accessories for this item to available
+                $borrowedAccessories = BorrowRequestAccessory::where('borrow_request_item_id', $borrowedItem->id)->get();
+                foreach ($borrowedAccessories as $borrowedAccessory) {
+                    if ($borrowedAccessory->accessory) {
+                        $borrowedAccessory->accessory->update(['status' => 'available']);
+                    }
+                }
+            }
 
-        return redirect()->back()->with('success', 'คำขอถูกยกเลิกแล้ว');
+            // Clear all related caches
+            Cache::forget("myreq:{$req->users_id}");
+            Cache::forget("reqdetail:{$req->req_id}");
+            Cache::forget("reqdetail:{$req->req_id}:v3");
+            Cache::forget("equipment_details:{$req->equipment->code}");
+            
+            // Commit transaction
+            DB::commit();
+            
+            return redirect()->back()->with('cancelsuccess', 'คำขอถูกยกเลิกแล้ว');
+            
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            DB::rollback();
+            return redirect()->back()->with('error', 'เกิดข้อผิดพลาดในการยกเลิกคำขอ: ' . $e->getMessage());
+        }
     }
     
     public function search(Request $request)
@@ -290,12 +410,18 @@ class BorrowerCtrl extends Controller
     if (!Auth::check()) {
         return redirect()->back()->with('showLoginConfirm', true);
     }
-    $reQuests = Cache::remember("reqdetail:{$req_id}", 600, function () use ($req_id) { 
-        return BorrowRequest::with(
-            'equipment:id,code,name,description,categories_id,photo_path',
-            'user:id,uid,name,email,phonenumber',
-            'equipment.category:id,name'
-        )
+    $reQuests = Cache::remember("reqdetail:{$req_id}:v3", 600, function () use ($req_id) { 
+        return BorrowRequest::with([
+            'equipment:id,code,name,description,category_id,photo_path',
+            'equipment.category:id,name',
+            'equipment.items:id,equipment_id,serial_number,condition,status',
+            'equipment.accessories:id,equipment_id,name,description,condition,status,equipment_item_id',
+            'items:id,borrow_request_id,equipment_item_id,condition_out,condition_in',
+            'items.equipmentItem:id,serial_number,condition,status',
+            'items.accessories:id,borrow_request_item_id,accessory_id,condition_out,condition_in',
+            'items.accessories.accessory:id,name,description,equipment_item_id',
+            'user:id,uid,name,email,phonenumber'
+        ])
             ->where('req_id', $req_id)
             ->get();
     });
@@ -349,7 +475,7 @@ private function calculateEarliestAvailableDate($equipment, $activeItems, $total
     }
 
     if ($earliestDate) {
-            $dateShifted = Carbon::parse($earliestDate)->addDay();
+            $dateShifted = Carbon::parse($earliestDate)->addDay(); // +1 day
     $dateFormatted = $dateShifted->format('d/m/Y');
 
         return [

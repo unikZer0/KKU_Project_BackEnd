@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\BorrowRequest;
+use App\Models\VerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -252,6 +253,9 @@ class AdminController extends Controller
 
         // Add availableYears to the data
         $data['availableYears'] = $availableYears;
+        
+        // Add verification requests count
+        $data['verificationRequestsCount'] = VerificationRequest::where('status', 'pending')->count();
 
         return view('admin.index', $data);
     }
