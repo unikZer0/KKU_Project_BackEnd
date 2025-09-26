@@ -48,6 +48,7 @@ class EquipmentController extends Controller
                 "accessories.*.name" => "required|string|max:255",
                 "accessories.*.description" => "nullable|string",
                 "accessories.*.serial_number" => "nullable|string|max:255",
+                "accessories.*.equipment_item_id" => "nullable|integer",
                 "accessories.*.condition" => "required|string|in:Good,Fair,Poor",
                 "accessories.*.status" => "required|string|in:available,unavailable",
                 "specifications" => "nullable|array",
@@ -80,17 +81,25 @@ class EquipmentController extends Controller
                 ]);
             }
 
-            // Create accessories - add to ALL equipment items
+            // Create accessories - add to specific equipment items
             if (!empty($data['accessories'])) {
                 foreach ($data['accessories'] as $accessoryData) {
-                    // Add accessory to each equipment item
-                    foreach ($equipment->items as $item) {
+                    // Find the equipment item by index if equipment_item_id is provided
+                    $targetItem = null;
+                    if (isset($accessoryData['equipment_item_id']) && $accessoryData['equipment_item_id'] !== null) {
+                        $itemIndex = $accessoryData['equipment_item_id'];
+                        if (isset($equipment->items[$itemIndex])) {
+                            $targetItem = $equipment->items[$itemIndex];
+                        }
+                    }
+                    
+                    if ($targetItem) {
                         \App\Models\EquipmentAccessory::create([
                             'equipment_id' => $equipment->id,
-                            'equipment_item_id' => $item->id,
+                            'equipment_item_id' => $targetItem->id,
                             'name' => $accessoryData['name'],
                             'description' => $accessoryData['description'] ?? '',
-                            'serial_number' => $accessoryData['serial_number'] . '-' . $item->id, // Make serial unique per item
+                            'serial_number' => $accessoryData['serial_number'],
                             'condition' => $accessoryData['condition'],
                             'status' => $accessoryData['status']
                         ]);
@@ -178,6 +187,8 @@ class EquipmentController extends Controller
                 "images_to_delete" => "nullable|array",
                 "images_to_delete.*" => "string",
                 "selected_main_identifier" => "nullable|string",
+                "deleted_items" => "nullable|array",
+                "deleted_items.*" => "integer|exists:equipment_items,id",
             ]);
 
             // Update basic equipment data
@@ -189,6 +200,23 @@ class EquipmentController extends Controller
                 'brand' => $validatedData['brand'],
                 'model' => $validatedData['model'],
             ]);
+
+            // Delete items that were marked for deletion
+            if (isset($validatedData['deleted_items']) && !empty($validatedData['deleted_items'])) {
+                foreach ($validatedData['deleted_items'] as $itemId) {
+                    $item = \App\Models\EquipmentItem::find($itemId);
+                    if ($item && $item->equipment_id === $equipment->id) {
+                        // Check if this item has any borrow requests through borrow_request_items
+                        $hasBorrowRequests = \App\Models\BorrowRequestItem::where('equipment_item_id', $itemId)->exists();
+                        if (!$hasBorrowRequests) {
+                            // Delete accessories for this item
+                            $item->accessories()->delete();
+                            // Delete the item
+                            $item->delete();
+                        }
+                    }
+                }
+            }
 
             // Update equipment items
             if (isset($validatedData['items'])) {
@@ -397,6 +425,81 @@ class EquipmentController extends Controller
             return response()->json([
                 "status" => false,
                 "message" => "เกิดข้อผิดพลาดในการลบอุปกรณ์: " . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    //? DELETE EQUIPMENT ITEM
+    public function destroyItem($equipmentId, $itemId)
+    {
+        try {
+            $equipment = Equipment::findOrFail($equipmentId);
+            $item = $equipment->items()->findOrFail($itemId);
+
+            // Check if this item has any borrow requests through borrow_request_items
+            $hasBorrowRequests = \App\Models\BorrowRequestItem::where('equipment_item_id', $itemId)->exists();
+            if ($hasBorrowRequests) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "ไม่สามารถลบรายการอุปกรณ์ที่มีคำขอยืมได้ กรุณายกเลิกหรือดำเนินการคำขอที่เกี่ยวข้องให้เสร็จสิ้นก่อน"
+                ], 400);
+            }
+
+            // Delete accessories for this item
+            $item->accessories()->delete();
+            
+            // Delete the item
+            $item->delete();
+
+            // Check if this was the last item - if so, delete the entire equipment
+            $remainingItems = $equipment->items()->count();
+            if ($remainingItems === 0) {
+                // Delete the entire equipment if no items remain
+                $equipment->specifications()->delete();
+                
+                // Delete photos from storage
+                if ($equipment->photo_path) {
+                    $oldPhotos = json_decode($equipment->photo_path, true) ?? [];
+                    foreach ($oldPhotos as $photo) {
+                        $path = str_replace('/storage/', '', $photo);
+                        \Storage::disk('public')->delete($path);
+                    }
+                }
+                
+                $equipment->delete();
+                
+                Log::create([
+                    'users_id' => Auth::id() ?? 1,
+                    'action' => 'delete_equipment',
+                    'ip_address' => request()->ip(),
+                ]);
+                
+                Cache::forget('equipments_with_category');
+                
+                return response()->json([
+                    "status" => true,
+                    "message" => "รายการอุปกรณ์ถูกลบเรียบร้อย (เนื่องจากไม่มีรายการเหลือ)",
+                    "deleted_equipment" => true
+                ]);
+            }
+
+            Log::create([
+                'users_id' => Auth::id() ?? 1,
+                'action' => 'delete_item',
+                'ip_address' => request()->ip(),
+            ]);
+
+            Cache::forget('equipments_with_category');
+
+            return response()->json([
+                "status" => true,
+                "message" => "รายการอุปกรณ์ถูกลบเรียบร้อย",
+                "data" => $equipment->fresh()->load(['category', 'items', 'accessories', 'specifications'])
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "status" => false,
+                "message" => "Server error: " . $e->getMessage()
             ], 500);
         }
     }

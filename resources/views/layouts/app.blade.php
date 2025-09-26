@@ -15,7 +15,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased ">
+    <body class="font-noto antialiased ">
         <div class="bg-gray-10 sticky">   
             <!-- Page Heading -->
             <x-header />

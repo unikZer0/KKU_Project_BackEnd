@@ -68,11 +68,15 @@
                             <input type="text" v-model="itemSearch" 
                                 class="px-3 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="ค้นหารายการอุปกรณ์..." />
+                            <button type="button" @click="addItem"
+                                class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm">
+                                + เพิ่มรายการ
+                            </button>
                         </div>
                     </div>
                     <div class="space-y-3">
                         <div v-for="(item, index) in filteredItems" :key="index" 
-                             class="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border rounded-lg bg-gray-50">
+                             class="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 border rounded-lg bg-gray-50">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขซีเรียล</label>
                                 <input type="text" v-model.trim="item.serial_number"
@@ -104,6 +108,12 @@
                                     <span class="bg-blue-300 text-blue-800 px-1 rounded-full text-xs">
                                         {{ getItemAccessoriesCount(item.id || index) }}
                                     </span>
+                                </button>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" @click="deleteItem(item, index)"
+                                    class="w-full px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
+                                    ลบรายการ
                                 </button>
                             </div>
                         </div>
@@ -240,10 +250,15 @@
 
             <div class="space-y-3">
                 <div v-for="(accessory, index) in filteredItemAccessories" :key="index" 
-                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-3 border rounded-lg bg-gray-50">
+                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 p-3 border rounded-lg bg-gray-50">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">ชื่ออุปกรณ์เสริม</label>
                         <input type="text" v-model.trim="accessory.name"
+                            class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รายละเอียด</label>
+                        <input type="text" v-model.trim="accessory.description"
                             class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                     <div>
@@ -361,6 +376,7 @@ export default {
             accessoryToMove: null,
             accessoryToMoveIndex: -1,
             targetItemId: "",
+            deletedItems: [], // Track items that were deleted
         };
     },
     watch: {
@@ -460,6 +476,7 @@ export default {
             this.accessoryToMove = null;
             this.accessoryToMoveIndex = -1;
             this.targetItemId = "";
+            this.deletedItems = []; // Reset deleted items
         },
         getItemAccessoriesCount(itemIdOrIndex) {
             return this.form.accessories.filter(accessory => 
@@ -610,9 +627,69 @@ export default {
                 newImageFiles: this.newImageFiles,
                 imagesToDelete: this.imagesToDelete,
                 selectedMainIdentifier: this.selectedMainIdentifier,
+                deletedItems: this.deletedItems, // Include deleted items
             };
             
             this.$emit('save', equipmentData);
+        },
+        addItem() {
+            // Add a new item to the form
+            this.form.items.push({
+                serial_number: "",
+                condition: "Good",
+                status: "available"
+            });
+        },
+        deleteItem(item, index) {
+            // Use SweetAlert for confirmation
+            if (window.Swal) {
+                window.Swal.fire({
+                    title: "ลบรายการอุปกรณ์?",
+                    text: `คุณกำลังจะลบรายการ: ${item.serial_number || `${this.form.code}-${String(index + 1).padStart(3, '0')}`}`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "ลบ",
+                    cancelButtonText: "ยกเลิก",
+                    confirmButtonColor: "#ef4444",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // If this is an existing item (has an ID), add it to deleted items
+                        if (item.id) {
+                            this.deletedItems.push(item.id);
+                        }
+                        
+                        // Remove the item from the form
+                        this.form.items.splice(index, 1);
+                        
+                        // Also remove any accessories associated with this item
+                        this.form.accessories = this.form.accessories.filter(accessory => 
+                            accessory.equipment_item_id !== (item.id || index)
+                        );
+                        
+                        // Show success message
+                        window.Swal.fire({
+                            title: "ลบแล้ว",
+                            text: "รายการอุปกรณ์ถูกลบเรียบร้อย",
+                            icon: "success",
+                            timer: 1200,
+                            showConfirmButton: false,
+                        });
+                    }
+                });
+            } else {
+                // Fallback to confirm if SweetAlert is not available
+                if (confirm(`คุณต้องการลบรายการ: ${item.serial_number || `${this.form.code}-${String(index + 1).padStart(3, '0')}`}?`)) {
+                    // If this is an existing item (has an ID), add it to deleted items
+                    if (item.id) {
+                        this.deletedItems.push(item.id);
+                    }
+                    
+                    this.form.items.splice(index, 1);
+                    this.form.accessories = this.form.accessories.filter(accessory => 
+                        accessory.equipment_item_id !== (item.id || index)
+                    );
+                }
+            }
         },
     }
 };

@@ -34,5 +34,8 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role' => 'borrower',
         ]);
+
+        // Call the LogSeeder to create sample log data
+        $this->call(LogSeeder::class);
     }
 }
