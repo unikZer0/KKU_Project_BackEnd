@@ -294,6 +294,8 @@ export default {
                     String(item?.serial_number || "").toLowerCase().includes(q) ||
                     String(item?.equipment?.name || "").toLowerCase().includes(q) ||
                     String(item?.equipment?.code || "").toLowerCase().includes(q) ||
+                    String(item?.equipment?.brand || "").toLowerCase().includes(q) ||
+                    String(item?.equipment?.model || "").toLowerCase().includes(q) ||
                     String(item?.equipment?.category?.name || "").toLowerCase().includes(q);
                 
                 const matchesStatus = !status || String(item?.status || "") === status;

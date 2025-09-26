@@ -258,13 +258,19 @@ export default {
                     String(e?.name || "")
                         .toLowerCase()
                         .includes(q) ||
+                    String(e?.code || e?.id || "").includes(q) ||
+                    String(e?.brand || "")
+                        .toLowerCase()
+                        .includes(q) ||
+                    String(e?.model || "")
+                        .toLowerCase()
+                        .includes(q) ||
                     String(e?.category?.name || "")
                         .toLowerCase()
                         .includes(q) ||
                     String(e?.status || "")
                         .toLowerCase()
-                        .includes(q) ||
-                    String(e?.code || e?.id || "").includes(q);
+                        .includes(q);
                 const matchesStatus =
                     !status || String(e?.status || "") === status;
                 const matchesCategory =

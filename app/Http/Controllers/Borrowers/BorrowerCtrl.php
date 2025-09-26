@@ -252,8 +252,13 @@ class BorrowerCtrl extends Controller
             $historyRequests = $historyRequests->filter(function ($req) use ($search) {
                 return stripos($req->equipment->name, $search) !== false ||
                        stripos($req->equipment->code, $search) !== false ||
+                       stripos($req->equipment->brand ?? '', $search) !== false ||
+                       stripos($req->equipment->model ?? '', $search) !== false ||
                        stripos($req->req_id, $search) !== false ||
-                       stripos($req->equipment->category->name, $search) !== false;
+                       stripos($req->equipment->category->name, $search) !== false ||
+                       $req->equipment->items->contains(function ($item) use ($search) {
+                           return stripos($item->serial_number, $search) !== false;
+                       });
             });
         }
 
@@ -392,9 +397,13 @@ class BorrowerCtrl extends Controller
                     $query->where(function ($subQuery) use ($q) {
                         $subQuery->where('name', 'like', "%$q%")
                             ->orWhere('code', 'like', "%$q%")
-                            ->orWhere('status', 'like', "%$q%")
+                            ->orWhere('brand', 'like', "%$q%")
+                            ->orWhere('model', 'like', "%$q%")
                             ->orWhereHas('category', function ($catQuery) use ($q) {
                                 $catQuery->where('name', 'like', "%$q%");
+                            })
+                            ->orWhereHas('items', function ($itemQuery) use ($q) {
+                                $itemQuery->where('serial_number', 'like', "%$q%");
                             });
                     });
                 })
