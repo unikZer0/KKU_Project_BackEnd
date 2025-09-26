@@ -48,7 +48,7 @@ class ProfileController extends Controller
                 $image = $request->file('citizen_id_image');
                 $imageName = 'citizen_id_' . $user->id . '_' . time() . '.' . $image->getClientOriginalExtension();
                 $imagePath = $image->storeAs('verification_images', $imageName, 'public');
-                $imagePath = '/storage/' . $imagePath; // Add storage prefix for display
+                $imagePath = '/storage/' . $imagePath; 
             } catch (\Exception $e) {
                 return back()->with('error', 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ' . $e->getMessage());
             }
@@ -60,7 +60,6 @@ class ProfileController extends Controller
             'status' => 'pending',
             'reason' => $request->reason,
             'citizen_id_image_path' => $imagePath,
-            'verification_images' => [], // Empty array since we only allow one image now
         ]);
         
         // Notify all admins

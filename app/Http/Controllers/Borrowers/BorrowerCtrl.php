@@ -275,13 +275,31 @@ class BorrowerCtrl extends Controller
         $dateFrom = $request->get('date_from');
         $dateTo = $request->get('date_to');
         if ($dateFrom) {
-            $historyRequests = $historyRequests->filter(function ($req) use ($dateFrom) {
-                return $req->start_at >= Carbon::createFromFormat('d/m/Y', $dateFrom);
+            // Handle both Y-m-d format (from date input) and d/m/Y format (legacy)
+            try {
+                $fromDate = strpos($dateFrom, '/') !== false 
+                    ? Carbon::createFromFormat('d/m/Y', $dateFrom)
+                    : Carbon::createFromFormat('Y-m-d', $dateFrom);
+            } catch (\Exception $e) {
+                $fromDate = Carbon::parse($dateFrom);
+            }
+            
+            $historyRequests = $historyRequests->filter(function ($req) use ($fromDate) {
+                return $req->start_at >= $fromDate;
             });
         }
         if ($dateTo) {
-            $historyRequests = $historyRequests->filter(function ($req) use ($dateTo) {
-                return $req->end_at <= Carbon::createFromFormat('d/m/Y', $dateTo);
+            // Handle both Y-m-d format (from date input) and d/m/Y format (legacy)
+            try {
+                $toDate = strpos($dateTo, '/') !== false 
+                    ? Carbon::createFromFormat('d/m/Y', $dateTo)
+                    : Carbon::createFromFormat('Y-m-d', $dateTo);
+            } catch (\Exception $e) {
+                $toDate = Carbon::parse($dateTo);
+            }
+            
+            $historyRequests = $historyRequests->filter(function ($req) use ($toDate) {
+                return $req->end_at <= $toDate;
             });
         }
 

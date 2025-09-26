@@ -19,11 +19,18 @@ class BorrowRequest extends Model
         'request_reason',
         'reject_reason',
         'cancel_reason',
+        'is_checked_out',
+        'checked_out_at',
+        'pickup_deadline',
+        'checked_out_by',
     ];
 
     protected $casts = [
         'start_at' => 'datetime',
         'end_at' => 'datetime',
+        'checked_out_at' => 'datetime',
+        'pickup_deadline' => 'datetime',
+        'is_checked_out' => 'boolean',
     ];
 
     // Relationships

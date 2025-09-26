@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\NotificationController;
 
 use App\Models\Equipment;
 use App\Models\Category;
@@ -39,4 +40,12 @@ route::get('/requests', function () {
 
 Route::get('/logs', function () {
     return Log::all();
+});
+
+// Notification API routes - all using web authentication
+Route::middleware('web')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 });

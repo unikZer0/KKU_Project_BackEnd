@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function () {
             Route::patch('/{req_id}', [BorrowRequestController::class, 'update'])->name('admin.requests.update');
             Route::match(['post', 'patch'], '/{req_id}/approve', [BorrowRequestController::class, 'approve'])->name('admin.requests.approve');
             Route::post('/{req_id}/reject', [BorrowRequestController::class, 'reject'])->name('admin.requests.reject');
+            Route::post('/{req_id}/checkout', [BorrowRequestController::class, 'checkout'])->name('admin.requests.checkout');
         });
 
         // Category and Equipment index pages
