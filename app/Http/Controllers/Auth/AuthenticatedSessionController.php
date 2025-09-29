@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Traits\LogsActivity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,7 @@ use Illuminate\Validation\Rule;
 
 class AuthenticatedSessionController extends Controller
 {
+    use LogsActivity;
     /**
      * Display the login view.
      */
@@ -46,6 +48,14 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
+        
+        // Log successful login
+        $this->logAuth('login', [
+            'description' => "ผู้ใช้ {$user->name} ({$user->email}) เข้าสู่ระบบเรียบร้อย",
+            'target_name' => $user->name,
+            'severity' => 'info'
+        ]);
+
         $defaultRoute = route('home', absolute: false);
 
         if (in_array($user->role, ['admin', 'staff'])) {
@@ -60,6 +70,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        
+        // Log logout before session is destroyed
+        if ($user) {
+            $this->logAuth('logout', [
+                'description' => "ผู้ใช้ {$user->name} ({$user->email}) ออกจากระบบเรียบร้อย",
+                'target_name' => $user->name,
+                'severity' => 'info'
+            ]);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

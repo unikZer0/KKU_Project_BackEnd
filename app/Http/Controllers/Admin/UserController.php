@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
-
 use App\Models\User;
 
 class UserController extends Controller
 {
+    use LogsActivity;
     /**
      * Display a listing of the resource.
      */
@@ -38,6 +39,12 @@ class UserController extends Controller
             $validated['verified'] = $request->boolean('verified', false);
 
             $user = User::create($validated);
+
+            // Log user creation
+            $this->logUser('create', $user, [
+                'description' => "เพิ่มผู้ใช้ใหม่ '{$user->name}' ({$user->email}) เข้าสู่ระบบด้วยบทบาท '{$user->role}'",
+                'severity' => 'info'
+            ]);
 
             return response()->json([
                 'status' => true,
@@ -100,6 +107,12 @@ class UserController extends Controller
 
             $user->update($validated);
 
+            // Log user update
+            $this->logUser('update', $user, [
+                'description' => "แก้ไขข้อมูลผู้ใช้ '{$user->name}' ({$user->email}) เรียบร้อย",
+                'severity' => 'info'
+            ]);
+
             return response()->json([
                 'status' => true,
                 'message' => 'User updated successfully',
@@ -134,6 +147,12 @@ class UserController extends Controller
                     'message' => 'Cannot delete the last admin user'
                 ], 400);
             }
+
+            // Log user deletion
+            $this->logUser('delete', $user, [
+                'description' => "ลบผู้ใช้ '{$user->name}' ({$user->email}) ออกจากระบบเรียบร้อย",
+                'severity' => 'warning'
+            ]);
 
             $user->delete();
 

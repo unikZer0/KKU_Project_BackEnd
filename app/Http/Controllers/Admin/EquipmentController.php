@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use App\Models\Log;
 use App\Models\Category;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 
 class EquipmentController extends Controller
 {
+    use LogsActivity;
     //? INDEX
     public function index()
     {
@@ -120,10 +122,9 @@ class EquipmentController extends Controller
                 }
             }
 
-            Log::create([
-                'users_id' => Auth::id() ?? 1,
-                'action' => 'create',
-                'ip_address' => request()->ip(),
+            $this->logEquipment('create', $equipment, [
+                'description' => "เพิ่มอุปกรณ์ใหม่ '{$equipment->name}' พร้อมรายการอุปกรณ์ " . count($data['items']) . " รายการ",
+                'severity' => 'info'
             ]);
 
             Cache::forget('equipments_with_category');
@@ -349,6 +350,12 @@ class EquipmentController extends Controller
 
             $equipment->update(['photo_path' => json_encode(array_values($finalPhotoList))]);
 
+            // Log equipment update
+            $this->logEquipment('update', $equipment, [
+                'description' => "แก้ไขข้อมูลอุปกรณ์ '{$equipment->name}' เรียบร้อย",
+                'severity' => 'info'
+            ]);
+
             Cache::forget('equipments_with_category');
 
             return response()->json([
@@ -403,11 +410,10 @@ class EquipmentController extends Controller
                 }
             }
 
-            // Create log entry
-            Log::create([
-                'users_id' => Auth::id() ?? 1,
-                'action' => 'delete',
-                'ip_address' => request()->ip(),
+            // Log equipment deletion
+            $this->logEquipment('delete', $equipment, [
+                'description' => "ลบอุปกรณ์ '{$equipment->name}' ออกจากระบบเรียบร้อย",
+                'severity' => 'warning'
             ]);
 
             // Delete the equipment
@@ -468,10 +474,9 @@ class EquipmentController extends Controller
                 
                 $equipment->delete();
                 
-                Log::create([
-                    'users_id' => Auth::id() ?? 1,
-                    'action' => 'delete_equipment',
-                    'ip_address' => request()->ip(),
+                $this->logEquipment('delete_equipment', $equipment, [
+                    'description' => "ลบอุปกรณ์ '{$equipment->name}' ออกจากระบบ (ไม่มีรายการอุปกรณ์เหลือ)",
+                    'severity' => 'warning'
                 ]);
                 
                 Cache::forget('equipments_with_category');
@@ -483,10 +488,9 @@ class EquipmentController extends Controller
                 ]);
             }
 
-            Log::create([
-                'users_id' => Auth::id() ?? 1,
-                'action' => 'delete_item',
-                'ip_address' => request()->ip(),
+            $this->logEquipment('delete_item', $equipment, [
+                'description' => "ลบรายการอุปกรณ์จาก '{$equipment->name}' เรียบร้อย",
+                'severity' => 'info'
             ]);
 
             Cache::forget('equipments_with_category');

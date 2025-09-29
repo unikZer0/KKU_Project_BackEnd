@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsActivity;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use App\Models\EquipmentItem;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BorrowRequestController extends Controller
 {
-    use ClearsDashboardCache;
+    use ClearsDashboardCache, LogsActivity;
 
     public function index()
     {
@@ -102,6 +103,13 @@ class BorrowRequestController extends Controller
         $borrowRequest->status = 'approved';
         $borrowRequest->pickup_deadline = now()->addDays(3);
         $borrowRequest->save();
+        
+        // Log approval
+        $this->logBorrowRequest('approve', $borrowRequest, [
+            'description' => "อนุมัติคำขอยืม {$borrowRequest->req_id} สำหรับผู้ใช้ {$borrowRequest->user->name} เรียบร้อย",
+            'severity' => 'info'
+        ]);
+        
         $user = $borrowRequest->user;
         if ($user) {
             $user->notify(new BorrowRequestApproved($borrowRequest));
@@ -124,6 +132,12 @@ class BorrowRequestController extends Controller
         $request->status = 'rejected';
         $request->reject_reason = $req->input('reason');
         $request->save();
+
+        // Log rejection
+        $this->logBorrowRequest('reject', $request, [
+            'description' => "ปฏิเสธคำขอยืม {$request->req_id} สำหรับผู้ใช้ {$request->user->name} เนื่องจาก: {$request->reject_reason}",
+            'severity' => 'warning'
+        ]);
 
         $user = $request->user;
         if ($user) {
@@ -157,6 +171,13 @@ class BorrowRequestController extends Controller
             'checked_out_at' => now(),
             'checked_out_by' => Auth::user()->name,
         ]);
+
+        // Log checkout process
+        $this->logBorrowRequest('checkout', $borrowRequest, [
+            'description' => "ส่งมอบอุปกรณ์ให้ผู้ยืมสำหรับคำขอ {$borrowRequest->req_id} โดย {$borrowRequest->checked_out_by} เรียบร้อย",
+            'severity' => 'info'
+        ]);
+
         Cache::forget("myreq:{$borrowRequest->users_id}");
         Cache::forget("reqdetail:{$borrowRequest->req_id}");
         Cache::forget("reqdetail:{$borrowRequest->req_id}:v3");
@@ -216,6 +237,22 @@ class BorrowRequestController extends Controller
         }
 
         $transaction->save();
+
+        // Log transaction update with penalty and notes
+        $this->logBorrowRequest('update_transaction', $borrowRequest, [
+            'description' => "แก้ไขข้อมูลธุรกรรมสำหรับคำขอ {$borrowRequest->req_id}" . 
+                ($transaction->penalty_amount ? " พร้อมกำหนดค่าปรับ: ฿{$transaction->penalty_amount}" : "") .
+                ($transaction->notes ? " และบันทึกหมายเหตุ: {$transaction->notes}" : ""),
+            'severity' => $transaction->penalty_amount > 0 ? 'warning' : 'info',
+            'old_values' => [
+                'penalty_amount' => $transaction->getOriginal('penalty_amount'),
+                'notes' => $transaction->getOriginal('notes')
+            ],
+            'new_values' => [
+                'penalty_amount' => $transaction->penalty_amount,
+                'notes' => $transaction->notes
+            ]
+        ]);
 
         $hasCheckedIn = !is_null($transaction->checked_in_at);
         $hasCheckedOut = !is_null($transaction->checked_out_at);
@@ -329,6 +366,14 @@ class BorrowRequestController extends Controller
             
             $borrowRequest->status = 'check_in';
             $borrowRequest->save();
+
+            // Log check-in process
+            $this->logBorrowRequest('check_in', $borrowRequest, [
+                'description' => "รับคืนอุปกรณ์จากผู้ยืมสำหรับคำขอ {$borrowRequest->req_id}" . 
+                    ($transaction->penalty_amount ? " พร้อมค่าปรับ: ฿{$transaction->penalty_amount}" : "") .
+                    ($transaction->notes ? " และหมายเหตุ: {$transaction->notes}" : ""),
+                'severity' => $transaction->penalty_amount > 0 ? 'warning' : 'info'
+            ]);
         } elseif ($hasCheckedOut) {
             // Get equipment item IDs
             $itemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
@@ -349,6 +394,12 @@ class BorrowRequestController extends Controller
             }
             $borrowRequest->status = 'check_out';
             $borrowRequest->save();
+
+            // Log check-out process
+            $this->logBorrowRequest('check_out', $borrowRequest, [
+                'description' => "ส่งมอบอุปกรณ์ให้ผู้ยืมสำหรับคำขอ {$borrowRequest->req_id} เรียบร้อย",
+                'severity' => 'info'
+            ]);
         }
         Cache::forget("myreq:{$borrowRequest->users_id}");
         Cache::forget("reqdetail:{$borrowRequest->req_id}");

@@ -76,10 +76,45 @@ class ReportController extends Controller
             ->when($request->admin, fn($q) => $q->whereHas('admin', fn($a) => $a->where('name', 'like', "%{$request->admin}%")))
             ->when($request->action, fn($q) => $q->where('action', $request->action))
             ->when($request->target_type, fn($q) => $q->where('target_type', $request->target_type))
+            ->when($request->module, fn($q) => $q->where('module', $request->module))
+            ->when($request->severity, fn($q) => $q->where('severity', $request->severity))
+            ->when($request->date_from, fn($q) => $q->whereDate('created_at', '>=', $request->date_from))
+            ->when($request->date_to, fn($q) => $q->whereDate('created_at', '<=', $request->date_to))
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
         return response()->json($logs);
+    }
+
+    //! Log Statistics
+    public function logStats()
+    {
+        $stats = [
+            'total_logs' => Log::count(),
+            'today_logs' => Log::whereDate('created_at', today())->count(),
+            'this_week_logs' => Log::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'this_month_logs' => Log::whereMonth('created_at', now()->month)->count(),
+            'top_actions' => Log::selectRaw('action, COUNT(*) as count')
+                ->groupBy('action')
+                ->orderBy('count', 'desc')
+                ->limit(10)
+                ->get(),
+            'top_modules' => Log::selectRaw('module, COUNT(*) as count')
+                ->groupBy('module')
+                ->orderBy('count', 'desc')
+                ->limit(10)
+                ->get(),
+            'severity_distribution' => Log::selectRaw('severity, COUNT(*) as count')
+                ->groupBy('severity')
+                ->orderBy('count', 'desc')
+                ->get(),
+            'recent_activities' => Log::with('admin')
+                ->latest()
+                ->limit(10)
+                ->get()
+        ];
+
+        return response()->json($stats);
     }
 
     //? Export
