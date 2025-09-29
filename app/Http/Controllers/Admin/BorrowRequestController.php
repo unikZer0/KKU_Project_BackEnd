@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsActivity;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use App\Models\EquipmentItem;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Log;
 
 class BorrowRequestController extends Controller
 {
-    use ClearsDashboardCache;
+    use ClearsDashboardCache, LogsActivity;
 
     public function index()
     {
@@ -106,6 +107,13 @@ class BorrowRequestController extends Controller
         $borrowRequest->status = 'approved';
         $borrowRequest->pickup_deadline = now()->addDays(3);
         $borrowRequest->save();
+        
+        // Log approval
+        $this->logBorrowRequest('approve', $borrowRequest, [
+            'description' => "อนุมัติคำขอยืม {$borrowRequest->req_id} สำหรับผู้ใช้ {$borrowRequest->user->name} เรียบร้อย",
+            'severity' => 'info'
+        ]);
+        
         $user = $borrowRequest->user;
         if ($user) {
             $user->notify(new BorrowRequestApproved($borrowRequest));
@@ -128,6 +136,12 @@ class BorrowRequestController extends Controller
         $request->status = 'rejected';
         $request->reject_reason = $req->input('reason');
         $request->save();
+
+        // Log rejection
+        $this->logBorrowRequest('reject', $request, [
+            'description' => "ปฏิเสธคำขอยืม {$request->req_id} สำหรับผู้ใช้ {$request->user->name} เนื่องจาก: {$request->reject_reason}",
+            'severity' => 'warning'
+        ]);
 
         $user = $request->user;
         if ($user) {
@@ -161,6 +175,13 @@ class BorrowRequestController extends Controller
             'checked_out_at' => now(),
             'checked_out_by' => Auth::user()->name,
         ]);
+
+        // Log checkout process
+        $this->logBorrowRequest('checkout', $borrowRequest, [
+            'description' => "ส่งมอบอุปกรณ์ให้ผู้ยืมสำหรับคำขอ {$borrowRequest->req_id} โดย {$borrowRequest->checked_out_by} เรียบร้อย",
+            'severity' => 'info'
+        ]);
+
         Cache::forget("myreq:{$borrowRequest->users_id}");
         Cache::forget("reqdetail:{$borrowRequest->req_id}");
         Cache::forget("reqdetail:{$borrowRequest->req_id}:v3");
@@ -231,188 +252,135 @@ class BorrowRequestController extends Controller
     $hasCheckedIn = !is_null($transaction->checked_in_at);
     $hasCheckedOut = !is_null($transaction->checked_out_at);
 
-if ($hasCheckedIn) {
-    foreach ($borrowRequest->items as $item) {
-        $mainItemCondition = 'สภาพดี';
-        $mainItemStatus = 'available';
-
-        // --- Save condition_in for main borrowed item (using $item->id as key)
-        if ($item->equipment_item_id && isset($validated['item_condition_in'][$item->id])) {
-            $mainItemCondition = $validated['item_condition_in'][$item->id];
-            $item->condition_in = $mainItemCondition;
-            $item->save();
-        }
-
-        $hasBadAttachedAccessories = false;
-
-        // --- Attached accessories (ของที่ติดมากับเครื่อง) - accessories attached to specific equipment items
-        foreach ($item->accessories as $acc) {
-            // Check if this accessory is attached to the specific equipment item
-            if ($acc->accessory && $acc->accessory->equipment_item_id == $item->equipment_item_id) {
-                if (isset($validated['accessory_condition_in'][$acc->id])) {
-                    $accCondition = $validated['accessory_condition_in'][$acc->id];
-
-                    // save to borrow_request_accessories
-                    $acc->condition_in = $accCondition;
-                    $acc->save();
-
-                    // save to equipment_accessories
-                    EquipmentAccessory::where('id', $acc->accessory_id)->update([
-                        'condition' => $accCondition,
-                        'status'    => $accCondition === 'สภาพดี' ? 'available' : 'maintenance',
-                    ]);
-
-                    if ($accCondition !== 'สภาพดี') {
-                        $hasBadAttachedAccessories = true;
+        if ($hasCheckedIn) {
+            // Update equipment item conditions and status
+            $itemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
+            
+            // Get accessory IDs from the accessories table
+            $accIds = collect();
+            foreach ($borrowRequest->items as $item) {
+                $itemAccessoryIds = $item->accessories()->pluck('accessory_id');
+                $accIds = $accIds->merge($itemAccessoryIds);
+            }
+            $accIds = $accIds->unique()->all();
+            
+            // Update equipment item conditions and status
+            if (!empty($itemIds)) {
+                foreach ($borrowRequest->items as $item) {
+                    if ($item->equipment_item_id && isset($validated['item_condition_in'][$item->id])) {
+                        // Check if any accessory for this item is marked as "หาย" (lost) or "พัง" (broken)
+                        $hasLostAccessory = false;
+                        $hasBrokenAccessory = false;
+                        foreach ($item->accessories as $accessory) {
+                            if (isset($validated['accessory_condition_in'][$accessory->id])) {
+                                $accessoryCondition = $validated['accessory_condition_in'][$accessory->id];
+                                if ($accessoryCondition === 'หาย') {
+                                    $hasLostAccessory = true;
+                                } elseif ($accessoryCondition === 'พัง') {
+                                    $hasBrokenAccessory = true;
+                                }
+                            }
+                        }
+                        
+                        // If any accessory is lost, automatically set main item to "อุปกรณ์ไม่พร้อมใช้งาน"
+                        if ($hasLostAccessory) {
+                            $item->condition_in = 'อุปกรณ์ไม่พร้อมใช้งาน';
+                            $item->save();
+                            
+                            // Set equipment item to unavailable status
+                            EquipmentItem::where('id', $item->equipment_item_id)
+                                ->update([
+                                    'condition' => 'อุปกรณ์ไม่พร้อมใช้งาน',
+                                    'status' => 'unavailable'
+                                ]);
+                        } elseif ($hasBrokenAccessory) {
+                            // If any accessory is broken, automatically set main item to "อุปกรณ์ไม่พร้อมใช้งาน"
+                            $item->condition_in = 'อุปกรณ์ไม่พร้อมใช้งาน';
+                            $item->save();
+                            
+                            // Set equipment item to unavailable status
+                            EquipmentItem::where('id', $item->equipment_item_id)
+                                ->update([
+                                    'condition' => 'อุปกรณ์ไม่พร้อมใช้งาน',
+                                    'status' => 'unavailable'
+                                ]);
+                        } else {
+                            // Normal condition update
+                            $item->condition_in = $validated['item_condition_in'][$item->id];
+                            $item->save();
+                            
+                            // Update the equipment item condition
+                            EquipmentItem::where('id', $item->equipment_item_id)
+                                ->update([
+                                    'condition' => $validated['item_condition_in'][$item->id],
+                                    'status' => 'available'
+                                ]);
+                        }
                     }
                 }
             }
-        }
-
-        // --- Decide main item status based on equipment condition and attached accessories
-        if ($mainItemCondition !== 'สภาพดี' || $hasBadAttachedAccessories) {
-            $mainItemStatus = 'maintenance';
-            if ($mainItemCondition === 'สภาพดี') {
-                // Equipment is good but attached accessories are not
-                $mainItemCondition = 'อุปกรณ์ไม่พร้อมใช้งาน';
-            }
-            // If equipment itself is not in good condition, keep the original condition
-        }
-
-        // --- Save to equipment_items
-        EquipmentItem::where('id', $item->equipment_item_id)->update([
-            'condition' => $mainItemCondition,
-            'status'    => $mainItemStatus,
-        ]);
-    }
-
-    // --- Additional borrowed accessories (อุปกรณ์เสริมที่ยืมเพิ่ม) - general accessories not attached to specific items
-    foreach ($borrowRequest->items as $item) {
-        foreach ($item->accessories as $acc) {
-            // Only process general accessories (not attached to specific equipment items)
-            if ($acc->accessory && $acc->accessory->equipment_item_id === null) {
-                if (isset($validated['accessory_condition_in'][$acc->id])) {
-                    $accCondition = $validated['accessory_condition_in'][$acc->id];
-
-                    // save to borrow_request_accessories
-                    $acc->condition_in = $accCondition;
-                    $acc->save();
-
-                    // save to equipment_accessories
-                    EquipmentAccessory::where('id', $acc->accessory_id)->update([
-                        'condition' => $accCondition,
-                        'status'    => $accCondition === 'สภาพดี' ? 'available' : 'maintenance',
-                    ]);
+            
+            // Update accessory conditions and status
+            if (!empty($accIds)) {
+                foreach ($borrowRequest->items as $item) {
+                    foreach ($item->accessories as $accessory) {
+                        if (isset($validated['accessory_condition_in'][$accessory->id])) {
+                            $accessoryCondition = $validated['accessory_condition_in'][$accessory->id];
+                            
+                            // Update the borrow request accessory condition
+                            $accessory->condition_in = $accessoryCondition;
+                            $accessory->save();
+                            
+                            // Handle different accessory conditions
+                            if ($accessoryCondition === 'หาย') {
+                                // If accessory is marked as "หาย" (lost), set status to "หาย"
+                                EquipmentAccessory::where('id', $accessory->accessory_id)
+                                    ->update([
+                                        'condition' => 'หาย',
+                                        'status' => 'หาย'
+                                    ]);
+                            } elseif ($accessoryCondition === 'พัง') {
+                                // If accessory is marked as "พัง" (broken), set status to "หาย" (lost)
+                                EquipmentAccessory::where('id', $accessory->accessory_id)
+                                    ->update([
+                                        'condition' => 'พัง',
+                                        'status' => 'หาย'
+                                    ]);
+                            } else {
+                                // Normal condition update
+                                EquipmentAccessory::where('id', $accessory->accessory_id)
+                                    ->update([
+                                        'condition' => $accessoryCondition,
+                                        'status' => 'available'
+                                    ]);
+                            }
+                        }
+                    }
                 }
             }
-        }
-    }
-
-    // --- Set all borrowed accessories back to available if they're in good condition
-    $allAccessoryIds = collect();
-    foreach ($borrowRequest->items as $item) {
-        foreach ($item->accessories as $acc) {
-            $allAccessoryIds->push($acc->accessory_id);
-        }
-    }
-    $allAccessoryIds = $allAccessoryIds->unique()->all();
-
-    // Update all accessories that are in good condition back to available
-    if (!empty($allAccessoryIds)) {
-        EquipmentAccessory::whereIn('id', $allAccessoryIds)
-            ->where('condition', 'สภาพดี')
-            ->update(['status' => 'available']);
-    }
-
-    // --- Set all borrowed equipment items back to available if they're in good condition
-    $allItemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
-    if (!empty($allItemIds)) {
-        EquipmentItem::whereIn('id', $allItemIds)
-            ->where('condition', 'สภาพดี')
-            ->update(['status' => 'available']);
-    }
-
-    // --- Check for late return and calculate penalty
-    $lateReturnService = new LateReturnService();
-    $isLate = $lateReturnService->isLate($borrowRequest);
-    $daysLate = $lateReturnService->getDaysLate($borrowRequest);
-    $finalPenaltyAmount = 0;
-    
-    if ($isLate) {
-        $autoCalculatedPenalty = $lateReturnService->calculatePenaltyForRequest($borrowRequest);
-        $manualPenalty = $validated['penalty_amount'] ?? 0;
-        
-        // Determine final penalty amount
-        if ($manualPenalty > 0) {
-            // Admin set manual penalty - use the higher of manual vs auto
-            $finalPenaltyAmount = max($manualPenalty, $autoCalculatedPenalty);
-            Log::info("Manual penalty set", [
-                'request_id' => $borrowRequest->req_id,
-                'manual_penalty' => $manualPenalty,
-                'auto_penalty' => $autoCalculatedPenalty,
-                'final_penalty' => $finalPenaltyAmount
-            ]);
-        } else {
-            // No manual penalty - use auto-calculated
-            $finalPenaltyAmount = $autoCalculatedPenalty;
-            Log::info("Auto penalty applied", [
-                'request_id' => $borrowRequest->req_id,
-                'days_late' => $daysLate,
-                'auto_penalty' => $autoCalculatedPenalty
-            ]);
-        }
-        
-        // Save penalty to database
-        $transaction->penalty_amount = $finalPenaltyAmount;
-        $transaction->save();
-    } else {
-        // Not late - use manual penalty if set
-        $manualPenalty = $validated['penalty_amount'] ?? 0;
-        if ($manualPenalty > 0) {
-            $finalPenaltyAmount = $manualPenalty;
-            $transaction->penalty_amount = $finalPenaltyAmount;
-            $transaction->save();
-            Log::info("Manual penalty for on-time return", [
-                'request_id' => $borrowRequest->req_id,
-                'manual_penalty' => $manualPenalty
-            ]);
-        }
-    }
-
-    // --- Update borrow request status
-    $borrowRequest->status = 'check_in';
-    $borrowRequest->save();
-    
-    // Send notification to user about successful check-in
-    $user = $borrowRequest->user;
-    if ($user) {
-        $user->notify(new BorrowRequestCheckedIn($borrowRequest));
-    }
-}
-
- elseif ($hasCheckedOut) {
-        $itemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
-        $accIds = collect();
-        foreach ($borrowRequest->items as $item) {
-            $itemAccessoryIds = $item->accessories()->pluck('accessory_id');
-            $accIds = $accIds->merge($itemAccessoryIds);
-        }
-        $accIds = $accIds->unique()->all();
-
-        if (!empty($itemIds)) {
-            EquipmentItem::whereIn('id', $itemIds)->update(['status' => 'unavailable']);
-        }
-        if (!empty($accIds)) {
-            EquipmentAccessory::whereIn('id', $accIds)->update(['status' => 'unavailable']);
-        }
-
-        $borrowRequest->status = 'check_out';
-        $borrowRequest->save();
-        
-        // Send notification to user about successful checkout
-        $user = $borrowRequest->user;
-        if ($user) {
-            $user->notify(new BorrowRequestCheckedOut($borrowRequest));
+            
+            $borrowRequest->status = 'check_in';
+            $borrowRequest->save();
+        } elseif ($hasCheckedOut) {
+            // Get equipment item IDs
+            $itemIds = $borrowRequest->items()->whereNotNull('equipment_item_id')->pluck('equipment_item_id')->unique()->all();
+            
+            // Get accessory IDs from the accessories table
+            $accIds = collect();
+            foreach ($borrowRequest->items as $item) {
+                $itemAccessoryIds = $item->accessories()->pluck('accessory_id');
+                $accIds = $accIds->merge($itemAccessoryIds);
+            }
+            $accIds = $accIds->unique()->all();
+            
+            if (!empty($itemIds)) {
+                EquipmentItem::whereIn('id', $itemIds)->update(['status' => 'unavailable']);
+            }
+            if (!empty($accIds)) {
+                EquipmentAccessory::whereIn('id', $accIds)->update(['status' => 'unavailable']);
+            }
+            $borrowRequest->status = 'check_out';
+            $borrowRequest->save();
         }
     }
 

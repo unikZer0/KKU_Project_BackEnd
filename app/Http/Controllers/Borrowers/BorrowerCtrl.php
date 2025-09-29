@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Borrowers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use App\Models\BorrowRequest;
 use App\Models\BorrowRequestItem;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class BorrowerCtrl extends Controller
 {
+    use LogsActivity;
    public function show($code)
 {
     // Use a cached query for performance on this complex page
@@ -179,6 +181,14 @@ class BorrowerCtrl extends Controller
             ? ($validated['request_reason_other'] ?? 'other')
             : $validated['request_reason'];
         $borrowRequest->save();
+
+        // Log borrow request creation
+        $this->logBorrowRequest('create', $borrowRequest, [
+            'description' => "ผู้ใช้ {$borrowRequest->user->name} ส่งคำขอยืมอุปกรณ์ '{$equipment->name}' ตั้งแต่วันที่ {$validated['start_at']} ถึง {$validated['end_at']} เพื่อ {$borrowRequest->request_reason} จำนวน {$validated['quantity']} รายการ",
+            'severity' => 'info',
+            'target_name' => $equipment->name,
+            'target_id' => $equipment->id
+        ]);
         foreach ($availableItems as $item) {
             // Convert condition to Thai if it's still in English
             $itemCondition = $item->condition === 'สภาพดี' ? 'สภาพดี' : $item->condition;
@@ -373,6 +383,12 @@ class BorrowerCtrl extends Controller
             $cancelReasons = array_filter($cancelReasons); // Remove empty values
             $req->cancel_reason = !empty($cancelReasons) ? implode(', ', $cancelReasons) : 'ไม่ระบุเหตุผล';
             $req->save();
+
+            // Log request cancellation
+            $this->logBorrowRequest('cancel', $req, [
+                'description' => "ผู้ใช้ {$req->user->name} ยกเลิกคำขอยืม {$req->req_id} เนื่องจาก: {$req->cancel_reason}",
+                'severity' => 'warning'
+            ]);
 
             // Get all borrowed items and their accessories
             $borrowedItems = BorrowRequestItem::where('borrow_request_id', $req->id)->get();

@@ -54,11 +54,31 @@ Route::get('/logs', function (Request $request) {
     }
     
     if ($request->filled('action')) {
-        $query->where('action', 'like', '%' . $request->action . '%');
+        $query->where('action', $request->action);
+    }
+    
+    if ($request->filled('module')) {
+        $query->where('module', $request->module);
+    }
+    
+    if ($request->filled('severity')) {
+        $query->where('severity', $request->severity);
+    }
+    
+    if ($request->filled('target_type')) {
+        $query->where('target_type', $request->target_type);
+    }
+    
+    if ($request->filled('date_from')) {
+        $query->whereDate('created_at', '>=', $request->date_from);
+    }
+    
+    if ($request->filled('date_to')) {
+        $query->whereDate('created_at', '<=', $request->date_to);
     }
     
     // Paginate results
-    $perPage = 10;
+    $perPage = 15;
     $logs = $query->orderBy('created_at', 'desc')->paginate($perPage);
     
     return response()->json([
@@ -67,6 +87,36 @@ Route::get('/logs', function (Request $request) {
         'last_page' => $logs->lastPage(),
         'total' => $logs->total(),
     ]);
+});
+
+// Log Statistics
+Route::get('/logs/stats', function () {
+    $stats = [
+        'total_logs' => Log::count(),
+        'today_logs' => Log::whereDate('created_at', today())->count(),
+        'this_week_logs' => Log::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+        'this_month_logs' => Log::whereMonth('created_at', now()->month)->count(),
+        'top_actions' => Log::selectRaw('action, COUNT(*) as count')
+            ->groupBy('action')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get(),
+        'top_modules' => Log::selectRaw('module, COUNT(*) as count')
+            ->groupBy('module')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get(),
+        'severity_distribution' => Log::selectRaw('severity, COUNT(*) as count')
+            ->groupBy('severity')
+            ->orderBy('count', 'desc')
+            ->get(),
+        'recent_activities' => Log::with('user')
+            ->latest()
+            ->limit(10)
+            ->get()
+    ];
+
+    return response()->json($stats);
 });
 
 // Notification API routes - all using web authentication
