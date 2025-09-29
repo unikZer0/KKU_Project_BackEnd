@@ -159,9 +159,15 @@ class BorrowerCtrl extends Controller
             ->toArray();
 
         $availableItems = $equipment->items()
+            ->where('status', 'available')
             ->whereNotIn('id', $occupiedItemIds)
             ->limit($validated['quantity'])
             ->get();
+        
+        // Check if we have enough available items
+        if ($availableItems->count() < $validated['quantity']) {
+            return redirect()->back()->with('error', 'อุปกรณ์ไม่เพียงพอ - มีอุปกรณ์บางชิ้นที่ไม่อยู่ในสถานะพร้อมใช้งาน');
+        }
         
         $borrowRequest = new BorrowRequest();
         $borrowRequest->users_id = Auth::id();
@@ -201,6 +207,12 @@ class BorrowerCtrl extends Controller
         if (!empty($validated['extra_accessories']) && count($validated['extra_accessories']) > 0) {
             foreach ($validated['extra_accessories'] as $accId) {
                 $acc = EquipmentAccessory::find($accId);
+                
+                // Only allow borrowing accessories that are available
+                if (!$acc || $acc->status !== 'available') {
+                    continue; // Skip unavailable or maintenance accessories
+                }
+                
                 // Convert condition to Thai if it's still in English
                 $accCondition = $acc && $acc->condition === 'สภาพดี' ? 'สภาพดี' : ($acc ? $acc->condition : 'สภาพดี');
 
@@ -209,9 +221,7 @@ class BorrowerCtrl extends Controller
                     'accessory_id' => $accId,
                     'condition_out' => $accCondition,
                 ]);
-                if ($acc) {
-                    $acc->update(['status' => 'unavailable']);
-                }
+                $acc->update(['status' => 'unavailable']);
             }
         }
 

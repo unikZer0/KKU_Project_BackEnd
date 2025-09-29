@@ -2,13 +2,15 @@
     <div class="max-w-screen-2xl mx-auto py-6 px-3 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">รายละเอียดคำขอยืมอุปกรณ์</h1>
         
+        
         <div class="bg-white rounded-2xl shadow p-6 mb-6">
             <!-- Header -->
         <div class="flex flex-col lg:flex-row items-start gap-6">
             @if ($requests->equipment?->photo_path)
                 @php
                     $photos = json_decode($requests->equipment->photo_path ?? '[]', true);
-                    $firstPhoto = is_array($photos) && count($photos) > 0 ? $photos[0] : $requests->equipment->photo_path;
+                        $firstPhoto =
+                            is_array($photos) && count($photos) > 0 ? $photos[0] : $requests->equipment->photo_path;
                 @endphp
                 <img src="{{ $firstPhoto }}" alt="{{ $requests->equipment->name }}"
                         class="w-full sm:w-40 h-40 object-cover rounded-lg shadow" />
@@ -21,44 +23,62 @@
                         </div>
                         <div class="flex items-center gap-2">
                             @if ($requests->status === 'pending')
-                                <div class="flex items-center gap-1 px-3 py-1 text-yellow-800 rounded-full text-sm font-medium status-pending">
+                                <div
+                                    class="flex items-center gap-1 px-3 py-1 text-yellow-800 rounded-full text-sm font-medium status-pending">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                     รอดำเนินการ
                                 </div>
                             @elseif($requests->status === 'approved')
-                                <div class="flex items-center gap-1 px-3 py-1 text-green-800 rounded-full text-sm font-medium status-approved">
+                                <div
+                                    class="flex items-center gap-1 px-3 py-1 text-green-800 rounded-full text-sm font-medium status-approved">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                     อนุมัติ
                                 </div>
                             @elseif($requests->status === 'rejected')
-                                <div class="flex items-center gap-1 px-3 py-1 text-red-800 rounded-full text-sm font-medium status-rejected">
+                                <div
+                                    class="flex items-center gap-1 px-3 py-1 text-red-800 rounded-full text-sm font-medium status-rejected">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                     ปฏิเสธ
                                 </div>
                             @elseif($requests->status === 'check_out')
-                                <div class="flex items-center gap-1 px-3 py-1 text-blue-800 rounded-full text-sm font-medium status-checkout">
+                                <div
+                                    class="flex items-center gap-1 px-3 py-1 text-blue-800 rounded-full text-sm font-medium status-checkout">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                     เช็คเอาท์แล้ว
                                 </div>
                             @elseif($requests->status === 'check_in')
-                                <div class="flex items-center gap-1 px-3 py-1 text-purple-800 rounded-full text-sm font-medium status-checkin">
+                                <div
+                                    class="flex items-center gap-1 px-3 py-1 text-purple-800 rounded-full text-sm font-medium status-checkin">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                     เช็คอินแล้ว
                                 </div>
                             @elseif($requests->status === 'cancelled')
-                                <div class="flex items-center gap-1 px-3 py-1 text-gray-700 rounded-full text-sm font-medium status-cancelled">
+                                <div
+                                    class="flex items-center gap-1 px-3 py-1 text-gray-700 rounded-full text-sm font-medium status-cancelled">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                     ยกเลิกแล้ว
                                 </div>
@@ -72,7 +92,8 @@
                         <div class="space-y-3 flex-1">
                             <h3 class="font-semibold text-gray-800 break-words">{{ $requests->equipment->name }}</h3>
                             <p class="text-sm text-gray-500 break-words">รหัส: {{ $requests->equipment->code }}</p>
-                            <p class="text-sm text-gray-500 break-words">หมวดหมู่: {{ $requests->equipment->category->name }}</p>
+                            <p class="text-sm text-gray-500 break-words">หมวดหมู่:
+                                {{ $requests->equipment->category->name }}</p>
                             <div class="text-gray-500 text-sm">
                                 <div x-data="{ expanded: false }" class="block md:hidden">
                                     <span x-show="!expanded" class="break-words">
@@ -112,22 +133,24 @@
                     <div class="mb-4">
                         <h3 class="font-semibold text-gray-700">ระยะเวลายืม</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                            <p class="text-sm text-gray-600">เริ่มต้น: {{ $requests->start_at ? $requests->start_at->setTimezone('Asia/Bangkok')->format('d/m/Y') : '-' }}</p>
-                            <p class="text-sm text-gray-600">สิ้นสุด: {{ $requests->end_at ? $requests->end_at->setTimezone('Asia/Bangkok')->format('d/m/Y') : '-' }}</p>
+                            <p class="text-sm text-gray-600">เริ่มต้น:
+                                {{ $requests->start_at ? $requests->start_at->setTimezone('Asia/Bangkok')->format('d/m/Y') : '-' }}
+                            </p>
+                            <p class="text-sm text-gray-600">สิ้นสุด:
+                                {{ $requests->end_at ? $requests->end_at->setTimezone('Asia/Bangkok')->format('d/m/Y') : '-' }}
+                            </p>
                         </div>
                     </div>
 
                 <!-- Request Reason Section -->
                 <div class="mt-6">
                     <h3 class="font-semibold text-gray-700 mb-2">เหตุผลในการขอยืม</h3>
-                    <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="bg-gray-50 rounded-lg p-4 mb-5">
                         <p class="text-sm text-gray-700">{{ $requests->request_reason ?? '-' }}</p>
                     </div>
                 </div>
 
-                    <!-- Equipment Details Section -->
-                    <div class="mb-6 bg-gray-50 rounded-lg p-4">
-                        <h3 class="font-semibold text-gray-700 mb-4">รายละเอียดอุปกรณ์</h3>
+
                                                     @php
                                             // Filter accessories that are specifically attached to this equipment item
                                             
@@ -136,76 +159,82 @@
                             $additionalAccessories = collect();
                             
                             // First, get all general accessories for this equipment (equipment_item_id = NULL)
-                            $generalAccessories = \App\Models\EquipmentAccessory::where('equipment_id', operator: $requests->equipment_id)
+                        $generalAccessories = \App\Models\EquipmentAccessory::where(
+                            'equipment_id',
+                            operator: $requests->equipment_id,
+                        )
                                 ->whereNull('equipment_item_id')
                                 ->pluck('id')
                                 ->toArray();
                             
                             // Then, find which of these general accessories were actually borrowed
-                            foreach($requests->items as $item) {
-                                foreach($item->accessories as $borrowedAccessory) {
-                                    if($borrowedAccessory->accessory && 
-                                       in_array($borrowedAccessory->accessory->id, $generalAccessories)) {
+                        foreach ($requests->items as $item) {
+                            foreach ($item->accessories as $borrowedAccessory) {
+                                if (
+                                    $borrowedAccessory->accessory &&
+                                    in_array($borrowedAccessory->accessory->id, $generalAccessories)
+                                ) {
                                         $additionalAccessories->push($borrowedAccessory);
                                     }
                                 }
                             }
-                            $itemSpecificAccessories = $item->accessories->filter(function($accessory) use ($item) {
+                        $itemSpecificAccessories = $item->accessories->filter(function ($accessory) use ($item) {
                                                 return $accessory->accessory && 
                                                        $accessory->accessory->equipment_item_id == $item->equipment_item_id;
                                             });
                         @endphp
-                        <!-- Equipment Summary -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div class="bg-white rounded-lg p-3 text-center">
-                                <div class="text-2xl font-bold text-blue-600">{{ $requests->items ? $requests->items->count() : 0 }}</div>
-                                <div class="text-sm text-gray-600">จำนวนอุปกรณ์ที่ยืม</div>
-                            </div>
-                            
-                            <div class="bg-white rounded-lg p-3 text-center">
-                                <div class="text-2xl font-bold text-green-600">{{ $itemSpecificAccessories->count() }}</div>
-                                <div class="text-sm text-gray-600">ของที่ติดมากับเครื่อง</div>
-                            </div>
-                            <div class="bg-white rounded-lg p-3 text-center">
-                                <div class="text-2xl font-bold text-green-600">{{ $additionalAccessories->count() }}</div>
-                                <div class="text-sm text-gray-600">อุปกรณ์เสริมทั้งหมด</div>
-                            </div>
-                        </div>
+            
 
                         <!-- Individual Equipment Items -->
-                        @if($requests->items && $requests->items->count() > 0)
+                    @if ($requests->status != 'check_out')
+                        <!-- Equipment Details Section -->
+                        <div class="mb-6 bg-gray-50 rounded-lg p-4">
+                            @if ($requests->items && $requests->items->count() > 0)
                             <div class="space-y-4">
                                 <h4 class="font-medium text-gray-700">รายการอุปกรณ์ที่ยืม</h4>
-                                @foreach($requests->items as $index => $item)
+                                    @foreach ($requests->items as $index => $item)
                                     <div class="bg-white rounded-lg p-4 border">
-                                        <div class="flex justify-between items-start mb-3">
-                                            <h5 class="font-medium text-gray-800">อุปกรณ์ชิ้นที่ {{ $index + 1 }}</h5>
-                                            <span class="text-sm text-gray-500">Serial: {{ $item->equipmentItem->serial_number ?? 'N/A' }}</span>
+                                        <div class=" items-start mb-3">
+                                                <h5 class="font-medium text-gray-800">อุปกรณ์ชิ้นที่
+                                                    {{ $index + 1 }}</h5>
+                                                <span class="text-sm text-gray-500">Serial:
+                                                    {{ $item->equipmentItem->serial_number ?? 'N/A' }}</span>
                                         </div>
                                         
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                             <div>
                                                 <span class="text-sm text-gray-600">สภาพเมื่อยืม:</span>
-                                                <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                                                    <span
+                                                        class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
                                                     {{ $item->condition_out ?? 'ไม่ระบุ' }}
                                                 </span>
                                             </div>
-                                            @if($item->condition_in)
+                                                @if ($item->condition_in)
                                             <div>
                                                 <span class="text-sm text-gray-600">สภาพเมื่อคืน:</span>
-                                                <span class="ml-2 px-2 py-1 {{ $item->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : ($item->condition_in === 'สามาถซ่อมได้' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }} rounded text-sm">
+                                                        <span
+                                                            class="ml-2 px-2 py-1 {{ $item->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : ($item->condition_in === 'สามาถซ่อมได้' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }} rounded text-sm">
                                                     {{ $item->condition_in }}
                                                 </span>
                                             </div>
                                             @elseif($requests->status === 'check_out')
                                             <div>
                                                 <span class="text-sm text-gray-600">สภาพเมื่อคืน:</span>
-                                                <select name="item_condition_in[{{ $item->id }}]" class="ml-2 border rounded px-2 py-1 text-sm">
+                                                        <select name="item_condition_in[{{ $item->id }}]"
+                                                            class="ml-2 border rounded px-2 py-1 text-sm">
                                                     <option value="">เลือกสภาพ</option>
-                                                    <option value="สภาพดี" {{ $item->condition_in === 'สภาพดี' ? 'selected' : '' }}>สภาพดี</option>
-                                                    <option value="ไม่สามาถซ่อมได้" {{ $item->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>ไม่สามาถซ่อมได้</option>
-                                                    <option value="พัง" {{ $item->condition_in === 'พัง' ? 'selected' : '' }}>พัง</option>
-                                                    <option value="อุปกรณ์ไม่พร้อมใช้งาน" {{ $item->condition_in === 'อุปกรณ์ไม่พร้อมใช้งาน' ? 'selected' : '' }}>อุปกรณ์ไม่พร้อมใช้งาน</option>
+                                                            <option value="สภาพดี"
+                                                                {{ $item->condition_in === 'สภาพดี' ? 'selected' : '' }}>
+                                                                สภาพดี</option>
+                                                            <option value="ไม่สามาถซ่อมได้"
+                                                                {{ $item->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>
+                                                                ไม่สามาถซ่อมได้</option>
+                                                            <option value="พัง"
+                                                                {{ $item->condition_in === 'พัง' ? 'selected' : '' }}>
+                                                                พัง</option>
+                                                            <option value="อุปกรณ์ไม่พร้อมใช้งาน"
+                                                                {{ $item->condition_in === 'อุปกรณ์ไม่พร้อมใช้งาน' ? 'selected' : '' }}>
+                                                                อุปกรณ์ไม่พร้อมใช้งาน</option>
                                                 </select>
                                             </div>
                                             @endif
@@ -214,34 +243,54 @@
                                         <!-- Accessories for this item -->
                                         @php
                                             // Filter accessories that are specifically attached to this equipment item
-                                            $itemSpecificAccessories = $item->accessories->filter(function($accessory) use ($item) {
+                                                $itemSpecificAccessories = $item->accessories->filter(function (
+                                                    $accessory,
+                                                ) use ($item) {
                                                 return $accessory->accessory && 
-                                                       $accessory->accessory->equipment_item_id == $item->equipment_item_id;
+                                                        $accessory->accessory->equipment_item_id ==
+                                                            $item->equipment_item_id;
                                             });
                                         @endphp
-                                        @if($itemSpecificAccessories->count() > 0)
+                                            @if ($itemSpecificAccessories->count() > 0)
                                             <div class="mt-3">
-                                                <h6 class="text-sm font-medium text-gray-700 mb-2">ของที่ติดมากับเครื่อง ({{ $itemSpecificAccessories->count() }} รายการ)</h6>
+                                                    <h6 class="text-sm font-medium text-gray-700 mb-2">
+                                                        ของที่ติดมากับเครื่อง ({{ $itemSpecificAccessories->count() }}
+                                                        รายการ)</h6>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                    @foreach($itemSpecificAccessories as $accessory)
+                                                        @foreach ($itemSpecificAccessories as $accessory)
                                                         <div class="bg-gray-50 rounded p-2 text-sm">
-                                                            <div class="font-medium text-gray-800">{{ $accessory->accessory->name ?? 'N/A' }}</div>
-                                                            @if($accessory->accessory && $accessory->accessory->description)
-                                                                <div class="text-gray-600 text-xs">{{ $accessory->accessory->description }}</div>
+                                                                <div class="font-medium text-gray-800">
+                                                                    {{ $accessory->accessory->name ?? 'N/A' }}</div>
+                                                                @if ($accessory->accessory && $accessory->accessory->description)
+                                                                    <div class="text-gray-600 text-xs">
+                                                                        {{ $accessory->accessory->description }}</div>
                                                             @endif
                                                             <div class="flex justify-between items-center mt-1">
-                                                                <span class="text-xs text-gray-500">สภาพ: {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
-                                                                @if($accessory->condition_in)
-                                                                    <span class="text-xs px-1 py-0.5 rounded {{ $accessory->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : ($accessory->condition_in === 'สามาถซ่อมได้' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                                                    <span class="text-xs text-gray-500">สภาพ:
+                                                                        {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
+                                                                    @if ($accessory->condition_in)
+                                                                        <span
+                                                                            class="text-xs px-1 py-0.5 rounded {{ $accessory->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : ($accessory->condition_in === 'สามาถซ่อมได้' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
                                                                         คืน: {{ $accessory->condition_in }}
                                                                     </span>
                                                                 @elseif($requests->status === 'check_out')
-                                                                    <select name="accessory_condition_in[{{ $accessory->id }}]" class="text-xs border rounded px-1 py-0.5" onchange="updateMainItemCondition({{ $item->id }}, this.value)">
+                                                                        <select
+                                                                            name="accessory_condition_in[{{ $accessory->id }}]"
+                                                                            class="text-xs border rounded px-1 py-0.5"
+                                                                            onchange="updateMainItemCondition({{ $item->id }}, this.value)">
                                                                         <option value="">เลือกสภาพ</option>
-                                                                        <option value="สภาพดี" {{ $accessory->condition_in === 'สภาพดี' ? 'selected' : '' }}>สภาพดี</option>
-                                                                        <option value="ไม่สามาถซ่อมได้" {{ $accessory->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>ไม่สามาถซ่อมได้</option>
-                                                                        <option value="พัง" {{ $accessory->condition_in === 'พัง' ? 'selected' : '' }}>พัง</option>
-                                                                        <option value="หาย" {{ $accessory->condition_in === 'หาย' ? 'selected' : '' }}>หาย</option>
+                                                                            <option value="สภาพดี"
+                                                                                {{ $accessory->condition_in === 'สภาพดี' ? 'selected' : '' }}>
+                                                                                สภาพดี</option>
+                                                                            <option value="ไม่สามาถซ่อมได้"
+                                                                                {{ $accessory->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>
+                                                                                ไม่สามาถซ่อมได้</option>
+                                                                            <option value="พัง"
+                                                                                {{ $accessory->condition_in === 'พัง' ? 'selected' : '' }}>
+                                                                                พัง</option>
+                                                                            <option value="หาย"
+                                                                                {{ $accessory->condition_in === 'หาย' ? 'selected' : '' }}>
+                                                                                หาย</option>
                                                                     </select>
                                                                 @endif
                                                             </div>
@@ -250,7 +299,8 @@
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="text-sm text-gray-500 italic">ไม่มีของที่ติดมากับเครื่อง</div>
+                                                <div class="text-sm text-gray-500 italic">ไม่มีของที่ติดมากับเครื่อง
+                                                </div>
                                         @endif
                                     </div>
                                 @endforeach
@@ -261,27 +311,42 @@
                             </div>
                         @endif
                         
-                        @if($additionalAccessories->count() > 0)
+
+                            @if ($additionalAccessories->count() > 0)
                             <div class="mt-4">
-                                <h4 class="font-medium text-gray-700 mb-2">อุปกรณ์เสริมที่ยืมเพิ่ม</h4>
+                                    <h4 class="font-medium text-gray-700 mb-2">อุปกรณ์เสริมที่ยืมเพิ่ม
+                                        ({{ $additionalAccessories->count() }} รายการ)</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    @foreach($additionalAccessories as $accessory)
+                                        @foreach ($additionalAccessories as $accessory)
                                         <div class="bg-gray-50 rounded p-2 text-sm">
-                                            <div class="font-medium text-gray-800">{{ $accessory->accessory->name ?? 'N/A' }}</div>
-                                            @if($accessory->accessory && $accessory->accessory->description)
-                                                <div class="text-gray-600 text-xs">{{ $accessory->accessory->description }}</div>
+                                                <div class="font-medium text-gray-800">
+                                                    {{ $accessory->accessory->name ?? 'N/A' }}</div>
+                                                @if ($accessory->accessory && $accessory->accessory->description)
+                                                    <div class="text-gray-600 text-xs">
+                                                        {{ $accessory->accessory->description }}</div>
                                             @endif
                                             <div class="flex justify-between items-center mt-1">
-                                                <span class="text-xs text-gray-500">สภาพ: {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
-                                                @if($accessory->condition_in)
-                                                    <span class="text-xs text-gray-500">คืน: {{ $accessory->condition_in }}</span>
+                                                    <span class="text-xs text-gray-500">สภาพ:
+                                                        {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
+                                                    @if ($accessory->condition_in)
+                                                        <span class="text-xs text-gray-500">คืน:
+                                                            {{ $accessory->condition_in }}</span>
                                                 @elseif($requests->status === 'check_out')
-                                                    <select name="accessory_condition_in[{{ $accessory->id }}]" class="text-xs border rounded px-1 py-0.5">
+                                                        <select name="accessory_condition_in[{{ $accessory->id }}]"
+                                                            class="text-xs border rounded px-1 py-0.5">
                                                         <option value="">เลือกสภาพ</option>
-                                                        <option value="สภาพดี" {{ $accessory->condition_in === 'สภาพดี' ? 'selected' : '' }}>สภาพดี</option>
-                                                        <option value="ไม่สามาถซ่อมได้" {{ $accessory->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>ไม่สามาถซ่อมได้</option>
-                                                        <option value="พัง" {{ $accessory->condition_in === 'พัง' ? 'selected' : '' }}>พัง</option>
-                                                        <option value="หาย" {{ $accessory->condition_in === 'หาย' ? 'selected' : '' }}>หาย</option>
+                                                            <option value="สภาพดี"
+                                                                {{ $accessory->condition_in === 'สภาพดี' ? 'selected' : '' }}>
+                                                                สภาพดี</option>
+                                                            <option value="ไม่สามาถซ่อมได้"
+                                                                {{ $accessory->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>
+                                                                ไม่สามาถซ่อมได้</option>
+                                                            <option value="พัง"
+                                                                {{ $accessory->condition_in === 'พัง' ? 'selected' : '' }}>
+                                                                พัง</option>
+                                                            <option value="หาย"
+                                                                {{ $accessory->condition_in === 'หาย' ? 'selected' : '' }}>
+                                                                หาย</option>
                                                     </select>
                                                 @endif
                                             </div>
@@ -291,9 +356,11 @@
                             </div>
                         @endif
                     </div>
+                    @endif
+
 
                 <!-- Rejection/Cancellation Details -->
-                @if($requests->status === 'rejected' && $requests->reject_reason)
+                    @if ($requests->status === 'rejected' && $requests->reject_reason)
                 <div class="mt-6">
                     <h3 class="font-semibold text-red-700 mb-2">เหตุผลในการปฏิเสธ</h3>
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -302,7 +369,7 @@
                 </div>
                 @endif
 
-                @if($requests->status === 'cancelled' && $requests->cancel_reason)
+                    @if ($requests->status === 'cancelled' && $requests->cancel_reason)
                 <div class="mt-6">
                     <h3 class="font-semibold text-orange-700 mb-2">เหตุผลในการยกเลิก</h3>
                     <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -318,32 +385,6 @@
         <div class="bg-white rounded-2xl shadow p-6">
                 <div class="mt-8">
                     <h3 class="font-semibold text-gray-700 mb-4">ข้อมูลธุรกรรม</h3>
-                    
-                    @if ($requests->status != 'pending')
-                    <!-- Transaction Status Info -->
-                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                            <div>
-                                <span class="text-gray-600">สถานะ:</span>
-                                <span class="ml-2 px-2 py-1 rounded-full text-xs {{ $requests->status === 'approved' ? 'bg-green-100 text-green-700' : ($requests->status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
-                                    {{ ucfirst($requests->status) }}
-                                </span>
-                            </div>
-                            @if($requests->pickup_deadline)
-                            <div>
-                                <span class="text-gray-600">กำหนดมารับ:</span>
-                                <span class="ml-2 font-medium">{{ $requests->pickup_deadline->setTimezone('Asia/Bangkok')->format('d/m/Y') }}</span>
-                            </div>
-                            @endif
-                            @if($requests->is_checked_out)
-                            <div>
-                                <span class="text-gray-600">ผู้เช็คเอาท์:</span>
-                                <span class="ml-2 font-medium">{{ $requests->checked_out_by ?? '-' }}</span>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                    @endif
 
                     @if ($requests->status == 'pending')
                     <!-- Show only basic form for pending requests -->
@@ -387,7 +428,7 @@
                     </form>
                     @else
                     <!-- Show full transaction details for non-pending requests -->
-                    <form action="{{ route('admin.requests.approve', $requests->req_id) }}" method="POST"
+                    <form action="{{ route('admin.requests.update', $requests->req_id) }}" method="POST"
                         class="space-y-5">
                         @csrf
                         @method('PATCH')
@@ -419,35 +460,252 @@
                                     class="w-full border rounded px-2 py-1 @error('checked_out_at') border-red-500 @enderror {{ in_array($requests->status, ['rejected', 'cancelled', 'check_in']) ? 'bg-gray-100' : '' }}"
                                     value="{{ old('checked_out_at', optional($requests->transaction?->checked_out_at)->format('Y-m-d\TH:i')) }}" 
                                     @if (in_array($requests->status, ['check_out', 'rejected', 'cancelled', 'check_in'])) readonly @endif required />
-                                <p class="text-xs text-gray-500 mt-1" id="checkout-date-hint">ต้องอยู่ในช่วงวันที่เริ่มถึงวันที่สิ้นสุดที่อนุญาต</p>
+                                <p class="text-xs text-gray-500 mt-1" id="checkout-date-hint">
+                                    ต้องอยู่ในช่วงวันที่เริ่มถึงวันที่สิ้นสุดที่อนุญาต</p>
                                 @error('checked_out_at')
                                     <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-                                @if ($requests->status === 'check_out')
+                            @if (in_array($requests->status, ['check_out']))
                                     <div class="bg-gray-50 rounded p-4">
                                     <label class="text-gray-500 text-sm block mb-1">วันที่มาส่ง</label>
                                     <input type="datetime-local" name="checked_in_at" id="checked_in_at"
                                         class="w-full border rounded px-2 py-1 @error('checked_in_at') border-red-500 @enderror {{ in_array($requests->status, ['rejected', 'cancelled', 'check_in']) ? 'bg-gray-100' : '' }}"
                                         value="{{ old('checked_in_at', optional($requests->transaction?->checked_in_at)->format('Y-m-d\TH:i')) }}" 
-                                        @if (in_array($requests->status, ['rejected', 'cancelled', 'check_in'])) readonly @endif required/>
-                                    <p class="text-xs text-gray-500 mt-1" id="checkin-date-hint">ต้องเป็นวันถัดไปจากวันที่มาเเอาของ</p>
+                                        @if (in_array($requests->status, ['rejected', 'cancelled', 'check_in'])) readonly @endif required />
+                                    <p class="text-xs text-gray-500 mt-1" id="checkin-date-hint">
+                                        ต้องเป็นวันถัดไปจากวันที่มาเเอาของ</p>
                                     @error('checked_in_at')
                                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
                                 <div class="bg-gray-50 rounded p-4">
                                     <label class="text-gray-500 text-sm block mb-1">ค่าปรับ</label>
-                                    <input type="number" step="0.01" min="0" name="penalty_amount"
+                                    @php
+                                        $defaultPenalty = $requests->transaction->penalty_amount ?? 0;
+                                        
+                                        // Auto-calculate late penalty if return date is after end date
+                                        if ($requests->transaction && $requests->transaction->checked_in_at && $requests->end_at) {
+                                            $checkedInDate = \Carbon\Carbon::parse($requests->transaction->checked_in_at);
+                                            $endDate = \Carbon\Carbon::parse($requests->end_at);
+                                            $isLate = $checkedInDate->gt($endDate);
+                                            
+                                            if ($isLate) {
+                                                $daysLate = $checkedInDate->diffInDays($endDate);
+                                                $daysLate = ceil($daysLate); // Round up to next whole number
+                                                $latePenalty = $daysLate * 50; // ฿50 per day
+                                                
+                                                // If admin has set a higher penalty, use that; otherwise use auto-calculated
+                                                if ($defaultPenalty > $latePenalty) {
+                                                    $defaultPenalty = $defaultPenalty; // Keep admin's higher penalty
+                                                } else {
+                                                    $defaultPenalty = $latePenalty; // Use auto-calculated penalty
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <input type="number" step="0.01" min="0" name="penalty_amount" id="penalty_amount"
                                         class="w-full border rounded px-2 py-1 {{ in_array($requests->status, ['rejected', 'cancelled', 'check_in']) ? 'bg-gray-100' : '' }}"
-                                        value="{{ $requests->transaction->penalty_amount ?? 0 }}"
+                                        value="{{ $defaultPenalty }}"
                                         @if (in_array($requests->status, ['rejected', 'cancelled', 'check_in'])) readonly @endif />
+                                    @if ($requests->transaction && $requests->transaction->checked_in_at && $requests->end_at)
+                                        @php
+                                            $checkedInDate = \Carbon\Carbon::parse($requests->transaction->checked_in_at);
+                                            $endDate = \Carbon\Carbon::parse($requests->end_at);
+                                            $isLate = $checkedInDate->gt($endDate);
+                                        @endphp
+                                        @if ($isLate)
+                                            @php
+                                                $daysLate = $checkedInDate->diffInDays($endDate);
+                                                $daysLate = ceil($daysLate);
+                                                $latePenalty = $daysLate * 50;
+                                            @endphp
+                                            <p class="text-xs text-orange-600 mt-1">
+                                                💡 คืนล่าช้า {{ $daysLate }} วัน - ค่าปรับอัตโนมัติ: ฿{{ number_format($latePenalty, 2) }}
+                                            </p>
+                                        @endif
+                                    @endif
                                 </div>
                                 <div class="bg-gray-50 rounded p-4 md:col-span-2">
                                     <label class="text-gray-500 text-sm block mb-1">หมายเหตุ</label>
-                                    <textarea name="notes" class="w-full border rounded px-2 py-1 {{ in_array($requests->status, ['rejected', 'cancelled', 'check_in']) ? 'bg-gray-100' : '' }}" rows="2" 
-                                        @if (in_array($requests->status, ['rejected', 'cancelled', 'check_in'])) readonly @endif >{{ $requests->transaction->notes ?? '' }}</textarea>
+                                    <textarea name="notes"
+                                        class="w-full border rounded px-2 py-1 {{ in_array($requests->status, ['rejected', 'cancelled', 'check_in']) ? 'bg-gray-100' : '' }}"
+                                        rows="2" @if (in_array($requests->status, ['rejected', 'cancelled', 'check_in'])) readonly @endif>{{ $requests->transaction->notes ?? '' }}</textarea>
                                 </div>
+
+                                <!-- Equipment Condition Fields - only show when status is check_out -->
+                                @if ($requests->status === 'check_out')
+                                    <div class="bg-gray-50 rounded p-4 md:col-span-3">
+                                        <h4 class="font-medium text-gray-700 mb-3">บันทึกสภาพอุปกรณ์เมื่อคืน</h4>
+
+                                        <!-- Individual Equipment Items -->
+                                        @if ($requests->items && $requests->items->count() > 0)
+                                            <div class="space-y-4">
+                                                @foreach ($requests->items as $index => $item)
+                                                    <div class="bg-white rounded-lg p-4 border">
+                                                        <div class="flex items-start mb-3">
+                                                            <h5 class="font-medium text-gray-800">อุปกรณ์ชิ้นที่
+                                                                {{ $index + 1 }}</h5>
+                                                            <span class="text-sm text-gray-500 ml-2">Serial:
+                                                                {{ $item->equipmentItem->serial_number ?? 'N/A' }}</span>
+                                                        </div>
+
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                                            <div>
+                                                                <span
+                                                                    class="text-sm text-gray-600">สภาพเมื่อยืม:</span>
+                                                                <span
+                                                                    class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                                                                    {{ $item->condition_out ?? 'ไม่ระบุ' }}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <span
+                                                                    class="text-sm text-gray-600">สภาพเมื่อคืน:</span>
+                                                                <select name="item_condition_in[{{ $item->id }}]"
+                                                                    class="ml-2 border rounded px-2 py-1 text-sm">
+                                                                    <option value="">เลือกสภาพ</option>
+                                                                    <option value="สภาพดี"
+                                                                        {{ $item->condition_in === 'สภาพดี' ? 'selected' : '' }}>
+                                                                        สภาพดี</option>
+                                                                    <option value="ไม่สามาถซ่อมได้"
+                                                                        {{ $item->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>
+                                                                        ไม่สามาถซ่อมได้</option>
+                                                                    <option value="พัง"
+                                                                        {{ $item->condition_in === 'พัง' ? 'selected' : '' }}>
+                                                                        พัง</option>
+                                                                    <option value="อุปกรณ์ไม่พร้อมใช้งาน"
+                                                                        {{ $item->condition_in === 'อุปกรณ์ไม่พร้อมใช้งาน' ? 'selected' : '' }}>
+                                                                        อุปกรณ์ไม่พร้อมใช้งาน</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Accessories for this item -->
+                                                        @php
+                                                            $itemSpecificAccessories = $item->accessories->filter(
+                                                                function ($accessory) use ($item) {
+                                                                    return $accessory->accessory &&
+                                                                        $accessory->accessory->equipment_item_id ==
+                                                                            $item->equipment_item_id;
+                                                                },
+                                                            );
+                                                        @endphp
+                                                        @if ($itemSpecificAccessories->count() > 0)
+                                                            <div class="mt-3">
+                                                                <h6 class="text-sm font-medium text-gray-700 mb-2">
+                                                                    ของที่ติดมากับเครื่อง
+                                                                    ({{ $itemSpecificAccessories->count() }} รายการ)
+                                                                </h6>
+                                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                                    @foreach ($itemSpecificAccessories as $accessory)
+                                                                        <div class="bg-gray-50 rounded p-2 text-sm">
+                                                                            <div class="font-medium text-gray-800">
+                                                                                {{ $accessory->accessory->name ?? 'N/A' }}
+                                                                            </div>
+                                                                            @if ($accessory->accessory && $accessory->accessory->description)
+                                                                                <div class="text-gray-600 text-xs">
+                                                                                    {{ $accessory->accessory->description }}
+                                                                                </div>
+                                                                            @endif
+                                                                            <div
+                                                                                class="flex justify-between items-center mt-1">
+                                                                                <span
+                                                                                    class="text-xs text-gray-500">สภาพ:
+                                                                                    {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
+                                                                                <select
+                                                                                    name="accessory_condition_in[{{ $accessory->id }}]"
+                                                                                    class="text-xs border rounded px-1 py-0.5"
+                                                                                    onchange="updateMainItemCondition({{ $item->id }}, this.value)">
+                                                                                    <option value="">เลือกสภาพ
+                                                                                    </option>
+                                                                                    <option value="สภาพดี"
+                                                                                        {{ $accessory->condition_in === 'สภาพดี' ? 'selected' : '' }}>
+                                                                                        สภาพดี</option>
+                                                                                    <option value="ไม่สามาถซ่อมได้"
+                                                                                        {{ $accessory->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>
+                                                                                        ไม่สามาถซ่อมได้</option>
+                                                                                    <option value="พัง"
+                                                                                        {{ $accessory->condition_in === 'พัง' ? 'selected' : '' }}>
+                                                                                        พัง</option>
+                                                                                    <option value="หาย"
+                                                                                        {{ $accessory->condition_in === 'หาย' ? 'selected' : '' }}>
+                                                                                        หาย</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                </div>
+                                        @endif
+
+                                        <!-- Additional Accessories -->
+                                        @php
+                                            $additionalAccessories = collect();
+                                            $generalAccessories = \App\Models\EquipmentAccessory::where(
+                                                'equipment_id',
+                                                $requests->equipment_id,
+                                            )
+                                                ->whereNull('equipment_item_id')
+                                                ->pluck('id')
+                                                ->toArray();
+
+                                            foreach ($requests->items as $item) {
+                                                foreach ($item->accessories as $borrowedAccessory) {
+                                                    if (
+                                                        $borrowedAccessory->accessory &&
+                                                        in_array($borrowedAccessory->accessory->id, $generalAccessories)
+                                                    ) {
+                                                        $additionalAccessories->push($borrowedAccessory);
+                                                    }
+                                                }
+                                            }
+                                        @endphp
+                                        @if ($additionalAccessories->count() > 0)
+                                            <div class="mt-4">
+                                                <h4 class="font-medium text-gray-700 mb-2">อุปกรณ์เสริมที่ยืมเพิ่ม
+                                                    ({{ $additionalAccessories->count() }} รายการ)</h4>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                    @foreach ($additionalAccessories as $accessory)
+                                                        <div class="bg-gray-50 rounded p-2 text-sm">
+                                                            <div class="font-medium text-gray-800">
+                                                                {{ $accessory->accessory->name ?? 'N/A' }}</div>
+                                                            @if ($accessory->accessory && $accessory->accessory->description)
+                                                                <div class="text-gray-600 text-xs">
+                                                                    {{ $accessory->accessory->description }}</div>
+                                                            @endif
+                                                            <div class="flex justify-between items-center mt-1">
+                                                                <span class="text-xs text-gray-500">สภาพ:
+                                                                    {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
+                                                                <select
+                                                                    name="accessory_condition_in[{{ $accessory->id }}]"
+                                                                    class="text-xs border rounded px-1 py-0.5">
+                                                                    <option value="">เลือกสภาพ</option>
+                                                                    <option value="สภาพดี"
+                                                                        {{ $accessory->condition_in === 'สภาพดี' ? 'selected' : '' }}>
+                                                                        สภาพดี</option>
+                                                                    <option value="ไม่สามาถซ่อมได้"
+                                                                        {{ $accessory->condition_in === 'ไม่สามาถซ่อมได้' ? 'selected' : '' }}>
+                                                                        ไม่สามาถซ่อมได้</option>
+                                                                    <option value="พัง"
+                                                                        {{ $accessory->condition_in === 'พัง' ? 'selected' : '' }}>
+                                                                        พัง</option>
+                                                                    <option value="หาย"
+                                                                        {{ $accessory->condition_in === 'หาย' ? 'selected' : '' }}>
+                                                                        หาย</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                                 @endif
                                 
                             @endif
@@ -456,29 +714,58 @@
 
                         @if ($requests->status != 'pending')
                         <!-- Transaction History -->
-                        @if($requests->transaction && ($requests->transaction->checked_out_at || $requests->transaction->checked_in_at))
+                @if ($requests->transaction && ($requests->transaction->checked_out_at || $requests->transaction->checked_in_at))
                         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                             <h4 class="font-semibold text-gray-700 mb-3">ประวัติการทำธุรกรรม</h4>
                             <div class="space-y-2 text-sm">
-                                @if($requests->transaction->checked_out_at)
-                                <div class="flex justify-between">
+                            @if ($requests->transaction->checked_out_at)
+                                <div class="">
                                     <span class="text-gray-600">วันที่มาเเอาของ:</span>
-                                    <span class="font-medium">{{ $requests->transaction->checked_out_at->setTimezone('Asia/Bangkok')->format('d/m/Y') }}</span>
+                                    <span
+                                        class="font-medium">{{ $requests->transaction->checked_out_at->setTimezone('Asia/Bangkok')->format('d/m/Y') }}</span>
                                 </div>
                                 @endif
-                                @if($requests->transaction->checked_in_at)
-                                <div class="flex justify-between">
+                            @if ($requests->transaction->checked_in_at)
+                                <div class="">
                                     <span class="text-gray-600">วันที่มาคืน:</span>
-                                    <span class="font-medium">{{ $requests->transaction->checked_in_at->setTimezone('Asia/Bangkok')->format('d/m/Y') }}</span>
+                                    <span
+                                        class="font-medium">{{ $requests->transaction->checked_in_at->setTimezone('Asia/Bangkok')->format('d/m/Y') }}</span>
                                 </div>
                                 @endif
-                                @if($requests->transaction->penalty_amount && $requests->transaction->penalty_amount > 0)
-                                <div class="flex justify-between">
+                            @if ($requests->transaction->penalty_amount && $requests->transaction->penalty_amount > 0)
+                                <div class="">
                                     <span class="text-gray-600">ค่าปรับ:</span>
-                                    <span class="font-medium text-red-600">฿{{ number_format($requests->transaction->penalty_amount, 2) }}</span>
+                                    <span
+                                        class="font-medium text-red-600">฿{{ number_format($requests->transaction->penalty_amount, 2) }}</span>
                                 </div>
                                 @endif
-                                @if($requests->transaction->notes)
+                            @if ($requests->transaction->checked_in_at && $requests->end_at)
+                                @php
+                                    $checkedInDate = \Carbon\Carbon::parse($requests->transaction->checked_in_at);
+                                    $endDate = \Carbon\Carbon::parse($requests->end_at);
+                                    $isLate = $checkedInDate->gt($endDate);
+                                    
+                                    if ($isLate) {
+                                        $daysLate = $checkedInDate->diffInDays($endDate);
+                                        $daysLate = ceil($daysLate); // Round up to next whole number
+                                        $latePenalty = $daysLate * 50; // ฿50 per day
+                                    } else {
+                                        $daysLate = 0;
+                                        $latePenalty = 0;
+                                    }
+                                @endphp
+                                @if ($isLate && $daysLate > 0)
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">คืนล่าช้า:</span>
+                                        <span class="font-medium text-orange-600">{{ $daysLate }} วัน</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">ค่าปรับล่าช้า (฿50/วัน):</span>
+                                        <span class="font-medium text-orange-600">฿{{ number_format($latePenalty, 2) }}</span>
+                                    </div>
+                                @endif
+                            @endif
+                            @if ($requests->transaction->notes)
                                 <div class="mt-2">
                                     <span class="text-gray-600">หมายเหตุ:</span>
                                     <p class="text-gray-800 mt-1">{{ $requests->transaction->notes }}</p>
@@ -492,15 +779,13 @@
                         @if (!in_array($requests->status, ['rejected', 'cancelled', 'check_in']))
                         <div class="flex flex-col sm:flex-row justify-end gap-3 mt-4">
                             @if ($requests->status == 'approved')
-                                <button type="submit"
-                                    formaction="{{ route('admin.requests.update', $requests->req_id) }}"
+                        <button type="submit" formaction="{{ route('admin.requests.update', $requests->req_id) }}"
                                     formmethod="post"
                                     class="bg-emerald-600 text-white px-4 sm:px-6 py-2 rounded-md hover:bg-emerald-700 text-sm sm:text-base">
                                     มารับของแล้ว
                                 </button>
                             @elseif ($requests->status == 'check_out')
-                                <button type="submit"
-                                    formaction="{{ route('admin.requests.update', $requests->req_id) }}"
+                        <button type="submit" formaction="{{ route('admin.requests.update', $requests->req_id) }}"
                                     formmethod="post"
                                     class="bg-purple-600 text-white px-4 sm:px-6 py-2 rounded-md hover:bg-purple-700 text-sm sm:text-base">
                                     มาคืนของแล้ว
@@ -510,7 +795,7 @@
                         @else
                         <div class="mt-4 p-4 bg-gray-100 rounded-lg">
                             <p class="text-sm text-gray-600 text-center">
-                                @if($requests->status == 'rejected')
+                        @if ($requests->status == 'rejected')
                                     คำขอนี้ถูกปฏิเสธแล้ว - ไม่สามารถดำเนินการเพิ่มเติมได้
                                 @elseif($requests->status == 'cancelled')
                                     คำขอนี้ถูกยกเลิกแล้ว - ไม่สามารถดำเนินการเพิ่มเติมได้
@@ -522,7 +807,8 @@
                         @endif
                     </form>
                     @if ($requests->status == 'pending')
-                        <form id="reject-form" action="{{ route('admin.requests.reject', $requests->req_id) }}" method="POST" class="hidden">
+                <form id="reject-form" action="{{ route('admin.requests.reject', $requests->req_id) }}"
+                    method="POST" class="hidden">
                             @csrf
                             <input type="hidden" name="reason" id="reject-reason" />
                         </form>
@@ -581,8 +867,15 @@
 
 /* Pulse animation for pending status */
 @keyframes pulse-yellow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.8;
+        }
 }
 
 .status-pending {
@@ -732,9 +1025,6 @@
             }
         }
 
-        /**
-         * Validates the selected check-out date against the allowed range.
-         */
         function validateCheckoutDate() {
             if (!elements.checkoutAtInput || !elements.startAtInput || !elements.endAtInput) return;
 
@@ -752,14 +1042,15 @@
             const checkoutDate = new Date(checkoutDateStr);
             const startDate = new Date(startDateStr);
             const endDate = new Date(endDateStr);
-            endDate.setHours(23, 59, 59, 999); // Set end date to the very end of the day
+            endDate.setHours(23, 59, 59, 999);
 
             if (checkoutDate < startDate || checkoutDate > endDate) {
-                showAlert('วันที่ไม่ถูกต้อง!', `วันที่มารับของต้องอยู่ในช่วง ${startDateStr} ถึง ${endDateStr}`);
+                showAlert('วันที่ไม่ถูกต้อง!',
+                `วันที่มารับของต้องอยู่ในช่วง ${startDateStr} ถึง ${endDateStr}`);
                 elements.checkoutHint.textContent = 'วันที่มารับของต้องอยู่ในช่วงที่ได้รับอนุญาต';
                 elements.checkoutHint.className = 'text-sm text-red-500 mt-1';
                 elements.checkoutAtInput.classList.add('border-red-500');
-                elements.checkoutAtInput.value = ''; // Clear invalid date
+                elements.checkoutAtInput.value = '';
         } else {
                 elements.checkoutHint.textContent = 'วันที่มารับของถูกต้อง';
                 elements.checkoutHint.className = 'text-sm text-green-500 mt-1';
@@ -768,9 +1059,6 @@
             }
         }
 
-        /**
-         * Validates the selected check-in date against the check-out date.
-         */
         function validateCheckinDate() {
             if (!elements.checkinAtInput || !elements.checkoutAtInput) return;
 
@@ -792,12 +1080,44 @@
                 elements.checkinHint.textContent = 'วันที่มาส่งคืนต้องอยู่หลังวันที่มารับของ';
                 elements.checkinHint.className = 'text-sm text-red-500 mt-1';
                 elements.checkinAtInput.classList.add('border-red-500');
-                elements.checkinAtInput.value = ''; // Clear invalid date
+                elements.checkinAtInput.value = '';
             } else {
                 elements.checkinHint.textContent = 'วันที่มาส่งคืนถูกต้อง';
                 elements.checkinHint.className = 'text-sm text-green-500 mt-1';
                 elements.checkinAtInput.classList.remove('border-red-500');
                 elements.checkinAtInput.classList.add('border-green-500');
+            }
+        }
+        
+        /**
+         * Updates the penalty amount based on late return calculation
+         */
+        function updateLatePenalty() {
+            const penaltyInput = document.getElementById('penalty_amount');
+            const checkinInput = elements.checkinAtInput;
+            const endAtInput = elements.endAtInput;
+            
+            if (!penaltyInput || !checkinInput || !endAtInput) return;
+            
+            const checkinDate = new Date(checkinInput.value);
+            const endDate = new Date(endAtInput.value);
+            
+            if (checkinDate && endDate && checkinDate > endDate) {
+                // Calculate days difference and round up if decimal
+                const timeDiff = checkinDate - endDate;
+                const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+                const daysLate = Math.ceil(daysDiff); // Round up to next whole number
+                const latePenalty = daysLate * 50; // ฿50 per day
+                
+                // Only update if current penalty is less than calculated penalty
+                const currentPenalty = parseFloat(penaltyInput.value) || 0;
+                if (currentPenalty < latePenalty) {
+                    penaltyInput.value = latePenalty;
+                    
+                    // Show notification
+                    showAlert('ค่าปรับอัตโนมัติ', 
+                        `คืนล่าช้า ${daysLate} วัน - ค่าปรับ: ฿${latePenalty.toFixed(2)}`);
+                }
             }
         }
         
@@ -810,8 +1130,6 @@
             calculateAndValidateDateRange();
             validateCheckoutDate();
             validateCheckinDate();
-
-            // Check for any invalid input states
             if (
                 (elements.endAtInput && !elements.endAtInput.value) ||
                 (elements.checkoutAtInput && elements.checkoutAtInput.classList.contains('border-red-500')) ||
@@ -829,18 +1147,16 @@
             return true;
         }
 
-        // --- Event Listeners ---
 
         if (elements.startAtInput) {
             elements.startAtInput.addEventListener('change', () => {
                 if (validateNotPastDate(elements.startAtInput, 'วันที่เริ่ม')) {
-                    // Set the minimum for the end date
                     if (elements.endAtInput) elements.endAtInput.min = elements.startAtInput.value;
                     calculateAndValidateDateRange();
                     updateCheckoutConstraints();
-                    validateCheckoutDate(); // Re-validate checkout
+                    validateCheckoutDate();
                     updateCheckinConstraints();
-                    validateCheckinDate(); // Re-validate check-in
+                    validateCheckinDate();
                 }
             });
         }
@@ -850,7 +1166,7 @@
                 if (validateNotPastDate(elements.endAtInput, 'วันที่สิ้นสุด')) {
                     calculateAndValidateDateRange();
                     updateCheckoutConstraints();
-                    validateCheckoutDate(); // Re-validate checkout
+                    validateCheckoutDate();
                 }
             });
         }
@@ -858,27 +1174,44 @@
         if (elements.checkoutAtInput) {
             elements.checkoutAtInput.addEventListener('change', () => {
                 validateCheckoutDate();
-                updateCheckinConstraints(); // Update check-in min date
-                validateCheckinDate(); // Re-validate check-in
+                updateCheckinConstraints();
+                validateCheckinDate();
             });
         }
 
         if (elements.checkinAtInput) {
             elements.checkinAtInput.addEventListener('change', () => {
                 validateCheckinDate();
+                updateLatePenalty();
             });
         }
         
         if (elements.mainForm) {
             elements.mainForm.addEventListener('submit', (event) => {
                 if (!validateFormSubmission()) {
-                    event.preventDefault(); // Stop form submission if validation fails
+                    event.preventDefault(); 
+                    return;
+                }
+                
+                // Add SweetAlert confirmations for status transitions
+                const submitButton = event.submitter;
+                if (submitButton) {
+                    const buttonText = submitButton.textContent.trim();
+                    
+                    if (buttonText === 'อนุมัติ') {
+                        event.preventDefault();
+                        showApprovalConfirmation(event.target);
+                    } else if (buttonText === 'มารับของแล้ว') {
+                        event.preventDefault();
+                        showCheckoutConfirmation(event.target);
+                    } else if (buttonText === 'มาคืนของแล้ว') {
+                        event.preventDefault();
+                        showCheckinConfirmation(event.target);
+                    }
                 }
             });
         }
 
-        // --- Initializations ---
-        // Run initial calculations and set constraints on page load
         calculateAndValidateDateRange();
         updateCheckoutConstraints();
         updateCheckinConstraints();
@@ -887,14 +1220,82 @@
         }
     });
 
+    // SweetAlert confirmation functions for status transitions
+    function showApprovalConfirmation(form) {
+        Swal.fire({
+            title: 'ยืนยันการอนุมัติ',
+            text: 'คุณต้องการอนุมัติคำขอยืมอุปกรณ์นี้หรือไม่?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'อนุมัติ',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
 
-    // --- Global Functions ---
-    // This function remains in the global scope to be accessible from HTML onclick attributes
+    function showCheckoutConfirmation(form) {
+        Swal.fire({
+            title: 'ยืนยันการเช็คเอาท์',
+            text: 'คุณต้องการบันทึกการมารับอุปกรณ์แล้วหรือไม่?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#6b7280'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
 
-    /**
-     * Displays a SweetAlert2 modal for entering a rejection reason.
-     * On confirmation, it populates and submits the hidden rejection form.
-     */
+    function showCheckinConfirmation(form) {
+        // Check if any condition fields are empty
+        const itemConditions = document.querySelectorAll('select[name^="item_condition_in"]');
+        const accessoryConditions = document.querySelectorAll('select[name^="accessory_condition_in"]');
+        let hasEmptyConditions = false;
+        
+        itemConditions.forEach(select => {
+            if (!select.value) hasEmptyConditions = true;
+        });
+        
+        accessoryConditions.forEach(select => {
+            if (!select.value) hasEmptyConditions = true;
+        });
+
+        if (hasEmptyConditions) {
+            Swal.fire({
+                title: 'ข้อมูลไม่ครบถ้วน',
+                text: 'กรุณาเลือกสภาพของอุปกรณ์และอุปกรณ์เสริมทั้งหมดก่อนดำเนินการ',
+                icon: 'warning',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#f59e0b'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'ยืนยันการเช็คอิน',
+            text: 'คุณต้องการบันทึกการคืนอุปกรณ์และสภาพอุปกรณ์แล้วหรือไม่?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#8b5cf6',
+            cancelButtonColor: '#6b7280'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
     window.showRejectModal = function() {
         Swal.fire({
             title: 'ปฏิเสธคำขอ',
@@ -926,10 +1327,10 @@
                         Swal.showValidationMessage('กรุณาระบุเหตุผลเพิ่มเติมในช่อง "อื่นๆ"');
                         return false;
                     }
-                    return otherReasonText; // Return the custom text as the reason
+                    return otherReasonText;
                 }
 
-                return selectedReason.value; // Return the pre-defined reason
+                return selectedReason.value;
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -937,7 +1338,7 @@
                 const reasonInput = document.getElementById('reject-reason');
                 
                 if (form && reasonInput) {
-                    reasonInput.value = result.value; // The confirmed reason
+                    reasonInput.value = result.value;
                 form.submit();
                 } else {
                     console.error('Reject form or reason input not found!');
@@ -945,6 +1346,7 @@
             }
         });
     }
+
     function updateMainItemCondition(itemId, accessoryCondition) {
         const mainItemSelect = document.querySelector(`select[name="item_condition_in[${itemId}]"]`);
         
@@ -953,12 +1355,12 @@
                 mainItemSelect.value = 'อุปกรณ์ไม่พร้อมใช้งาน';
             } else if (accessoryCondition === 'พัง') {
                 mainItemSelect.value = 'อุปกรณ์ไม่พร้อมใช้งาน';
-            }
-             else if (accessoryCondition === 'ไม่สามาถซ่อมได้') {
+            } else if (accessoryCondition === 'ไม่สามาถซ่อมได้') {
                 mainItemSelect.value = 'อุปกรณ์ไม่พร้อมใช้งาน';
             }
         }
     }
+
     function setDefaultConditions() {
         const mainItemSelects = document.querySelectorAll('select[name^="item_condition_in"]');
         mainItemSelects.forEach(select => {
@@ -973,10 +1375,28 @@
             }
         });
     }
-
-    // Call the function when the page loads
     document.addEventListener('DOMContentLoaded', function() {
         setDefaultConditions();
+        
+        // Show success notifications if any
+        @if(session('success'))
+            Swal.fire({
+                title: 'สำเร็จ!',
+                text: '{{ session('success') }}',
+                icon: 'success',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#10b981'
+            });
+        @endif
+        
+        @if(session('error'))
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด!',
+                text: '{{ session('error') }}',
+                icon: 'error',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#ef4444'
+            });
+        @endif
     });
 </script>
-

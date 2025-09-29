@@ -46,6 +46,20 @@
                                         </svg>
                                         ปฏิเสธ
                                     </div>
+                                @elseif($req->status === 'check_out')
+                                    <div class="flex items-center gap-1 px-3 py-1 text-blue-800 rounded-full text-sm font-medium status-checkout">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        กำลังยืม
+                                    </div>
+                                @elseif($req->status === 'check_in')
+                                    <div class="flex items-center gap-1 px-3 py-1 text-purple-800 rounded-full text-sm font-medium status-checkin">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        คืนแล้ว
+                                    </div>
                                 @elseif($req->status === 'cancelled')
                                     <div class="flex items-center gap-1 px-3 py-1 text-gray-700 rounded-full text-sm font-medium status-cancelled">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -174,6 +188,14 @@
                                                         {{ $item->condition_out ?? 'ไม่ระบุ' }}
                                                     </span>
                                                 </div>
+                                                @if($req->status === 'check_in' && $item->condition_in)
+                                                    <div>
+                                                        <span class="text-sm text-gray-600">สภาพเมื่อคืน:</span>
+                                                        <span class="ml-2 px-2 py-1 {{ $item->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} rounded text-sm">
+                                                            {{ $item->condition_in }}
+                                                        </span>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             <!-- Accessories for this item -->
@@ -196,8 +218,10 @@
                                                                 @endif
                                                                 <div class="flex justify-between items-center mt-1">
                                                                     <span class="text-xs text-gray-500">สภาพ: {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
-                                                                    @if($accessory->condition_in)
-                                                                        <span class="text-xs text-gray-500">คืน: {{ $accessory->condition_in }}</span>
+                                                                    @if($req->status === 'check_in' && $accessory->condition_in)
+                                                                        <span class="text-xs px-2 py-1 rounded {{ $accessory->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                                            คืน: {{ $accessory->condition_in }}
+                                                                        </span>
                                                                     @endif
                                                                 </div>
                                                             </div>
@@ -225,6 +249,14 @@
                                             <div class="font-medium text-gray-800">{{ $accessory->accessory->name ?? 'N/A' }}</div>
                                             @if($accessory->accessory && $accessory->accessory->description)
                                                 <div class="text-gray-600 text-xs">{{ $accessory->accessory->description }}</div>
+                                            @endif
+                                            @if($req->status === 'check_in' && $accessory->condition_in)
+                                                <div class="mt-1">
+                                                    <span class="text-xs text-gray-500">สภาพเมื่อคืน:</span>
+                                                    <span class="text-xs px-2 py-1 rounded {{ $accessory->condition_in === 'สภาพดี' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                        {{ $accessory->condition_in }}
+                                                    </span>
+                                                </div>
                                             @endif
                                         </div>
                                     @endforeach
@@ -360,6 +392,18 @@
     box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
+.status-checkout {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 2px solid #3b82f6;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.status-checkin {
+    background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%);
+    border: 2px solid #8b5cf6;
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+}
+
 .status-cancelled {
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     border: 2px solid #6b7280;
@@ -388,6 +432,16 @@
 }
 
 .status-rejected:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+.status-checkout:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+.status-checkin:hover {
     transform: scale(1.05);
     transition: transform 0.2s ease;
 }

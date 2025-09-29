@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
 use App\Models\BorrowRequest;
 use App\Notifications\BorrowReturnReminder;
+use App\Services\LateReturnService;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -53,4 +54,17 @@ Artisan::command('reminders:returns', function () {
 Artisan::command('borrow:process-expired', function () {
     $this->call('borrow:process-expired');
 })->purpose('Process expired borrow requests - send reminders and cancel overdue requests')
+->daily();
+
+// Check for late returns and send notifications
+Artisan::command('borrow:check-late-returns', function () {
+    $lateReturnService = new LateReturnService();
+    $lateCount = $lateReturnService->checkLateReturns();
+    
+    if ($lateCount > 0) {
+        $this->info("Found {$lateCount} late returns and sent notifications.");
+    } else {
+        $this->info('No late returns found.');
+    }
+})->purpose('Check for late equipment returns and send penalty notifications')
 ->daily();
