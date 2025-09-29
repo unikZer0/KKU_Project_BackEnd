@@ -1,10 +1,10 @@
 <template>
     <div class="bg-white p-6 rounded-lg shadow">
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-        <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
-        <span>/</span>
-        <span class="font-semibold text-gray-900">หน้าจัดการรายการอุปกรณ์</span>
-    </nav>
+        <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+            <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
+            <span>/</span>
+            <span class="font-semibold text-gray-900">หน้าจัดการรายการอุปกรณ์</span>
+        </nav>
 
         <div class="relative mb-4">
             <input type="text" v-model="searchQuery" placeholder="ค้นหา..."
@@ -85,10 +85,7 @@
             <thead class="bg-gray-50 border-b">
                 <tr>
                     <th class="px-2 py-2">
-                        <input type="checkbox" 
-                               @change="toggleAllSelection" 
-                               :checked="allItemsSelected"
-                               class="rounded">
+                        <input type="checkbox" @change="toggleAllSelection" :checked="allItemsSelected" class="rounded">
                     </th>
                     <th class="px-4 py-2 text-left cursor-pointer" @click="setSort('id')">
                         ID
@@ -120,10 +117,7 @@
                 <tr v-for="item in paginatedEquipmentItems" :key="item.id" class="border-b hover:bg-gray-50"
                     :class="{ 'bg-blue-50': selectedItems.includes(item.id) }">
                     <td class="px-2 py-2">
-                        <input type="checkbox" 
-                               :value="item.id"
-                               v-model="selectedItems"
-                               class="rounded">
+                        <input type="checkbox" :value="item.id" v-model="selectedItems" class="rounded">
                     </td>
                     <td class="px-4 py-2 font-mono text-xs">{{ item.id }}</td>
                     <td class="px-4 py-2">
@@ -135,13 +129,13 @@
                     </td>
                     <td class="px-4 py-2">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                              :class="getConditionClass(item.condition)">
+                            :class="getConditionClass(item.condition)">
                             {{ item.condition }}
                         </span>
                     </td>
                     <td class="px-4 py-2">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                              :class="getStatusClass(item.status)">
+                            :class="getStatusClass(item.status)">
                             {{ capitalize(item.status) }}
                         </span>
                     </td>
@@ -149,7 +143,8 @@
                         {{ item.equipment?.category?.name || 'N/A' }}
                     </td>
                     <td class="px-4 py-2 text-center">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             {{ item.accessories?.length || 0 }} ชิ้น
                         </span>
                     </td>
@@ -157,14 +152,12 @@
                         {{ formatDate(item.created_at) }}
                     </td>
                     <td class="px-4 py-2 space-x-2">
-                        <button v-if="userRole === 'admin'" @click="openEditModal(item)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">
-                            แก้ไข
-                        </button>
-                        <button v-if="userRole === 'admin'" @click="deleteEquipmentItem(item)"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
-                            ลบ
-                        </button>
+                        <ActionButtons :item="item" @view="openEditModal" @edit="openEditModal" @delete="deleteEquipmentItem" />
+                    </td>
+                </tr>
+                <tr v-if="filteredEquipmentItems.length === 0">
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        ไม่พบข้อมูลรายการอุปกรณ์
                     </td>
                 </tr>
             </tbody>
@@ -191,28 +184,19 @@
         </div>
 
         <!-- Modals -->
-        <EquipmentItemEditModal 
-            :isOpen="editModal.isOpen" 
-            :item="editModal.selectedItem" 
-            :equipments="equipments"
-            @cancel="closeEditModal" 
-            @save="updateEquipmentItem" />
+        <EquipmentItemEditModal :isOpen="editModal.isOpen" :item="editModal.selectedItem" :equipments="equipments"
+            @cancel="closeEditModal" @save="updateEquipmentItem" />
 
-        <EquipmentItemCreateModal 
-            :isOpen="createModal.isOpen" 
-            :equipments="equipments"
-            @cancel="closeCreateModal" 
+        <EquipmentItemCreateModal :isOpen="createModal.isOpen" :equipments="equipments" @cancel="closeCreateModal"
             @create="createEquipmentItem" />
 
-        <BulkUpdateModal 
-            :isOpen="bulkUpdateModal.isOpen" 
-            :selectedCount="selectedItems.length"
-            @cancel="closeBulkUpdateModal" 
-            @update="bulkUpdateItems" />
+        <BulkUpdateModal :isOpen="bulkUpdateModal.isOpen" :selectedCount="selectedItems.length"
+            @cancel="closeBulkUpdateModal" @update="bulkUpdateItems" />
     </div>
 </template>
 
 <script>
+import ActionButtons from '../ui/ActionButtons.vue'
 import EquipmentItemEditModal from "../modals/EquipmentItemEditModal.vue";
 import EquipmentItemCreateModal from "../modals/EquipmentItemCreateModal.vue";
 import BulkUpdateModal from "../modals/BulkUpdateModal.vue";
@@ -220,6 +204,7 @@ import BulkUpdateModal from "../modals/BulkUpdateModal.vue";
 export default {
     name: "EquipmentItemsTable",
     components: {
+        ActionButtons,
         EquipmentItemEditModal,
         EquipmentItemCreateModal,
         BulkUpdateModal,
@@ -243,7 +228,7 @@ export default {
             filterCondition: "",
             filterEquipmentId: "",
             selectedItems: [],
-            
+
             editModal: {
                 isOpen: false,
                 selectedItem: {},
@@ -287,7 +272,7 @@ export default {
             const status = this.filterStatus;
             const condition = this.filterCondition;
             const equipmentId = this.filterEquipmentId ? String(this.filterEquipmentId) : "";
-            
+
             let list = (this.equipmentItems || []).filter((item) => {
                 const matchesSearch = !q ||
                     String(item?.serial_number || "").toLowerCase().includes(q) ||
@@ -296,17 +281,17 @@ export default {
                     String(item?.equipment?.brand || "").toLowerCase().includes(q) ||
                     String(item?.equipment?.model || "").toLowerCase().includes(q) ||
                     String(item?.equipment?.category?.name || "").toLowerCase().includes(q);
-                
+
                 const matchesStatus = !status || String(item?.status || "") === status;
                 const matchesCondition = !condition || String(item?.condition || "") === condition;
                 const matchesEquipment = !equipmentId || String(item?.equipment_id || "") === equipmentId;
-                
+
                 return matchesSearch && matchesStatus && matchesCondition && matchesEquipment;
             });
-            
+
             list.sort((a, b) => {
                 let x, y;
-                
+
                 if (this.sortKey.includes('.')) {
                     const keys = this.sortKey.split('.');
                     x = keys.reduce((obj, key) => obj?.[key], a) ?? "";
@@ -323,12 +308,12 @@ export default {
                     x = String(x).toLowerCase();
                     y = String(y).toLowerCase();
                 }
-                
+
                 if (x < y) return this.sortDirection === "asc" ? -1 : 1;
                 if (x > y) return this.sortDirection === "asc" ? 1 : -1;
                 return 0;
             });
-            
+
             return list;
         },
         pageCount() {
@@ -345,8 +330,8 @@ export default {
             return this.filteredEquipmentItems.slice(this.pageStart, this.pageEnd);
         },
         allItemsSelected() {
-            return this.paginatedEquipmentItems.length > 0 && 
-                   this.paginatedEquipmentItems.every(item => this.selectedItems.includes(item.id));
+            return this.paginatedEquipmentItems.length > 0 &&
+                this.paginatedEquipmentItems.every(item => this.selectedItems.includes(item.id));
         }
     },
     methods: {
@@ -375,11 +360,11 @@ export default {
                 case "สามารถซ่อมได้":
                     return "bg-yellow-100 text-yellow-800";
                 case "ไม่สามารถซ่อมได้":
-                    return "bg-red-100 text-red-800";
+                    return "bg-indigo-100 text-indigo-800";
                 case "พัง":
                     return "bg-red-100 text-red-800";
-                case "อุปกรณ์ไม่พร้อมใช้งาน":
-                    return "bg-red-100 text-red-800";
+                case "หาย":
+                    return "bg-blue-100 text-blue-800";
                 default:
                     return "bg-gray-100 text-gray-800";
             }
@@ -392,11 +377,11 @@ export default {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return dateString; // Return original if invalid date
-            
+
             const day = date.getDate().toString().padStart(2, '0');
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const year = date.getFullYear();
-            
+
             return `${day}/${month}/${year}`;
         },
         setSort(key) {
@@ -459,21 +444,21 @@ export default {
                 },
                 body: JSON.stringify(payload),
             })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.message || 'Create failed');
-                }
-                return res.json();
-            })
-            .then((data) => {
-                this.equipmentItems.unshift(data.data);
-                this.closeCreateModal();
-                this.showSuccess(`เพิ่มรายการใหม่สำเร็จ: ${payload.serial_number || 'N/A'}`);
-            })
-            .catch((err) => {
-                this.showError(err.message || 'ไม่สามารถเพิ่มรายการได้');
-            });
+                .then(async (res) => {
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.message || 'Create failed');
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    this.equipmentItems.unshift(data.data);
+                    this.closeCreateModal();
+                    this.showSuccess(`เพิ่มรายการใหม่สำเร็จ: ${payload.serial_number || 'N/A'}`);
+                })
+                .catch((err) => {
+                    this.showError(err.message || 'ไม่สามารถเพิ่มรายการได้');
+                });
         },
         updateEquipmentItem(payload) {
             fetch(`/admin/equipment-items/update/${payload.id}`, {
@@ -485,24 +470,24 @@ export default {
                 },
                 body: JSON.stringify(payload),
             })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.message || 'Update failed');
-                }
-                return res.json();
-            })
-            .then((data) => {
-                const index = this.equipmentItems.findIndex(item => item.id === data.data.id);
-                if (index !== -1) {
-                    this.equipmentItems.splice(index, 1, data.data);
-                }
-                this.closeEditModal();
-                this.showSuccess(`อัปเดตรายการสำเร็จ: ${payload.serial_number || 'N/A'}`);
-            })
-            .catch((err) => {
-                this.showError(err.message || 'ไม่สามารถอัปเดตรายการได้');
-            });
+                .then(async (res) => {
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.message || 'Update failed');
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    const index = this.equipmentItems.findIndex(item => item.id === data.data.id);
+                    if (index !== -1) {
+                        this.equipmentItems.splice(index, 1, data.data);
+                    }
+                    this.closeEditModal();
+                    this.showSuccess(`อัปเดตรายการสำเร็จ: ${payload.serial_number || 'N/A'}`);
+                })
+                .catch((err) => {
+                    this.showError(err.message || 'ไม่สามารถอัปเดตรายการได้');
+                });
         },
         deleteEquipmentItem(item) {
             this.ensureSwal().then(() => {
@@ -523,20 +508,20 @@ export default {
                                 'Accept': 'application/json',
                             },
                         })
-                        .then(async (res) => {
-                            if (!res.ok) {
-                                const errorData = await res.json();
-                                throw new Error(errorData.message || 'Delete failed');
-                            }
-                            return res.json();
-                        })
-                        .then(() => {
-                            this.equipmentItems = this.equipmentItems.filter(i => i.id !== item.id);
-                            this.showSuccess(`ลบรายการสำเร็จ: ${item.serial_number || 'N/A'}`);
-                        })
-                        .catch((err) => {
-                            this.showError(err.message || 'ไม่สามารถลบรายการได้');
-                        });
+                            .then(async (res) => {
+                                if (!res.ok) {
+                                    const errorData = await res.json();
+                                    throw new Error(errorData.message || 'Delete failed');
+                                }
+                                return res.json();
+                            })
+                            .then(() => {
+                                this.equipmentItems = this.equipmentItems.filter(i => i.id !== item.id);
+                                this.showSuccess(`ลบรายการสำเร็จ: ${item.serial_number || 'N/A'}`);
+                            })
+                            .catch((err) => {
+                                this.showError(err.message || 'ไม่สามารถลบรายการได้');
+                            });
                     }
                 });
             });
@@ -557,23 +542,23 @@ export default {
                 },
                 body: JSON.stringify(data),
             })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.message || 'Bulk update failed');
-                }
-                return res.json();
-            })
-            .then(() => {
-                // Refresh the data
-                window.location.reload();
-                this.closeBulkUpdateModal();
-                this.selectedItems = [];
-                this.showSuccess(`อัปเดต ${this.selectedItems.length} รายการสำเร็จ`);
-            })
-            .catch((err) => {
-                this.showError(err.message || 'ไม่สามารถอัปเดตหลายรายการได้');
-            });
+                .then(async (res) => {
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.message || 'Bulk update failed');
+                    }
+                    return res.json();
+                })
+                .then(() => {
+                    // Refresh the data
+                    window.location.reload();
+                    this.closeBulkUpdateModal();
+                    this.selectedItems = [];
+                    this.showSuccess(`อัปเดต ${this.selectedItems.length} รายการสำเร็จ`);
+                })
+                .catch((err) => {
+                    this.showError(err.message || 'ไม่สามารถอัปเดตหลายรายการได้');
+                });
         },
         ensureSwal() {
             return new Promise((resolve) => {

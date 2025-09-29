@@ -13,6 +13,7 @@ class EquipmentItem extends Model
         'serial_number',
         'condition',
         'status',
+        'notes',
     ];
 
     public function equipment()

@@ -52,6 +52,11 @@
                     <td class="border px-4 py-2">{{ cate.created_at || '—' }}</td>
                     <td class="border px-4 py-2">{{ cate.updated_at || '—' }}</td>
                 </tr>
+                <tr v-if="filteredCategories.length === 0">
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        ไม่พบข้อมูลหมวดหมู่
+                    </td>
+                </tr>
             </tbody>
         </table>
 

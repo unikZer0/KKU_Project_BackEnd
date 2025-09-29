@@ -1,12 +1,11 @@
 <template>
-    <!-- Breadcrumb -->
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-        <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
-        <span>/</span>
-        <span class="font-semibold text-gray-900">หน้าจัดการอุปกรณ์เสริม</span>
-    </nav>
-
     <div class="bg-white p-6 rounded-lg shadow">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+            <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
+            <span>/</span>
+            <span class="font-semibold text-gray-900">หน้าจัดการอุปกรณ์เสริม</span>
+        </nav>
         <div class="relative mb-4">
             <input type="text" v-model="searchQuery" placeholder="ค้นหา..."
                 class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
@@ -27,18 +26,27 @@
                     <span class="text-xs text-gray-500 ml-1">
                         {{ filterStatus !== 'all' ? filterStatus : 'all' }} ·
                         {{ filterCondition !== 'all' ? filterCondition : 'all conditions' }} ·
-                        {{ filterType !== 'all' ? (filterType === 'standalone' ? 'อิสระ' : 'ผูกกับอุปกรณ์ย่อย') : 'all types' }} ·
+                        {{ filterType !== 'all' ? (filterType === 'standalone' ? 'ใช้งานได้ทุกรุ่น' : 'ใช้งานได้เฉพาะรุ่น') : 'alltypes' }} ·
                         {{ filterEquipment !== 'all' ? getEquipmentName(filterEquipment) : 'all equipments' }}
                     </span>
                 </button>
 
-                <button @click="openCreateModal"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                     เพิ่มอุปกรณ์เสริมใหม่
                 </button>
 
                 <!-- Dropdown panel -->
                 <div v-if="filtersOpen" class="absolute right-0 top-10 z-10 bg-white border rounded shadow p-3 w-72">
+                    <div class="mb-2">
+                        <div class="text-sm font-semibold mb-1">อุปกรณ์หลัก</div>
+                        <select v-model="filterEquipment" class="w-full px-2 py-1 border rounded">
+                            <option value="all">ทั้งหมด</option>
+                            <option v-for="equipment in equipments" :key="equipment.id" :value="equipment.id">
+                                {{ equipment.name }}
+                            </option>
+                        </select>
+                    </div>
+
                     <div class="mb-2">
                         <div class="text-sm font-semibold mb-1">สถานะ</div>
                         <select v-model="filterStatus" class="w-full px-2 py-1 border rounded">
@@ -48,6 +56,7 @@
                             <option value="maintenance">ซ่อมบำรุง</option>
                         </select>
                     </div>
+
                     <div class="mb-2">
                         <div class="text-sm font-semibold mb-1">สภาพ</div>
                         <select v-model="filterCondition" class="w-full px-2 py-1 border rounded">
@@ -57,21 +66,13 @@
                             <option value="poor">ชำรุด</option>
                         </select>
                     </div>
+
                     <div class="mb-2">
                         <div class="text-sm font-semibold mb-1">ประเภท</div>
                         <select v-model="filterType" class="w-full px-2 py-1 border rounded">
                             <option value="all">ทั้งหมด</option>
-                            <option value="standalone">อิสระ</option>
-                            <option value="tied">ผูกกับอุปกรณ์ย่อย</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
-                        <div class="text-sm font-semibold mb-1">อุปกรณ์หลัก</div>
-                        <select v-model="filterEquipment" class="w-full px-2 py-1 border rounded">
-                            <option value="all">ทั้งหมด</option>
-                            <option v-for="equipment in equipments" :key="equipment.id" :value="equipment.id">
-                                {{ equipment.name }}
-                            </option>
+                            <option value="standalone">ใช้งานได้ทุกรุ่น</option>
+                            <option value="tied">ใช้งานได้เฉพาะรุ่น</option>
                         </select>
                     </div>
                     <div class="flex gap-2">
@@ -89,133 +90,145 @@
         <!-- Accessories Table -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อุปกรณ์เสริม</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หมายเลขซีเรียล</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สภาพ</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อุปกรณ์หลัก</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่สร้าง</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การดำเนินการ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="accessory in paginatedAccessories" :key="accessory.id" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ accessory.id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ accessory.name }}</div>
-                                <div v-if="accessory.description" class="text-sm text-gray-500">{{ accessory.description.substring(0, 50) }}{{ accessory.description.length > 50 ? '...' : '' }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ accessory.serial_number }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="getConditionClass(accessory.condition)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                                    {{ getConditionLabel(accessory.condition) }}
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            อุปกรณ์เสริม</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            หมายเลขซีเรียล</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สภาพ
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            อุปกรณ์หลัก</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            วันที่สร้าง</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            การดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="accessory in paginatedAccessories" :key="accessory.id" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ accessory.id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ accessory.name }}</div>
+                            <div v-if="accessory.description" class="text-sm text-gray-500">{{
+                                accessory.description.substring(0, 50) }}{{ accessory.description.length > 50 ? '...' :
+                                '' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ accessory.serial_number }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span :class="getConditionClass(accessory.condition)"
+                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                {{ getConditionLabel(accessory.condition) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span :class="getStatusClass(accessory.status)"
+                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                {{ getStatusLabel(accessory.status) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="font-medium">{{ accessory.equipment?.name }}</div>
+                            <div class="text-xs text-gray-500">{{ accessory.equipment?.category?.name || 'ไม่มีหมวดหมู่'
+                                }}</div>
+                            <div v-if="accessory.equipment_item" class="text-xs text-blue-600 mt-1">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                        </path>
+                                    </svg>
+                                    ใช้งานร่วมกับ: {{ accessory.equipment_item.serial_number }}
                                 </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="getStatusClass(accessory.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                                    {{ getStatusLabel(accessory.status) }}
+                            </div>
+                            <div v-else class="text-xs text-gray-600 mt-1">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                    ใช้งานได้ทุกรุ่น
                                 </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <div class="font-medium">{{ accessory.equipment?.name }}</div>
-                                <div class="text-xs text-gray-500">{{ accessory.equipment?.category?.name || 'ไม่มีหมวดหมู่' }}</div>
-                                <div v-if="accessory.equipment_item" class="text-xs text-blue-600 mt-1">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                                        </svg>
-                                        ผูกกับ: {{ accessory.equipment_item.serial_number }}
-                                    </span>
-                                </div>
-                                <div v-else class="text-xs text-gray-600 mt-1">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                        </svg>
-                                        อิสระ
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ formatDate(accessory.created_at) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button @click="openEditModal(accessory)" class="text-yellow-600 hover:text-yellow-900">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </button>
-                                    <button @click="deleteAccessory(accessory)" class="text-red-600 hover:text-red-900">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr v-if="filteredAccessories.length === 0">
-                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                ไม่พบข้อมูลอุปกรณ์เสริม
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ formatDate(accessory.created_at) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <ActionButtons :item="accessory" @view="openEditModal" @edit="openEditModal"
+                                    @delete="deleteAccessory" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr v-if="filteredAccessories.length === 0">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            ไม่พบข้อมูลอุปกรณ์เสริม
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-            <!-- Pagination -->
-            <div v-if="totalPages > 1" class="px-6 py-3 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        แสดง {{ (currentPage - 1) * pageSize + 1 }} ถึง {{ Math.min(currentPage * pageSize, filteredAccessories.length) }} 
-                        จาก {{ filteredAccessories.length }} รายการ
-                    </div>
-                    <div class="flex space-x-2">
-                        <button @click="currentPage = Math.max(1, currentPage - 1)" 
-                                :disabled="currentPage === 1"
-                                class="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                            ก่อนหน้า
-                        </button>
-                        <span class="px-3 py-1">{{ currentPage }} / {{ totalPages }}</span>
-                        <button @click="currentPage = Math.min(totalPages, currentPage + 1)" 
-                                :disabled="currentPage === totalPages"
-                                class="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                            ถัดไป
-                        </button>
-                    </div>
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="px-6 py-3 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    แสดง {{ (currentPage - 1) * pageSize + 1 }} ถึง {{ Math.min(currentPage * pageSize,
+                    filteredAccessories.length) }}
+                    จาก {{ filteredAccessories.length }} รายการ
+                </div>
+                <div class="flex space-x-2">
+                    <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
+                        class="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        ก่อนหน้า
+                    </button>
+                    <span class="px-3 py-1">{{ currentPage }} / {{ totalPages }}</span>
+                    <button @click="currentPage = Math.min(totalPages, currentPage + 1)"
+                        :disabled="currentPage === totalPages"
+                        class="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        ถัดไป
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Create Modal -->
-        <AccessoryCreateModal :isOpen="createModalOpen" :equipments="equipments" @close="createModalOpen = false" @create="handleCreateAccessory" />
+    <!-- Create Modal -->
+    <AccessoryCreateModal :isOpen="createModalOpen" :equipments="equipments" @close="createModalOpen = false"
+        @create="handleCreateAccessory" />
 
-        <!-- Edit Modal -->
-        <AccessoryEditModal :isOpen="editModalOpen" :accessory="selectedAccessory" :equipments="equipments" @close="editModalOpen = false" @update="handleUpdateAccessory" />
+    <!-- Edit Modal -->
+    <AccessoryEditModal :isOpen="editModalOpen" :accessory="selectedAccessory" :equipments="equipments"
+        @close="editModalOpen = false" @update="handleUpdateAccessory" />
 </template>
 
 <script>
 import AccessoryCreateModal from "../modals/AccessoryCreateModal.vue";
 import AccessoryEditModal from "../modals/AccessoryEditModal.vue";
+import ActionButtons from "../ui/ActionButtons.vue";
 
 export default {
     name: "AccessoriesTable",
     components: {
         AccessoryCreateModal,
         AccessoryEditModal,
+        ActionButtons,
     },
     data() {
         const el = document.getElementById("accessories-table");
         const accessories = el?.dataset?.accessories ? JSON.parse(el.dataset.accessories) : [];
         const equipments = el?.dataset?.equipments ? JSON.parse(el.dataset.equipments) : [];
-        
+
         return {
             accessories: Array.isArray(accessories) ? accessories : [],
             equipments: Array.isArray(equipments) ? equipments : [],
@@ -240,7 +253,7 @@ export default {
             // Search filter
             if (this.searchQuery) {
                 const query = this.searchQuery.toLowerCase();
-                filtered = filtered.filter(accessory => 
+                filtered = filtered.filter(accessory =>
                     accessory.name?.toLowerCase().includes(query) ||
                     accessory.serial_number?.toLowerCase().includes(query) ||
                     accessory.description?.toLowerCase().includes(query) ||
@@ -309,23 +322,21 @@ export default {
         },
         getConditionClass(condition) {
             const classes = {
-                'good': 'bg-green-100 text-green-800',
-                'Good': 'bg-green-100 text-green-800',
-                'fair': 'bg-yellow-100 text-yellow-800',
-                'Fair': 'bg-yellow-100 text-yellow-800',
-                'poor': 'bg-red-100 text-red-800',
-                'Poor': 'bg-red-100 text-red-800'
+                'สภาพดี': 'bg-green-100 text-green-800',
+                'สามารถซ่อมได้': 'bg-yellow-100 text-yellow-800',
+                'ไม่สามารถซ่อมได้': 'bg-indigo-100 text-indigo-800',
+                'พัง': 'bg-red-100 text-red-800',
+                'หาย': 'bg-blue-100 text-blue-800'
             };
             return classes[condition] || 'bg-gray-100 text-gray-800';
         },
         getConditionLabel(condition) {
             const labels = {
-                'good': 'ดี',
-                'Good': 'ดี',
-                'fair': 'พอใช้',
-                'Fair': 'พอใช้',
-                'poor': 'ชำรุด',
-                'Poor': 'ชำรุด'
+                'สภาพดี': 'สภาพดี',
+                'สามารถซ่อมได้': 'สามารถซ่อมได้',
+                'ไม่สามารถซ่อมได้': 'ไม่สามารถซ่อมได้',
+                'พัง': 'พัง',
+                'หาย': 'ทำหาย'
             };
             return labels[condition] || condition;
         },

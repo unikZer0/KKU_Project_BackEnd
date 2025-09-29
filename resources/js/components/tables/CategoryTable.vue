@@ -1,11 +1,11 @@
 <template>
   <div class="bg-white p-6 rounded-lg shadow">
     <!-- Breadcrumb -->
-  <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-    <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
-    <span>/</span>
-    <span class="font-semibold text-gray-900">หน้าจัดการหมวดหมู่</span>
-  </nav>
+    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+      <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
+      <span>/</span>
+      <span class="font-semibold text-gray-900">หน้าจัดการหมวดหมู่</span>
+    </nav>
     <!-- Search Bar -->
     <div class="relative mb-4">
       <input type="text" v-model="searchQuery" placeholder="Search"
@@ -38,11 +38,17 @@
             <button @click="setSort('cate_id')" class="flex items-center space-x-1 hover:text-blue-600">
               <span>รหัสหมวดหมู่</span>
               <span class="flex flex-col">
-                <svg class="w-3 h-3" :class="{ 'text-blue-600': sortKey === 'cate_id' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'cate_id' && sortDirection === 'asc') }" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                <svg class="w-3 h-3"
+                  :class="{ 'text-blue-600': sortKey === 'cate_id' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'cate_id' && sortDirection === 'asc') }"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
                 </svg>
-                <svg class="w-3 h-3 -mt-1" :class="{ 'text-blue-600': sortKey === 'cate_id' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'cate_id' && sortDirection === 'desc') }" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                <svg class="w-3 h-3 -mt-1"
+                  :class="{ 'text-blue-600': sortKey === 'cate_id' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'cate_id' && sortDirection === 'desc') }"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                 </svg>
               </span>
             </button>
@@ -51,11 +57,17 @@
             <button @click="setSort('name')" class="flex items-center space-x-1 hover:text-blue-600">
               <span>ชื่อหมวดหมู่</span>
               <span class="flex flex-col">
-                <svg class="w-3 h-3" :class="{ 'text-blue-600': sortKey === 'name' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'name' && sortDirection === 'asc') }" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                <svg class="w-3 h-3"
+                  :class="{ 'text-blue-600': sortKey === 'name' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'name' && sortDirection === 'asc') }"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
                 </svg>
-                <svg class="w-3 h-3 -mt-1" :class="{ 'text-blue-600': sortKey === 'name' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'name' && sortDirection === 'desc') }" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                <svg class="w-3 h-3 -mt-1"
+                  :class="{ 'text-blue-600': sortKey === 'name' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'name' && sortDirection === 'desc') }"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                 </svg>
               </span>
             </button>
@@ -64,11 +76,17 @@
             <button @click="setSort('equipments_count')" class="flex items-center space-x-1 hover:text-blue-600">
               <span>จํานวนอุปกรณ์</span>
               <span class="flex flex-col">
-                <svg class="w-3 h-3" :class="{ 'text-blue-600': sortKey === 'equipments_count' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'equipments_count' && sortDirection === 'asc') }" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
+                <svg class="w-3 h-3"
+                  :class="{ 'text-blue-600': sortKey === 'equipments_count' && sortDirection === 'asc', 'text-gray-400': !(sortKey === 'equipments_count' && sortDirection === 'asc') }"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
                 </svg>
-                <svg class="w-3 h-3 -mt-1" :class="{ 'text-blue-600': sortKey === 'equipments_count' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'equipments_count' && sortDirection === 'desc') }" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                <svg class="w-3 h-3 -mt-1"
+                  :class="{ 'text-blue-600': sortKey === 'equipments_count' && sortDirection === 'desc', 'text-gray-400': !(sortKey === 'equipments_count' && sortDirection === 'desc') }"
+                  fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                 </svg>
               </span>
             </button>
@@ -81,25 +99,24 @@
           <td class="px-4 py-2">{{ category.cate_id }}</td>
           <td class="px-4 py-2">{{ category.name }}</td>
           <td class="px-4 py-2">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            {{ category.equipments_count }} ชิ้น</span>
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {{ category.equipments_count }} ชิ้น</span>
           </td>
           <td class="px-4 py-2 space-x-2">
-            <button v-if="userRole === 'admin'" @click="openModal(category)"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-              แก้ไขข้อมูล
-            </button>
-            <button v-if="userRole === 'admin'" @click="deleteCategory(category.id)"
-              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-              ลบรายการ
-            </button>
+            <ActionButtons :item="category" @view="openModal" @edit="openModal" @delete="deleteCategory" />
+          </td>
+        </tr>
+        <tr v-if="filteredCategories.length === 0">
+          <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+            ไม่พบข้อมูลหมวดหมู่
           </td>
         </tr>
       </tbody>
     </table>
 
-        <!-- Pagination -->
-        <div class="mt-4 flex items-center justify-between">
+    <!-- Pagination -->
+    <div class="mt-4 flex items-center justify-between">
       <div class="text-sm text-gray-600">
         แสดง {{ pageStart + 1 }} - {{ pageEnd }} จากทั้งหมด {{ filteredCategories.length }} รายการ
       </div>
@@ -130,10 +147,11 @@
 <script>
 import CategoryEditModal from '../modals/CategoryEditModal.vue';
 import CategoryCreateModal from '../modals/CategoryCreateModal.vue';
+import ActionButtons from "../ui/ActionButtons.vue";
 
 export default {
   name: "CategoriesTable",
-  components: { CategoryEditModal, CategoryCreateModal },
+  components: { CategoryEditModal, CategoryCreateModal, ActionButtons },
   data() {
     const el = document.getElementById("category-table");
     return {
@@ -207,7 +225,7 @@ export default {
       const pages = [];
       const start = Math.max(1, this.currentPage - 2);
       const end = Math.min(this.pageCount, this.currentPage + 2);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }

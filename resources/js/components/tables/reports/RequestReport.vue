@@ -88,6 +88,11 @@
                     <td class="border px-4 py-2">{{ req.cancel_reason || 'ไม่มี' }}</td>
                     <td class="border px-4 py-2">{{ req.created_at || '—' }}</td>
                 </tr>
+                <tr v-if="filteredRequests.length === 0">
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        ไม่พบข้อมูลคำขอ
+                    </td>
+                </tr>
             </tbody>
         </table>
 

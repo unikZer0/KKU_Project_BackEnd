@@ -108,6 +108,11 @@
               </button>
             </td>
           </tr>
+          <tr v-if="filteredUsers.length === 0">
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+              ไม่พบข้อมูลผู้ใช้
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

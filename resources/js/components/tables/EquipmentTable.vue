@@ -135,14 +135,12 @@
                             {{ equipment.items?.length || 0 }} ชิ้น</span>
                     </td>
                     <td class="px-4 py-2 space-x-2">
-                        <button v-if="userRole === 'admin'" @click="openModal(equipment)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                            แก้ไขข้อมูล
-                        </button>
-                        <button v-if="userRole === 'admin'" @click="deleteEquipment(equipment)"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                            ลบรายการ
-                        </button>
+                        <ActionButtons :item="equipment" @view="openModal" @edit="openModal" @delete="deleteEquipment" />
+                    </td>
+                </tr>
+                <tr v-if="filteredEquipments.length === 0">
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        ไม่พบข้อมูลอุปกรณ์
                     </td>
                 </tr>
             </tbody>
@@ -184,6 +182,7 @@
 import EquipmentEditModal from "../modals/EquipmentEditModal.vue";
 import EquipmentCreateModal from "../modals/EquipmentCreateModal.vue";
 import PhotoModal from "../modals/PhotoModal.vue";
+import ActionButtons from "../ui/ActionButtons.vue";
 
 export default {
     name: "EquipmentTable",
@@ -191,6 +190,7 @@ export default {
         EquipmentEditModal,
         EquipmentCreateModal,
         PhotoModal,
+        ActionButtons,
     },
     data() {
         const el = document.getElementById("equipment-table");
