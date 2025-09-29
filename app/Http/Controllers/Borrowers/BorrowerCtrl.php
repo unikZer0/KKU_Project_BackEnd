@@ -33,26 +33,27 @@ class BorrowerCtrl extends Controller
             ->firstOrFail();
     });
 
-    // Check if the current user has an active request for this equipment
     $hasBorrowed = Auth::check() ? BorrowRequest::where('users_id', Auth::id())
         ->where('equipment_id', $equipment->id)
         ->whereIn('status', ['pending', 'approved', 'check_out'])
         ->exists() : false;
 
-    // --- Calendar & Availability Calculation ---
     $rangeStart = Carbon::today();
     $rangeEnd = Carbon::today()->copy()->addMonths(3);
     $totalUnits = $equipment->items_count;
 
-    // Get all individual item bookings that are active within our 3-month window
     $activeItems = BorrowRequestItem::whereHas('request', function ($q) use ($equipment, $rangeStart, $rangeEnd) {
         $q->where('equipment_id', $equipment->id)
             ->whereIn('status', ['pending', 'approved', 'check_out'])
             ->where(fn ($query) => $query->where('start_at', '<=', $rangeEnd)->where('end_at', '>=', $rangeStart));
     })->with('request:id,start_at,end_at')->get();
 
-    // Fetch accessories available to be requested
-    $accessories =  $equipment->accessories()->whereNull('equipment_item_id')->orderBy('name')->get();
+ $accessories = $equipment->accessories()
+    ->whereNull('equipment_item_id')      // only unassigned accessories
+    ->where('status', 'available')       // only available ones
+    ->orderBy('name')
+    ->get();
+
     $itemAccessories = $equipment->accessories()->whereNotNull('equipment_item_id')->whereHas('equipmentItem', fn($q) => $q->where('status', 'available'))->orderBy('equipment_item_id')->get();
     $itemSerials = $equipment->items()->where('status', 'available')->pluck('serial_number', 'id');
     
@@ -173,19 +174,25 @@ class BorrowerCtrl extends Controller
             : $validated['request_reason'];
         $borrowRequest->save();
         foreach ($availableItems as $item) {
+            // Convert condition to Thai if it's still in English
+            $itemCondition = $item->condition === 'Good' ? 'สภาพดี' : $item->condition;
+            
             $createdItem = BorrowRequestItem::create([
                 'borrow_request_id' => $borrowRequest->id,
                 'equipment_item_id' => $item->id,
-                'condition_out' => $item->condition,
+                'condition_out' => $itemCondition,
             ]);
 
             $item->update(['status' => 'unavailable']);
             $itemAccs = EquipmentAccessory::where('equipment_item_id', $item->id)->get();
             foreach ($itemAccs as $acc) {
+                // Convert condition to Thai if it's still in English
+                $accCondition = $acc->condition === 'Good' ? 'สภาพดี' : $acc->condition;
+                
                 BorrowRequestAccessory::create([
                     'borrow_request_item_id' => $createdItem->id,
                     'accessory_id' => $acc->id,
-                    'condition_out' => $acc->condition,
+                    'condition_out' => $accCondition,
                 ]);
                 $acc->update(['status' => 'unavailable']);
             }
@@ -194,11 +201,13 @@ class BorrowerCtrl extends Controller
         if (!empty($validated['extra_accessories']) && count($validated['extra_accessories']) > 0) {
             foreach ($validated['extra_accessories'] as $accId) {
                 $acc = EquipmentAccessory::find($accId);
+                // Convert condition to Thai if it's still in English
+                $accCondition = $acc && $acc->condition === 'Good' ? 'สภาพดี' : ($acc ? $acc->condition : 'สภาพดี');
 
                 BorrowRequestAccessory::create([
                     'borrow_request_item_id' => $createdItem->id,
                     'accessory_id' => $accId,
-                    'condition_out' => 'Good',
+                    'condition_out' => $accCondition,
                 ]);
                 if ($acc) {
                     $acc->update(['status' => 'unavailable']);
@@ -212,8 +221,11 @@ class BorrowerCtrl extends Controller
             $admin->notify(new BorrowRequestCreated($borrowRequest));
         }
         
+        // Clear all related caches
         Cache::forget("myreq:" . Auth::id());
         Cache::forget("equipment_details:{$equipment->code}");
+        Cache::forget("all_equipment_list"); // Clear equipment list cache
+        Cache::flush(); // Clear all cache to ensure fresh data
 
         return redirect()->route('borrower.equipments.reqdetail', $borrowRequest->req_id)
             ->with('reqsuccess', 'ส่งคำขอยืมสำเร็จแล้ว');
@@ -375,6 +387,8 @@ class BorrowerCtrl extends Controller
             Cache::forget("reqdetail:{$req->req_id}");
             Cache::forget("reqdetail:{$req->req_id}:v3");
             Cache::forget("equipment_details:{$req->equipment->code}");
+            Cache::forget("all_equipment_list"); // Clear equipment list cache
+            Cache::flush(); // Clear all cache to ensure fresh data
             
             // Commit transaction
             DB::commit();

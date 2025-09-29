@@ -279,11 +279,13 @@ export default {
     formatDate(dateString) {
       if (!dateString) return "-";
       const date = new Date(dateString);
-      return date.toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
+      if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+      
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}/${month}/${year}`;
     },
     canDeleteUser(user) {
       // Can't delete yourself or the last admin

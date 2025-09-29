@@ -191,7 +191,7 @@
                         <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">การยืนยันตัวตนได้รับการอนุมัติแล้ว</h3>
                         <p class="text-sm sm:text-base text-gray-600 mb-4">คุณสามารถใช้งานระบบยืมอุปกรณ์ได้แล้ว</p>
                     @endif
-                    <p class="text-xs text-gray-500">ส่งเมื่อ: {{ $latestVerificationRequest->created_at->format('d/m/Y H:i') }}</p>
+                    <p class="text-xs text-gray-500">ส่งเมื่อ: {{ $latestVerificationRequest->created_at->format('d/m/Y') }}</p>
                 </div>
             </div>
             @endif

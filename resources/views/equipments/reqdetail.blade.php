@@ -118,26 +118,38 @@
                                     <div class="text-sm text-gray-600">ของที่ติดมากับเครื่อง</div>
                                 </div>
                                 @php
-                                // Get accessories that were originally general accessories (equipment_item_id = NULL)
-                                // and were selected as additional accessories, not the ones that belong to specific equipment items
-                                $additionalAccessories = collect();
-                                
-                                // First, get all general accessories for this equipment (equipment_item_id = NULL)
-                                $generalAccessories = \App\Models\EquipmentAccessory::where('equipment_id', $req->equipment_id)
-                                    ->whereNull('equipment_item_id')
-                                    ->pluck('id')
-                                    ->toArray();
-                                
-                                // Then, find which of these general accessories were actually borrowed
-                                foreach($req->items as $item) {
-                                    foreach($item->accessories as $borrowedAccessory) {
-                                        if($borrowedAccessory->accessory && 
-                                           in_array($borrowedAccessory->accessory->id, $generalAccessories)) {
-                                            $additionalAccessories->push($borrowedAccessory);
+                                    $additionalAccessories = collect();
+
+                                    // General accessories for this equipment (not assigned to specific item)
+                                    $generalAccessories = \App\Models\EquipmentAccessory::where('equipment_id', $req->equipment_id)
+                                        ->whereNull('equipment_item_id')
+                                        ->pluck('id')
+                                        ->toArray();
+
+                                    // Loop through borrowed items
+                                    foreach ($req->items as $item) {
+                                        foreach ($item->accessories as $borrowedAccessory) {
+                                            // Only add if it's in the general accessories and available
+                                            if ($borrowedAccessory->accessory && in_array($borrowedAccessory->accessory->id, $generalAccessories)) {
+                                                $additionalAccessories->push($borrowedAccessory);
+                                            }
                                         }
                                     }
-                                }
-                            @endphp
+
+                                    // Assigned accessories already linked to this equipment item (available only)
+                                    $assignedAccessories = collect();
+                                    foreach ($req->items as $item) {
+                                        foreach ($item->accessories as $borrowedAccessory) {
+                                            if ($borrowedAccessory->accessory && $borrowedAccessory->accessory->equipment_item_id == $item->equipment_item_id && $borrowedAccessory->accessory->status == 'available') {
+                                                $assignedAccessories->push($borrowedAccessory);
+                                            }
+                                        }
+                                    }
+
+                                    // Merge both sets
+                                    $allAccessories = $assignedAccessories->merge($additionalAccessories);
+                                    @endphp
+
                                 <div class="bg-white rounded-lg p-3 text-center">
                                     <div class="text-2xl font-bold text-green-600">{{ $additionalAccessories->count() }}</div>
                                     <div class="text-sm text-gray-600">อุปกรณ์เสริมทั้งหมด</div>
@@ -165,11 +177,18 @@
                                             </div>
 
                                             <!-- Accessories for this item -->
-                                            @if($item->accessories && $item->accessories->count() > 0)
+                                            @php
+                                                // Filter accessories that are specifically attached to this equipment item
+                                                $itemSpecificAccessories = $item->accessories->filter(function($accessory) use ($item) {
+                                                    return $accessory->accessory && 
+                                                           $accessory->accessory->equipment_item_id == $item->equipment_item_id;
+                                                });
+                                            @endphp
+                                            @if($itemSpecificAccessories->count() > 0)
                                                 <div class="mt-3">
-                                                    <h6 class="text-sm font-medium text-gray-700 mb-2">ของที่ติดมากับเครื่อง ({{ $item->accessories->count() }} รายการ)</h6>
+                                                    <h6 class="text-sm font-medium text-gray-700 mb-2">ของที่ติดมากับเครื่อง ({{ $itemSpecificAccessories->count() }} รายการ)</h6>
                                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                        @foreach($item->accessories as $accessory)
+                                                        @foreach($itemSpecificAccessories as $accessory)
                                                             <div class="bg-gray-50 rounded p-2 text-sm">
                                                                 <div class="font-medium text-gray-800">{{ $accessory->accessory->name ?? 'N/A' }}</div>
                                                                 @if($accessory->accessory && $accessory->accessory->description)
@@ -198,26 +217,20 @@
                             @endif
                             
                             @if($additionalAccessories->count() > 0)
-                                <div class="mt-4">
-                                    <h4 class="font-medium text-gray-700 mb-2">อุปกรณ์เสริมที่ยืมเพิ่ม</h4>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        @foreach($additionalAccessories as $accessory)
-                                            <div class="bg-gray-50 rounded p-2 text-sm">
-                                                <div class="font-medium text-gray-800">{{ $accessory->accessory->name ?? 'N/A' }}</div>
-                                                @if($accessory->accessory && $accessory->accessory->description)
-                                                    <div class="text-gray-600 text-xs">{{ $accessory->accessory->description }}</div>
-                                                @endif
-                                                <div class="flex justify-between items-center mt-1">
-                                                    <span class="text-xs text-gray-500">สภาพ: {{ $accessory->condition_out ?? 'ไม่ระบุ' }}</span>
-                                                    @if($accessory->condition_in)
-                                                        <span class="text-xs text-gray-500">คืน: {{ $accessory->condition_in }}</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                            <div class="mt-4">
+                                <h4 class="font-medium text-gray-700 mb-2">อุปกรณ์เสริมที่ยืมเพิ่ม</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    @foreach($additionalAccessories as $accessory)
+                                        <div class="bg-gray-50 rounded p-2 text-sm">
+                                            <div class="font-medium text-gray-800">{{ $accessory->accessory->name ?? 'N/A' }}</div>
+                                            @if($accessory->accessory && $accessory->accessory->description)
+                                                <div class="text-gray-600 text-xs">{{ $accessory->accessory->description }}</div>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endif
+                            </div>
+                        @endif
                         </div>
 
                         @if ($req->status === 'rejected')

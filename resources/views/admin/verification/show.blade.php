@@ -93,7 +93,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">วันที่ส่งคำขอ</p>
-                        <p class="font-semibold text-gray-800">{{ $verificationRequest->created_at->format('d/m/Y H:i') }}</p>
+                        <p class="font-semibold text-gray-800">{{ $verificationRequest->created_at->format('d/m/Y') }}</p>
                     </div>
                     @if($verificationRequest->reason)
                     <div class="md:col-span-2">
@@ -116,7 +116,7 @@
                     @if($verificationRequest->processed_at)
                     <div>
                         <p class="text-sm text-gray-500">วันที่ดำเนินการ</p>
-                        <p class="font-semibold text-gray-800">{{ $verificationRequest->processed_at->format('d/m/Y H:i') }}</p>
+                        <p class="font-semibold text-gray-800">{{ $verificationRequest->processed_at->format('d/m/Y') }}</p>
                     </div>
                     @endif
                 </div>

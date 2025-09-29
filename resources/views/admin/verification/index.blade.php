@@ -55,7 +55,7 @@
                                             <div class="w-2 h-2 rounded-full mr-2 {{ $request->status === 'pending' ? 'bg-yellow-500' : ($request->status === 'approved' ? 'bg-green-500' : 'bg-red-500') }}"></div>
                                             {{ $request->status === 'pending' ? 'รอดำเนินการ' : ($request->status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธแล้ว') }}
                                         </span>
-                                        <p class="text-sm text-gray-500 mt-1">{{ $request->created_at->format('d/m/Y H:i') }}</p>
+                                        <p class="text-sm text-gray-500 mt-1">{{ $request->created_at->format('d/m/Y') }}</p>
                                     </div>
                                 </div>
 
@@ -82,7 +82,7 @@
                                                     </svg>
                                                     ข้อมูลการดำเนินการ
                                                 </h4>
-                                                <p class="text-sm text-gray-600">วันที่: {{ $request->processed_at->format('d/m/Y H:i') }}</p>
+                                                <p class="text-sm text-gray-600">วันที่: {{ $request->processed_at->format('d/m/Y') }}</p>
                                                 <p class="text-sm text-gray-600">โดย: {{ $request->processedBy->name ?? 'ไม่ระบุ' }}</p>
                                             </div>
                                         @endif

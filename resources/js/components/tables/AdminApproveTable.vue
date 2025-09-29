@@ -1,12 +1,5 @@
 <template>
-      <!-- Breadcrumb -->
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-        <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
-        <span>/</span>
-        <span class="font-semibold text-gray-900">หน้าจัดการคำขอ</span>
-    </nav>
-
-  <div class="bg-white p-6 rounded-lg shadow">
+  <div>
     <div class="flex justify-between items-center flex-wrap gap-y-4 mb-6">
       <div class="flex items-center flex-wrap gap-2">
         <button v-for="status in statusSummary" :key="status.key" @click="setStatusFilter(status.key)"
@@ -58,8 +51,8 @@
             <td class="px-4 py-2">{{ request.uid }}</td>
             <td class="px-4 py-2">{{ request.user_name }}</td>
             <td class="px-4 py-2">{{ request.equipment_name }}</td>
-            <td class="px-4 py-2">{{ request.start_at }}</td>
-            <td class="px-4 py-2">{{ request.end_at }}</td>
+            <td class="px-4 py-2">{{ formatDate(request.start_at) }}</td>
+            <td class="px-4 py-2">{{ formatDate(request.end_at) }}</td>
             <td class="px-4 py-2">{{ capitalize(request.status) }}</td>
             <td class="px-4 py-2">
               <button @click="openDetails(request)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
@@ -111,14 +104,10 @@ export default {
     };
   },
   computed: {
-    // NEW: Base list of requests to show (filters out rejected/check_in)
+    // Base list of requests to show (now shows ALL statuses)
     displayableRequests() {
       if (!this.requests) return [];
-      return this.requests.filter(
-        (r) =>
-          r.status.toLowerCase() !== "rejected" &&
-          r.status.toLowerCase() !== "check_in"
-      );
+      return this.requests; // Show all requests regardless of status
     },
     // NEW: Generates the summary for the status badges
     statusSummary() {
@@ -214,12 +203,15 @@ export default {
     toggleSort() {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     },
-    // NEW: Assigns colors to status badges
+    // Assigns colors to status badges
     getStatusClass(status) {
       switch (status.toLowerCase()) {
         case 'pending': return 'bg-yellow-100 text-yellow-800';
         case 'approved': return 'bg-green-100 text-green-800';
-        case 'in use': return 'bg-blue-100 text-blue-800';
+        case 'check_out': return 'bg-blue-100 text-blue-800';
+        case 'check_in': return 'bg-purple-100 text-purple-800';
+        case 'rejected': return 'bg-red-100 text-red-800';
+        case 'cancelled': return 'bg-gray-100 text-gray-800';
         default: return 'bg-gray-100 text-gray-800';
       }
     },
@@ -238,6 +230,17 @@ export default {
     },
     openDetails(request) {
       window.location.href = `/admin/requests/${request.req_id}`;
+    },
+    formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+      
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}/${month}/${year}`;
     },
   },
   watch: {
