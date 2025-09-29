@@ -193,14 +193,12 @@
                 </div>
             </div>
         </div>
-    </div>
 
         <!-- Create Modal -->
         <AccessoryCreateModal :isOpen="createModalOpen" :equipments="equipments" @close="createModalOpen = false" @create="handleCreateAccessory" />
 
         <!-- Edit Modal -->
         <AccessoryEditModal :isOpen="editModalOpen" :accessory="selectedAccessory" :equipments="equipments" @close="editModalOpen = false" @update="handleUpdateAccessory" />
-    </div>
 </template>
 
 <script>
