@@ -185,7 +185,7 @@ class BorrowerCtrl extends Controller
         ]);
         foreach ($availableItems as $item) {
             // Convert condition to Thai if it's still in English
-            $itemCondition = $item->condition === 'Good' ? 'สภาพดี' : $item->condition;
+            $itemCondition = $item->condition === 'สภาพดี' ? 'สภาพดี' : $item->condition;
             
             $createdItem = BorrowRequestItem::create([
                 'borrow_request_id' => $borrowRequest->id,
@@ -197,7 +197,7 @@ class BorrowerCtrl extends Controller
             $itemAccs = EquipmentAccessory::where('equipment_item_id', $item->id)->get();
             foreach ($itemAccs as $acc) {
                 // Convert condition to Thai if it's still in English
-                $accCondition = $acc->condition === 'Good' ? 'สภาพดี' : $acc->condition;
+                $accCondition = $acc->condition === 'สภาพดี' ? 'สภาพดี' : $acc->condition;
                 
                 BorrowRequestAccessory::create([
                     'borrow_request_item_id' => $createdItem->id,
@@ -212,7 +212,7 @@ class BorrowerCtrl extends Controller
             foreach ($validated['extra_accessories'] as $accId) {
                 $acc = EquipmentAccessory::find($accId);
                 // Convert condition to Thai if it's still in English
-                $accCondition = $acc && $acc->condition === 'Good' ? 'สภาพดี' : ($acc ? $acc->condition : 'สภาพดี');
+                $accCondition = $acc && $acc->condition === 'สภาพดี' ? 'สภาพดี' : ($acc ? $acc->condition : 'สภาพดี');
 
                 BorrowRequestAccessory::create([
                     'borrow_request_item_id' => $createdItem->id,

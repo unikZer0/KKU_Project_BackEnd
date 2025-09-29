@@ -49,20 +49,25 @@
         const notiList = document.getElementById("notiList");
 
         // Toggle dropdown
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation(); // prevent window click from closing immediately
-            menu.classList.toggle("hidden");
-        });
+        if (btn && menu) {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation(); // prevent window click from closing immediately
+                menu.classList.toggle("hidden");
+            });
+        }
 
         // Close dropdown when clicking outside
-        window.addEventListener("click", (e) => {
-            if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                menu.classList.add("hidden");
-            }
-        });
+        if (btn && menu) {
+            window.addEventListener("click", (e) => {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.add("hidden");
+                }
+            });
+        }
 
         // Event delegation for notification clicks and marking as read
-        notiList.addEventListener("click", (e) => {
+        if (notiList) {
+            notiList.addEventListener("click", (e) => {
             if (e.target.classList.contains("mark-read-btn")) {
                 e.stopPropagation(); // Prevent triggering the noti-link click
                 const item = e.target.closest("[data-id]");
@@ -118,7 +123,8 @@
                         }
                     });
             }
-        });
+            });
+        }
 
         // Mark all as read
         const markAllBtn = document.getElementById('markAllReadBtn');

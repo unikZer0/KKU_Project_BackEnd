@@ -37,9 +37,11 @@
                         <select v-model="form.condition" required 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">เลือกสภาพ</option>
-                            <option value="Good">ดี (Good)</option>
-                            <option value="Fair">ปานกลาง (Fair)</option>
-                            <option value="Poor">แย่ (Poor)</option>
+                            <option value="สภาพดี">สภาพดี</option>
+                            <option value="สามารถซ่อมได้">สามารถซ่อมได้</option>
+                            <option value="ไม่สามารถซ่อมได้">ไม่สามารถซ่อมได้</option>
+                            <option value="พัง">พัง</option>
+                            <option value="อุปกรณ์ไม่พร้อมใช้งาน">ไม่พร้อมใช้งาน</option>
                         </select>
                         <p v-if="errors.condition" class="text-red-500 text-xs mt-1">{{ errors.condition }}</p>
                     </div>

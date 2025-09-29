@@ -87,18 +87,22 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">สภาพ</label>
                                 <select v-model="item.condition"
                                     class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                                    <option value="Good">ดี</option>
-                                    <option value="Fair">พอใช้</option>
-                                    <option value="Poor">ชำรุด</option>
+                                    <option value="สภาพดี">สภาพดี</option>
+                                    <option value="สามารถซ่อมได้">สามารถซ่อมได้</option>
+                                    <option value="ไม่สามารถซ่อมได้">ไม่สามารถซ่อมได้</option>
+                                    <option value="พัง">พัง</option>
+                                    <option value="อุปกรณ์ไม่พร้อมใช้งาน">ไม่พร้อมใช้งาน</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
                                 <select v-model="item.status"
                                     class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                    <option value="">เลือกสถานะ</option>
                                     <option value="available">พร้อมใช้งาน</option>
                                     <option value="unavailable">ไม่พร้อมใช้งาน</option>
-                                    <option value="maintenance">ซ่อมบำรุง</option>
+                                    <option value="maintenance">อยู่ระหว่างการซ่อม</option>
+                                    <option value="retired">ปลดประจำการ</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
@@ -270,9 +274,11 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">สภาพ</label>
                         <select v-model="accessory.condition"
                             class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="Good">ดี</option>
-                            <option value="Fair">พอใช้</option>
-                            <option value="Poor">ชำรุด</option>
+                            <option value="สภาพดี">สภาพดี</option>
+                            <option value="สามารถซ่อมได้">สามารถซ่อมได้</option>
+                            <option value="ไม่สามารถซ่อมได้">ไม่สามารถซ่อมได้</option>
+                            <option value="พัง">พัง</option>
+                            <option value="อุปกรณ์ไม่พร้อมใช้งาน">ไม่พร้อมใช้งาน</option>
                         </select>
                     </div>
                     <div class="flex items-end gap-2">
@@ -501,7 +507,7 @@ export default {
                 description: "",
                 serial_number: "",
                 equipment_item_id: this.selectedItem.id || this.selectedItemIndex,
-                condition: "Good",
+                condition: "สภาพดี",
                 status: "available"
             });
         },
@@ -636,7 +642,7 @@ export default {
             // Add a new item to the form
             this.form.items.push({
                 serial_number: "",
-                condition: "Good",
+                condition: "สภาพดี",
                 status: "available"
             });
         },

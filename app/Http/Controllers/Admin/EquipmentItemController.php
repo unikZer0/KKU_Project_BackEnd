@@ -54,7 +54,7 @@ class EquipmentItemController extends Controller
     {
         $rules = [
             'equipment_id'   => 'required|integer|exists:equipments,id',
-            'condition'      => 'required|string|in:Good,Fair,Poor',
+            'condition'      => 'required|string|in:สภาพดี,สามารถซ่อมได้,ไม่สามารถซ่อมได้,พัง,อุปกรณ์ไม่พร้อมใช้งาน',
             'status'         => 'required|string|in:available,unavailable,maintenance,retired',
             'notes'          => 'nullable|string|max:500',
             'serial_number'  => 'nullable|string|max:255|unique:equipment_items,serial_number',
@@ -98,7 +98,7 @@ class EquipmentItemController extends Controller
     {
         $rules = [
             'equipment_id' => 'required|integer|exists:equipments,id',
-            'condition' => 'required|string|in:Good,Fair,Poor',
+            'condition' => 'required|string|in:สภาพดี,สามารถซ่อมได้,ไม่สามารถซ่อมได้,พัง,อุปกรณ์ไม่พร้อมใช้งาน',
             'status' => 'required|string|in:available,unavailable,maintenance,retired',
             'notes' => 'nullable|string|max:500',
             'serial_number' => 'nullable|string|max:255',
@@ -175,7 +175,7 @@ class EquipmentItemController extends Controller
             'item_ids'   => 'required|array|min:1',
             'item_ids.*' => 'integer|exists:equipment_items,id',
             'status'     => 'required|string|in:available,unavailable,maintenance,retired',
-            'condition'  => 'nullable|string|in:Good,Fair,Poor',
+            'condition'  => 'nullable|string|in:สภาพดี,สามารถซ่อมได้,ไม่สามารถซ่อมได้,พัง,อุปกรณ์ไม่พร้อมใช้งาน',
         ]);
 
         $updatedCount = EquipmentItem::whereIn('id', $data['item_ids'])

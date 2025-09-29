@@ -21,7 +21,7 @@
     <div class="min-h-screen">
         <x-admin-header />
         <div class="flex">
-            <div class="hidden md:block">
+            <div id="admin-sidebar" class="hidden md:block">
                 <x-admin-sidebar />
             </div>
             <main id="admin-main" class="flex-1">
@@ -32,7 +32,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggle = document.getElementById('sidebar-toggle');
-            const sidebarWrapper = document.querySelector('body .flex > .hidden.md\\:block');
+            const sidebarWrapper = document.getElementById('admin-sidebar');
             if (toggle && sidebarWrapper) {
                 toggle.addEventListener('click', function () {
                     sidebarWrapper.classList.toggle('hidden');
