@@ -11,6 +11,8 @@ trait ClearsDashboardCache
 {
     $year = now()->year;
     Cache::forget("admin_dashboard_{$year}");
+    Cache::forget("myreq:" . $borrowRequest->users_id);
+    Cache::forget("reqdetail:" . $borrowRequest->req_id);
 
     $availableYears = BorrowRequest::selectRaw('YEAR(created_at) as year')
         ->distinct()

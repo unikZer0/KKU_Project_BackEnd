@@ -15,15 +15,12 @@ async function onSearch(val) {
 
   loading.value = true;
   try {
-    console.log('Searching for:', val);
     const res = await axios.get('/equipments/search', {
       params: { q: val },
       withCredentials: true
     });
-    console.log('Search response:', res.data);
     items.value = res.data.data || [];
   } catch (e) {
-    console.error('Search error:', e);
     items.value = [];
   } finally {
     loading.value = false;
@@ -121,12 +118,6 @@ function getFirstPhoto(equipment) {
           <span class="text-sm font-medium text-gray-700">
             {{ query ? `ผลการค้นหา "${query}"` : 'อุปกรณ์ทั้งหมด' }} ({{ items.length }} รายการ)
           </span>
-          <a 
-            href="/equipments" 
-            class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-          >
-            ดูทั้งหมด
-          </a>
         </div>
         <ul class="max-h-96 overflow-y-auto">
           <li
@@ -155,15 +146,6 @@ function getFirstPhoto(equipment) {
                   <div class="font-medium text-gray-800 hover:text-blue-600 transition-colors duration-200">
                     {{ item.name }}
                   </div>
-                  <!-- <div class="text-gray-500 text-xs mt-1">
-                    <span class="inline-block px-2 py-1 rounded mr-2">{{ item.code }}</span>
-                    <span class="inline-block px-2 py-1 rounded mr-2">
-                      {{ item.category?.name || 'ไม่มีหมวดหมู่' }}
-                    </span>
-                  </div>
-                  <div v-if="item.description" class="text-gray-600 text-xs mt-1 line-clamp-2">
-                    {{ item.description }}
-                  </div> -->
                 </div>
               </div>
             </a>
@@ -178,6 +160,7 @@ function getFirstPhoto(equipment) {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

@@ -40,35 +40,13 @@
                 <button @click="closeFilterPanel" class="text-2xl leading-none" aria-label="Close">×</button>
             </div>
             <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                <!-- Status filter -->
-                <div>
-                    <button @click="accCondition = !accCondition" class="w-full flex items-center justify-between py-3">
-                        <span class="font-medium">Status</span>
-                        <span class="text-gray-500">▾</span>
-                    </button>
-                    <div v-show="accCondition" class="space-y-2 pl-1">
-                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value=""/>
-                            <span>All</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="available"/>
-                            <span>Available</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input type="radio" name="status_panel" class="form-radio text-blue-600" v-model="selectedStatus" value="unavailable"/>
-                            <span>Unavailable</span>
-                        </label>
-                    </div>
-                </div>
-
                 <!-- Category filter -->
                 <div>
-                    <button @click="accPrice = !accPrice" class="w-full flex items-center justify-between py-3">
+                    <button @click="accCategory = !accCategory" class="w-full flex items-center justify-between py-3">
                         <span class="font-medium">Category</span>
                         <span class="text-gray-500">▾</span>
                     </button>
-                    <div v-show="accPrice" class="space-y-2 pl-1 max-h-60 overflow-y-auto">
+                    <div v-show="accCategory" class="space-y-2 pl-1 max-h-60 overflow-y-auto">
                         <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
                             <input type="radio" name="category_panel" class="form-radio text-blue-600" v-model="selectedCategory" value=""/>
                             <span>All</span>
@@ -77,6 +55,67 @@
                             <input type="radio" name="category_panel" class="form-radio text-blue-600" v-model="selectedCategory" :value="cat.cate_id"/>
                             <span>{{ cat.name }}</span>
                         </label>
+                    </div>
+                </div>
+
+                <!-- Brand filter -->
+                <div>
+                    <button @click="accBrand = !accBrand" class="w-full flex items-center justify-between py-3">
+                        <span class="font-medium">Brand</span>
+                        <span class="text-gray-500">▾</span>
+                    </button>
+                    <div v-show="accBrand" class="space-y-2 pl-1 max-h-60 overflow-y-auto">
+                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="brand_panel" class="form-radio text-blue-600" v-model="selectedBrand" value=""/>
+                            <span>All</span>
+                        </label>
+                        <label v-for="brand in brands" :key="brand" class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="brand_panel" class="form-radio text-blue-600" v-model="selectedBrand" :value="brand"/>
+                            <span>{{ brand }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Availability filter -->
+                <div>
+                    <button @click="accAvailability = !accAvailability" class="w-full flex items-center justify-between py-3">
+                        <span class="font-medium">Availability</span>
+                        <span class="text-gray-500">▾</span>
+                    </button>
+                    <div v-show="accAvailability" class="space-y-2 pl-1">
+                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="availability_panel" class="form-radio text-blue-600" v-model="selectedAvailability" value=""/>
+                            <span>All</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="availability_panel" class="form-radio text-blue-600" v-model="selectedAvailability" value="available"/>
+                            <span>Available</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" name="availability_panel" class="form-radio text-blue-600" v-model="selectedAvailability" value="unavailable"/>
+                            <span>Unavailable</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Dynamic Specs filter -->
+                <div v-if="availableSpecs.length > 0">
+                    <button @click="accSpecs = !accSpecs" class="w-full flex items-center justify-between py-3">
+                        <span class="font-medium">Specifications</span>
+                        <span class="text-gray-500">▾</span>
+                    </button>
+                    <div v-show="accSpecs" class="space-y-4 pl-1">
+                        <div v-for="spec in availableSpecs" :key="spec" class="border-b border-gray-200 pb-3">
+                            <h4 class="font-medium text-sm text-gray-700 mb-2 capitalize">{{ spec.replace('_', ' ') }}</h4>
+                            <div class="space-y-2">
+                                <input 
+                                    type="text" 
+                                    :placeholder="`Filter by ${spec}`"
+                                    v-model="selectedSpecs[spec]"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -96,22 +135,44 @@ export default {
             priceOpen: false,
             // filters
             categories: [],
+            brands: [],
+            conditions: [],
+            availableSpecs: [],
             selectedCategory: '',
-            selectedStatus: '',
+            selectedBrand: '',
+            selectedAvailability: '',
+            selectedConditions: [],
+            selectedSpecs: {},
             filterPanelOpen: false,
+            accCategory: true,
+            accBrand: true,
+            accAvailability: true,
             accCondition: true,
-            accPrice: true,
+            accSpecs: true,
             appliedOpen: false,
         };
     },
     computed: {
         appliedLabels() {
             const labels = [];
-            if (this.selectedStatus) labels.push(`Status: ${this.selectedStatus}`);
             if (this.selectedCategory) {
                 const cat = this.categories.find(c => c.cate_id === this.selectedCategory);
                 labels.push(`Category: ${cat ? cat.name : this.selectedCategory}`);
             }
+            if (this.selectedBrand) {
+                labels.push(`Brand: ${this.selectedBrand}`);
+            }
+            if (this.selectedAvailability) {
+                labels.push(`Availability: ${this.selectedAvailability}`);
+            }
+            if (this.selectedConditions.length > 0) {
+                labels.push(`Condition: ${this.selectedConditions.join(', ')}`);
+            }
+            Object.keys(this.selectedSpecs).forEach(spec => {
+                if (this.selectedSpecs[spec]) {
+                    labels.push(`${spec}: ${this.selectedSpecs[spec]}`);
+                }
+            });
             return labels;
         },
         appliedCount() {
@@ -124,9 +185,20 @@ export default {
         if (mountEl) {
             try {
                 this.categories = JSON.parse(mountEl.dataset.categories || '[]');
-            } catch (e) { this.categories = []; }
+                this.brands = JSON.parse(mountEl.dataset.brands || '[]');
+                this.conditions = JSON.parse(mountEl.dataset.conditions || '[]');
+                this.availableSpecs = JSON.parse(mountEl.dataset.availableSpecs || '[]');
+            } catch (e) { 
+                this.categories = [];
+                this.brands = [];
+                this.conditions = [];
+                this.availableSpecs = [];
+            }
             this.selectedCategory = mountEl.dataset.currentCategory || '';
-            this.selectedStatus = mountEl.dataset.currentStatus || '';
+            this.selectedBrand = mountEl.dataset.currentBrand || '';
+            this.selectedAvailability = mountEl.dataset.currentAvailability || '';
+            this.selectedConditions = JSON.parse(mountEl.dataset.currentConditions || '[]');
+            this.selectedSpecs = JSON.parse(mountEl.dataset.currentSpecs || '{}');
         }
     },
     beforeUnmount() {
@@ -139,14 +211,6 @@ export default {
                 this.priceOpen = false;
             }
         },
-        clearCondition() {
-            this.selectedStatus = '';
-            this.$emit('update', { category: this.selectedCategory, status: this.selectedStatus });
-        },
-        clearPrice() {
-            this.selectedCategory = '';
-            this.$emit('update', { category: this.selectedCategory, status: this.selectedStatus });
-        },
         openFilterPanel() {
             this.filterPanelOpen = true;
         },
@@ -156,27 +220,72 @@ export default {
         applyFilters() {
             // push filters to URL and reload (server handles pagination withQueryString)
             const url = new URL(window.location);
-            if (this.selectedCategory) url.searchParams.set('category', this.selectedCategory); else url.searchParams.delete('category');
-            if (this.selectedStatus) url.searchParams.set('status', this.selectedStatus); else url.searchParams.delete('status');
+            
+            // Category
+            if (this.selectedCategory) url.searchParams.set('category', this.selectedCategory); 
+            else url.searchParams.delete('category');
+            
+            // Brand
+            if (this.selectedBrand) url.searchParams.set('brand', this.selectedBrand); 
+            else url.searchParams.delete('brand');
+            
+            // Availability
+            if (this.selectedAvailability) url.searchParams.set('availability', this.selectedAvailability); 
+            else url.searchParams.delete('availability');
+            
+            // Conditions (array)
+            if (this.selectedConditions.length > 0) {
+                this.selectedConditions.forEach(condition => {
+                    url.searchParams.append('condition[]', condition);
+                });
+            } else {
+                url.searchParams.delete('condition');
+            }
+            
+            // Specs (object)
+            Object.keys(this.selectedSpecs).forEach(spec => {
+                if (this.selectedSpecs[spec]) {
+                    url.searchParams.set(`specs[${spec}]`, this.selectedSpecs[spec]);
+                } else {
+                    url.searchParams.delete(`specs[${spec}]`);
+                }
+            });
+            
             url.searchParams.delete('page');
             window.location.href = url.toString();
         },
         resetFilters() {
             this.selectedCategory = '';
-            this.selectedStatus = '';
+            this.selectedBrand = '';
+            this.selectedAvailability = '';
+            this.selectedConditions = [];
+            this.selectedSpecs = {};
             const url = new URL(window.location);
             url.searchParams.delete('category');
-            url.searchParams.delete('status');
+            url.searchParams.delete('brand');
+            url.searchParams.delete('availability');
+            url.searchParams.delete('condition');
+            Object.keys(this.selectedSpecs).forEach(spec => {
+                url.searchParams.delete(`specs[${spec}]`);
+            });
             url.searchParams.delete('page');
             window.location.href = url.toString();
         },
         clearAll() {
             this.selectedCategory = '';
-            this.selectedStatus = '';
+            this.selectedBrand = '';
+            this.selectedAvailability = '';
+            this.selectedConditions = [];
+            this.selectedSpecs = {};
             this.appliedOpen = false;
             const url = new URL(window.location);
             url.searchParams.delete('category');
-            url.searchParams.delete('status');
+            url.searchParams.delete('brand');
+            url.searchParams.delete('availability');
+            url.searchParams.delete('condition');
+            Object.keys(this.selectedSpecs).forEach(spec => {
+                url.searchParams.delete(`specs[${spec}]`);
+            });
             url.searchParams.delete('page');
             window.location.href = url.toString();
         },
@@ -184,7 +293,14 @@ export default {
             const label = this.appliedLabels[index];
             if (!label) return;
             if (label.startsWith('Category:')) this.selectedCategory = '';
-            if (label.startsWith('Status:')) this.selectedStatus = '';
+            if (label.startsWith('Brand:')) this.selectedBrand = '';
+            if (label.startsWith('Availability:')) this.selectedAvailability = '';
+            if (label.startsWith('Condition:')) this.selectedConditions = [];
+            Object.keys(this.selectedSpecs).forEach(spec => {
+                if (label.startsWith(`${spec}:`)) {
+                    this.selectedSpecs[spec] = '';
+                }
+            });
             this.applyFilters();
         },
     },

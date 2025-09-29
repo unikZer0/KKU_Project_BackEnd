@@ -48,6 +48,7 @@ class BorrowRequestApproved extends Notification implements ShouldQueue
                 return $mail->line($rangeMsg);
             })
             ->line(' **กรุณามารับอุปกรณ์ที่สถานที่ของเรา**')
+            ->line(' **อย่าลืมนำบัตรนัก ศ.ส**')
             ->line(' **สถานที่**: คณะเทคโนโลยี มหาวิทยาลัยขอนแก่น')
             ->line(' **เวลา**: จันทร์-ศุกร์ 08:00-17:00 น.')
             ->line(" **ต้องมารับภายใน**: {$pickupDeadline}")

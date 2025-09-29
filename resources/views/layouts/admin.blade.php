@@ -24,7 +24,7 @@
             <div class="hidden md:block">
                 <x-admin-sidebar />
             </div>
-            <main id="admin-main" class="flex-1 px-4 sm:px-6 lg:px-8 py-6">
+            <main id="admin-main" class="flex-1">
                 {{ $slot }}
             </main>
         </div>

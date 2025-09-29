@@ -266,9 +266,6 @@
                         <div class="text-right">
                             <div class="text-sm text-gray-600">
                                 <p>พร้อมให้ยืม: <span class="font-semibold text-green-600">{{ $equipment->available_items_count ?? 0 }}</span> ชิ้น</p>
-                                @if($borrowedCount > 0)
-                                    <p class="text-xs text-gray-500">ถูกยืมไปแล้ว: <span class="font-medium text-orange-600">{{ $borrowedCount }}</span> ชิ้น</p>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -671,13 +668,15 @@
     // Calendar functionality with availability data
     let currentField = '';
     let currentDate = new Date();
-    let availabilityData = @json($activeItems->map(function($item) {
+    let availabilityData = @json($activeItems->groupBy('request.id')->map(function($items) {
+        $request = $items->first()->request;
         return [
-            'start_at' => $item->request->start_at,
-            'end_at' => $item->request->end_at
+            'start_at' => $request->start_at,
+            'end_at' => $request->end_at,
+            'count' => $items->count()
         ];
-    }));
-    let totalUnits = {{ $totalUnits }};
+    })->values());
+    let totalUnits = {{ $equipment->available_items_count ?? 0 }};
 
     function toggleCalendar(field) {
         currentField = field;
@@ -774,7 +773,7 @@
             </div>
             <div class="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm mobile-only">
                 <div class="text-center text-blue-800">
-                    <span class="font-medium">อุปกรณ์ทั้งหมด: ${totalUnits} ชิ้น</span>
+                    <span class="font-medium">อุปกรณ์ที่พร้อมให้ยืม: ${totalUnits} ชิ้น</span>
                 </div>
             </div>
             <div class="grid grid-cols-7 gap-1 mb-2">
@@ -792,70 +791,77 @@
         
         // Add days of month
         for (let day = 1; day <= daysInMonth; day++) {
-            const date = new Date(year, month, day);
-            const dateStr = date.toISOString().split('T')[0];
-            const availability = calculateAvailability(dateStr);
-            const isToday = isSameDay(date, new Date());
-            const isPast = date < new Date() && !isToday;
-            
-            let dayClass = 'h-8 flex items-center justify-center text-sm cursor-pointer rounded transition-all duration-200 hover:scale-105 ';
-            let dayContent = day;
-            let tooltip = `วันที่ ${day}/${month + 1}/${year}`;
-            let availabilityText = '';
-            
-            if (isPast) {
-                dayClass += 'bg-gray-100 text-gray-400 cursor-not-allowed';
-                availabilityText = 'ผ่านไปแล้ว';
-            } else if (availability.available === 0) {
-                dayClass += 'bg-red-100 border border-red-300 text-red-700 hover:bg-red-200';
-                dayContent += ' ✕';
-                tooltip += ` - ไม่ว่าง (0/${totalUnits})`;
-                availabilityText = 'ไม่ว่าง';
-            } else {
-                dayClass += 'bg-green-50 border border-green-200 text-green-700 hover:bg-green-100';
-                tooltip += ` - ว่าง ${availability.available}/${totalUnits} ชิ้น`;
-                availabilityText = `ว่าง ${availability.available}/${totalUnits}`;
-            }
-            
-            if (isToday) {
-                dayClass += ' ring-2 ring-blue-400';
-            }
-            
-            calendarHTML += `
-                <div class="${dayClass} relative" 
-                     onclick="selectDate(${day}, ${month + 1}, ${year})"
-                     title="${tooltip}"
-                     data-available="${availability.available}"
-                     data-total="${totalUnits}">
-                    <div class="flex flex-col items-center">
-                        <span class="text-xs font-medium">${dayContent}</span>
-                        <span class="text-xs opacity-75 mobile-only">${availabilityText}</span>
-                    </div>
-                </div>
-            `;
-        }
-        
-        calendarHTML += '</div>';
-        calendar.innerHTML = calendarHTML;
+    const date = new Date(year, month, day);
+    const dateStr = date.toISOString().split('T')[0];
+    const availability = calculateAvailability(dateStr);
+    const isToday = isSameDay(date, new Date());
+    const isPast = date < new Date() && !isToday;
+    
+    let dayClass = 'h-8 flex items-center justify-center text-sm cursor-pointer rounded transition-all duration-200 hover:scale-105 ';
+    let dayContent = day;
+    let tooltip = `วันที่ ${day}/${month + 1}/${year}`;
+    let availabilityText = '';
+    
+    if (isPast) {
+        dayClass += 'bg-gray-100 text-gray-400 cursor-not-allowed';
+        availabilityText = 'ผ่านไปแล้ว';
+    } else if (availability.available === 0) {
+        dayClass += 'bg-red-100 border border-red-300 text-red-700 hover:bg-red-200';
+        dayContent += ' ✕';
+        tooltip += ` - ไม่ว่าง (0/${totalUnits})`;
+        availabilityText = 'ไม่ว่าง';
+    } else {
+        dayClass += 'bg-green-50 border border-green-200 text-green-700 hover:bg-green-100';
+        tooltip += ` - ว่าง ${availability.available}/${totalUnits} ชิ้น`;
+        availabilityText = `ว่าง ${availability.available}/${totalUnits}`;
     }
+    
+    if (isToday) {
+        dayClass += ' ring-2 ring-blue-400';
+    }
+    
+    calendarHTML += `
+        <div class="${dayClass} relative" 
+             onclick="selectDate(${day}, ${month + 1}, ${year})"
+             title="${tooltip}"
+             data-available="${availability.available}"
+             data-total="${totalUnits}">
+            <div class="flex flex-col items-center">
+                <span class="text-xs font-medium">${dayContent}</span>
+                <span class="text-xs opacity-75 mobile-only">${availabilityText}</span>
+            </div>
+        </div>
+    `;
+}
 
-    function calculateAvailability(dateStr) {
-        let available = totalUnits;
-        
-        availabilityData.forEach(item => {
-            const itemStart = new Date(item.start_at);
-            const itemEnd = new Date(item.end_at);
-            const checkDate = new Date(dateStr);
-            
-            if (checkDate >= itemStart && checkDate <= itemEnd) {
-                available--;
-            }
-        });
-        
-        return {
-            available: Math.max(0, available),
-            total: totalUnits
-        };
+calendarHTML += '</div>';
+calendar.innerHTML = calendarHTML;
+
+
+function calculateAvailability(dateStr) {
+    let available = totalUnits;
+    const checkDate = normalize(dateStr);
+
+    availabilityData.forEach(item => {
+        const itemStart = normalize(item.start_at);
+        const itemEnd   = normalize(item.end_at);
+        if (checkDate >= itemStart && checkDate < itemEnd) {
+            available -= (item.count || 1);
+        }
+    });
+
+    return {
+        available: Math.max(0, available),
+        total: totalUnits
+    };
+}
+
+
+function normalize(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
     }
 
     function selectDate(day, month, year) {
