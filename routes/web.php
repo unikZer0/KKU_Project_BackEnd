@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\EquipmentItemController;
+use App\Http\Controllers\Admin\AccessoryController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BorrowRequestController;
@@ -62,6 +63,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/bulk-update', [EquipmentItemController::class, 'bulkUpdate'])->name('admin.equipment-items.bulk-update');
         });
 
+        // Accessories management
+        Route::prefix('admin/accessories')->group(function () {
+            Route::post('/store', [AccessoryController::class, 'store'])->name('admin.accessories.store');
+            Route::put('/update/{id}', [AccessoryController::class, 'update'])->name('admin.accessories.update');
+            Route::delete('/destroy/{id}', [AccessoryController::class, 'destroy'])->name('admin.accessories.destroy');
+            Route::get('/by-equipment', [AccessoryController::class, 'getByEquipment'])->name('admin.accessories.by-equipment');
+        });
+
         // Category management
         Route::prefix('admin/category')->group(function () {
             Route::post('/store', [CategoryController::class, 'store'])->name('admin.category.store');
@@ -114,6 +123,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [EquipmentItemController::class, 'index'])->name('admin.equipment-items.index');
             Route::get('/equipment/{equipmentId}', [EquipmentItemController::class, 'getByEquipment'])->name('admin.equipment-items.by-equipment');
            
+        });
+        Route::prefix('admin/accessories')->group(function () {
+            Route::get('/', [AccessoryController::class, 'index'])->name('admin.accessories.index');
         });
         Route::prefix('admin/user')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('admin.user.index');
