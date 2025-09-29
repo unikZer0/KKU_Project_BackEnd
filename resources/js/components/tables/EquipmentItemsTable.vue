@@ -1,12 +1,11 @@
 <template>
-    <!-- Breadcrumb -->
+    <div class="bg-white p-6 rounded-lg shadow">
     <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
         <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
         <span>/</span>
         <span class="font-semibold text-gray-900">หน้าจัดการรายการอุปกรณ์</span>
     </nav>
 
-    <div class="bg-white p-6 rounded-lg shadow">
         <div class="relative mb-4">
             <input type="text" v-model="searchQuery" placeholder="ค้นหา..."
                 class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
@@ -235,7 +234,7 @@ export default {
             sortKey: "created_at",
             sortDirection: "desc",
             statuses: ["available", "unavailable", "maintenance", "retired"],
-            conditions: ["Good", "Fair", "Poor"],
+            conditions: ["สภาพดี", "สามารถซ่อมได้", "ไม่สามารถซ่อมได้", "พัง", "อุปกรณ์ไม่พร้อมใช้งาน"],
             searchQuery: "",
             currentPage: 1,
             pageSize: 15,
@@ -371,11 +370,15 @@ export default {
         },
         getConditionClass(condition) {
             switch (condition) {
-                case "Good":
+                case "สภาพดี":
                     return "bg-green-100 text-green-800";
-                case "Fair":
+                case "สามารถซ่อมได้":
                     return "bg-yellow-100 text-yellow-800";
-                case "Poor":
+                case "ไม่สามารถซ่อมได้":
+                    return "bg-red-100 text-red-800";
+                case "พัง":
+                    return "bg-red-100 text-red-800";
+                case "อุปกรณ์ไม่พร้อมใช้งาน":
                     return "bg-red-100 text-red-800";
                 default:
                     return "bg-gray-100 text-gray-800";

@@ -1,12 +1,11 @@
 <template>
-    <!-- Breadcrumb -->
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-        <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
-        <span>/</span>
-        <span class="font-semibold text-gray-900">หน้าจัดการอุปกรณ์</span>
-    </nav>
-
     <div class="bg-white p-6 rounded-lg shadow">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+            <a href="/admin" class="hover:text-gray-700">แดชบอร์ด</a>
+            <span>/</span>
+            <span class="font-semibold text-gray-900">หน้าจัดการอุปกรณ์</span>
+        </nav>
         <div class="relative mb-4">
             <input type="text" v-model="searchQuery" placeholder="Search"
                 class="pl-10 pr-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -400,7 +399,7 @@ export default {
                 payload.items.forEach((item, index) => {
                     if (item.id) formData.append(`items[${index}][id]`, item.id);
                     formData.append(`items[${index}][serial_number]`, item.serial_number || "");
-                    formData.append(`items[${index}][condition]`, item.condition || "Good");
+                    formData.append(`items[${index}][condition]`, item.condition || "สภาพดี");
                     formData.append(`items[${index}][status]`, item.status || "available");
                 });
             }
@@ -420,7 +419,7 @@ export default {
                     formData.append(`accessories[${index}][description]`, accessory.description || "");
                     formData.append(`accessories[${index}][serial_number]`, accessory.serial_number || "");
                     formData.append(`accessories[${index}][equipment_item_id]`, accessory.equipment_item_id || "");
-                    formData.append(`accessories[${index}][condition]`, accessory.condition || "Good");
+                    formData.append(`accessories[${index}][condition]`, accessory.condition || "สภาพดี");
                     formData.append(`accessories[${index}][status]`, accessory.status || "available");
                 });
             }
@@ -602,7 +601,7 @@ export default {
             if (payload.items && payload.items.length > 0) {
                 payload.items.forEach((item, index) => {
                     formData.append(`items[${index}][serial_number]`, item.serial_number || "");
-                    formData.append(`items[${index}][condition]`, item.condition || "Good");
+                    formData.append(`items[${index}][condition]`, item.condition || "สภาพดี");
                     formData.append(`items[${index}][status]`, item.status || "available");
                 });
             }
@@ -614,7 +613,7 @@ export default {
                     formData.append(`accessories[${index}][description]`, accessory.description || "");
                     formData.append(`accessories[${index}][serial_number]`, accessory.serial_number || "");
                     formData.append(`accessories[${index}][equipment_item_id]`, accessory.equipment_item_id || "");
-                    formData.append(`accessories[${index}][condition]`, accessory.condition || "Good");
+                    formData.append(`accessories[${index}][condition]`, accessory.condition || "สภาพดี");
                     formData.append(`accessories[${index}][status]`, accessory.status || "available");
                 });
             }
